@@ -1,0 +1,11 @@
+Machine specific overlay for AM335x based boards by pironex
+
+Initially this repo will also include image and package specific changes
+used to generate images for piA-AM335x.
+
+
+Dependencies
+============
+
+- OE layers as created by the Angstrom setup-scripts
+- current base release version v2012.05
