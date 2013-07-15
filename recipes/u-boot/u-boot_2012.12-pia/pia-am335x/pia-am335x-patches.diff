@@ -236,7 +236,7 @@ index 6d1d434..9d6c2a0 100644
  SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
  OBJS	:= $(addprefix $(obj),$(COBJS))
 diff --git a/board/ti/am335xpia/mux.c b/board/ti/am335xpia/mux.c
-index 9fcfe63..2775930 100644
+index 9fcfe63..6ca5a95 100644
 --- a/board/ti/am335xpia/mux.c
 +++ b/board/ti/am335xpia/mux.c
 @@ -14,10 +14,12 @@
@@ -435,7 +435,7 @@ index 9fcfe63..2775930 100644
 +	gpio_request(CONFIG_E2_WD_SET1_GPIO, "wd_set1");
 +	gpio_direction_output(CONFIG_E2_WD_SET1_GPIO, 1);
 +	gpio_request(CONFIG_E2_WD_SET2_GPIO, "wd_set2");
-+	gpio_direction_output(CONFIG_E2_WD_SET2_GPIO, 1);
++	gpio_direction_output(CONFIG_E2_WD_SET2_GPIO, 0);
 +	gpio_request(CONFIG_E2_24V_FAIL_GPIO, "fail_24v");
 +	gpio_direction_input(CONFIG_E2_24V_FAIL_GPIO);
 +}
@@ -453,7 +453,7 @@ index 9fcfe63..2775930 100644
 +	init_pia_gpios();
 +}
 diff --git a/board/ti/am335xpia/pia.c b/board/ti/am335xpia/pia.c
-index 4e1db22..d90c2c7 100644
+index 4e1db22..978388c 100644
 --- a/board/ti/am335xpia/pia.c
 +++ b/board/ti/am335xpia/pia.c
 @@ -17,8 +17,8 @@
@@ -819,7 +819,7 @@ index 4e1db22..d90c2c7 100644
 +	reg = phy_read(phydev, 29, 22);
 +	debug("  force == 0x%04x\n", reg);
 +
-+	/* resetting ports (ports share regs 0 and 1 */
++	/* resetting ports */
 +	for (i = 0; i < 5; ++i) {
 +		debug(" resettings ports...\n");
 +		phy_write(phydev, i, MII_BMCR, BMCR_RESET);

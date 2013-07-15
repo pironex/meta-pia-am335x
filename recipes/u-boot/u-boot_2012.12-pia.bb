@@ -9,7 +9,7 @@ DEFAULT_PREFERENCE = "100"
 #DEFAULT_PREFERENCE_ti33x = "100"
 
 PV = "2012.12+pia"
-PR = "r3"
+PR = "r4"
 
 # SPL build
 UBOOT_BINARY = "u-boot.img"
