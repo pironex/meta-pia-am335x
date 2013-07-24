@@ -1,6 +1,7 @@
 # Image for assisting in hardware bringup
 
-require systemd-image.bb
+#require systemd-gnome-image.bb
+require efl-nodm-image.bb
 
 IMAGE_INSTALL += " \
 	usbutils \
@@ -11,18 +12,19 @@ IMAGE_INSTALL += " \
 	hdparm \
 	iozone3 \
 	iperf \
-	lmbench \
 	rt-tests \
 	evtest \
 	bc \
 	ethtool \
 	canutils \
 	qt4-embedded-demos \
+	tslib \
 "
+
 
 RRECOMMENDS += " \
 	kernel-module-8021q \
 "
 
-export IMAGE_BASENAME = "e2-test"
+export IMAGE_BASENAME = "mmi-test-gnome"
 
