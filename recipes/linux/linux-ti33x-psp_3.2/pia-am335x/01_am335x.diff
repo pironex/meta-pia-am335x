@@ -1,0 +1,2569 @@
+diff --git a/Documentation/input/edt-ft5x06.txt b/Documentation/input/edt-ft5x06.txt
+deleted file mode 100644
+index 2032f0b..0000000
+--- a/Documentation/input/edt-ft5x06.txt
++++ /dev/null
+@@ -1,54 +0,0 @@
+-EDT ft5x06 based Polytouch devices
+-----------------------------------
+-
+-The edt-ft5x06 driver is useful for the EDT "Polytouch" family of capacitive
+-touch screens. Note that it is *not* suitable for other devices based on the
+-focaltec ft5x06 devices, since they contain vendor-specific firmware. In
+-particular this driver is not suitable for the Nook tablet.
+-
+-It has been tested with the following devices:
+-  * EP0350M06
+-  * EP0430M06
+-  * EP0570M06
+-  * EP0700M06
+-
+-The driver allows configuration of the touch screen via a set of sysfs files:
+-
+-/sys/class/input/eventX/device/device/threshold:
+-    allows setting the "click"-threshold in the range from 20 to 80.
+-
+-/sys/class/input/eventX/device/device/gain:
+-    allows setting the sensitivity in the range from 0 to 31. Note that
+-    lower values indicate higher sensitivity.
+-
+-/sys/class/input/eventX/device/device/offset:
+-    allows setting the edge compensation in the range from 0 to 31.
+-
+-/sys/class/input/eventX/device/device/report_rate:
+-    allows setting the report rate in the range from 3 to 14.
+-
+-
+-For debugging purposes the driver provides a few files in the debug
+-filesystem (if available in the kernel). In /sys/kernel/debug/edt_ft5x06
+-you'll find the following files:
+-
+-num_x, num_y:
+-    (readonly) contains the number of sensor fields in X- and
+-    Y-direction.
+-
+-mode:
+-    allows switching the sensor between "factory mode" and "operation
+-    mode" by writing "1" or "0" to it. In factory mode (1) it is
+-    possible to get the raw data from the sensor. Note that in factory
+-    mode regular events don't get delivered and the options described
+-    above are unavailable.
+-
+-raw_data:
+-    contains num_x * num_y big endian 16 bit values describing the raw
+-    values for each sensor field. Note that each read() call on this
+-    files triggers a new readout. It is recommended to provide a buffer
+-    big enough to contain num_x * num_y * 2 bytes.
+-
+-Note that reading raw_data gives a I/O error when the device is not in factory
+-mode. The same happens when reading/writing to the parameter files when the
+-device is not in regular operation mode.
+diff --git a/arch/arm/mach-omap2/Kconfig b/arch/arm/mach-omap2/Kconfig
+index 73e3890..8dea98b 100644
+--- a/arch/arm/mach-omap2/Kconfig
++++ b/arch/arm/mach-omap2/Kconfig
+@@ -342,7 +342,7 @@ config MACH_AM335XIAEVM
+ 	depends on SOC_OMAPAM33XX
+ 	default y
+ 
+-config MACH_AM335XPIA
++config MACH_PIA_AM335X
+ 	bool "pironex piA-AM335X boards"
+ 	depends on SOC_OMAPAM33XX
+ 	default y
+diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
+index 0bef4f9..8b526af 100644
+--- a/arch/arm/mach-omap2/Makefile
++++ b/arch/arm/mach-omap2/Makefile
+@@ -255,7 +255,7 @@ obj-$(CONFIG_MACH_TI8168EVM)		+= board-ti8168evm.o
+ obj-$(CONFIG_MACH_TI8148EVM)		+= board-ti8168evm.o
+ obj-$(CONFIG_MACH_AM335XEVM)		+= board-am335xevm.o
+ obj-$(CONFIG_MACH_AM335XIAEVM)		+= board-am335xevm.o
+-obj-$(CONFIG_MACH_AM335XPIA)		+= board-am335xpia.o
++obj-$(CONFIG_MACH_PIA_AM335X)		+= board-am335xpia.o
+ 
+ # Platform specific device init code
+ 
+diff --git a/arch/arm/mach-omap2/board-am335xpia.c b/arch/arm/mach-omap2/board-am335xpia.c
+index 16de49c..357a1ef 100644
+--- a/arch/arm/mach-omap2/board-am335xpia.c
++++ b/arch/arm/mach-omap2/board-am335xpia.c
+@@ -34,6 +34,7 @@
+ #include <video/da8xx-fb.h>
+ 
+ #include <mach/hardware.h>
++#include <mach/board-am335xpia.h>
+ 
+ #include <asm/mach-types.h>
+ #include <asm/mach/arch.h>
+@@ -71,9 +72,6 @@ static char am335x_mac_addr[2][ETH_ALEN];
+ /* Convert GPIO signal to GPIO pin number */
+ #define GPIO_TO_PIN(bank, gpio) (32 * (bank) + (gpio))
+ 
+-#define PIA335_KM_E2		20
+-#define PIA335_KM_MMI		21
+-
+ /*
+ * EVM Config held in On-Board eeprom device.
+ *
+@@ -112,6 +110,19 @@ struct pia335x_eeprom_config {
+ };
+ static struct pia335x_eeprom_config config;
+ 
++static int am33xx_piaid = -EINVAL;
++
++/*
++* am335x_pia_get_id - returns Board Type (PIA335_KM_E2/PIA335_KM_MMI ...)
++*
++* Note:
++*	returns -EINVAL if Board detection hasn't happened yet.
++*/
++int am335x_pia_get_id(void)
++{
++	return am33xx_piaid;
++}
++EXPORT_SYMBOL(am335x_pia_get_id);
+ 
+ /** PINMUX **/
+ struct pinmux_config {
+@@ -146,28 +157,57 @@ static struct omap_board_mux board_mux[] __initdata = {
+ 			AM33XX_INPUT_EN | AM33XX_PIN_OUTPUT),
+ 	AM33XX_MUX(I2C0_SCL, OMAP_MUX_MODE0 | AM33XX_SLEWCTRL_SLOW |
+ 			AM33XX_INPUT_EN | AM33XX_PIN_OUTPUT),
+-	/* I2C1*/
+-	AM33XX_MUX(UART0_CTSN, OMAP_MUX_MODE3 | AM33XX_SLEWCTRL_SLOW |
+-			AM33XX_INPUT_EN | AM33XX_PIN_OUTPUT),
+-	AM33XX_MUX(UART0_RTSN, OMAP_MUX_MODE3 | AM33XX_SLEWCTRL_SLOW |
+-			AM33XX_INPUT_EN | AM33XX_PIN_OUTPUT),
+-	/* RS485 / UART3 */
+-	AM33XX_MUX(MII1_RXD2, OMAP_MUX_MODE1 | AM33XX_PULL_ENBL),
+-	AM33XX_MUX(MII1_RXD3, OMAP_MUX_MODE1 | AM33XX_INPUT_EN),
+-	/* PMIC INT */
+-	AM33XX_MUX(MII1_TXD0, OMAP_MUX_MODE7 | AM33XX_INPUT_EN |
+-			AM33XX_PULL_UP | AM33XX_PULL_ENBL),
+ 	{ .reg_offset = OMAP_MUX_TERMINATOR },
+ };
+ #else
+ #define	board_mux	NULL
+ #endif
+ 
++static struct pinmux_config km_e2_board_pin_mux[] = {
++	/* PMIC INT */
++	{ "mii1_txd0.gpio0_28", AM33XX_PIN_INPUT_PULLUP },
++	/* I2C1*/
++	{ "uart0_ctsn.i2c1_sda",
++			AM33XX_PIN_INPUT_PULLUP | AM33XX_SLEWCTRL_SLOW },
++	{ "uart0_rtsn.i2c1_scl",
++			AM33XX_PIN_INPUT_PULLUP | AM33XX_SLEWCTRL_SLOW },
++	{NULL, 0},
++};
++
+ static struct pinmux_config clkout2_pin_mux[] = {
+ 	{"xdma_event_intr1.clkout2", OMAP_MUX_MODE3 | AM33XX_PIN_OUTPUT},
+ 	{NULL, 0},
+ };
+ 
++/* GPIO pin mux for KM MMI */
++/* MMI: Watchdog */
++#define GPIO_MMI_WDI		GPIO_TO_PIN(1, 0)
++#define GPIO_MMI_WD_SET1	GPIO_TO_PIN(1, 1)
++#define GPIO_MMI_WD_SET2	GPIO_TO_PIN(1, 2)
++/* MMI: LCD GPIOs */
++#define GPIO_LCD_DISP		GPIO_TO_PIN(1,28)
++#define GPIO_LCD_BACKLIGHT	GPIO_TO_PIN(3,17)
++#define GPIO_LCD_PENDOWN	GPIO_TO_PIN(2, 0)
++/*#define GPIO_LCD_TOUCH_WAKE	GPIO_TO_PIN(2, 1)*/
++/* MMI: TPS */
++#define GPIO_MMI_PMIC_INT	GPIO_TO_PIN(2, 1)
++#define GPIO_MMI_PMIC_WAKE	GPIO_TO_PIN(3,16)
++
++
++static struct pinmux_config km_mmi_gpio_pin_mux[] = {
++	/* PMIC INT   2_1 */
++	/* PMIC SLEEP 3_16 */
++	/* WDI        1_0 */
++	{"gpmc_ad0.gpio1_0", AM33XX_PIN_OUTPUT},
++	/* WD_SET1  1_1 */
++	{"gpmc_ad1.gpio1_1", AM33XX_PIN_OUTPUT},
++	/* WD_SET2	1_2 */
++	{"gpmc_ad2.gpio1_2", AM33XX_PIN_OUTPUT},
++	/* 3.3V_Fail 3_20 */
++	{"mcasp0_axr1.gpio3_20", AM33XX_PIN_INPUT_PULLUP},
++	/* XDMA_EVENT_INTR0 CLKOUT2 not used */
++	{NULL, 0},
++};
+ 
+ /* Module pin mux for LCDC on board KM MMI*/
+ static struct pinmux_config lcdc_pin_mux[] = {
+@@ -215,66 +255,63 @@ static struct pinmux_config lcdc_pin_mux[] = {
+ 	{"lcd_hsync.lcd_hsync",		OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
+ 	{"lcd_pclk.lcd_pclk",		OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
+ 	{"lcd_ac_bias_en.lcd_ac_bias_en", OMAP_MUX_MODE0 | AM33XX_PIN_OUTPUT},
++	/* display enable GPIO */
+ 	{"gpmc_ben1.gpio1_28", 		OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT},
++	/* backlight GPIO */
+ 	{"mcasp0_ahclkr.gpio3_17", 	OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT},
+ 	{NULL, 0},
+ };
+ 
+-/* piA335x_MMI: LCD GPIOs */
+-#define GPIO_LCD_DISP		GPIO_TO_PIN(1,28)
+-#define GPIO_LCD_BACKLIGHT	GPIO_TO_PIN(3,17)
+-
+-/* Touch interface */
+-/*#if defined(CONFIG_INPUT_TOUCHSCREEN) && \
+-    defined(CONFIG_TOUCHSCREEN_TSC2007)*/
+-#if 0
+-//TODO: add touch driver for J043WQCN0101 Display
+-
+-/* Pen Down IRQ, low active */
+-#define GPIO_LCD_PENDOWN GPIO_TO_PIN(2,0);
+-static int pia335x_j043wqcn_pendown(void)
+-{
+-	return !gpio_get_value(GPIO_LCD_PENDOWN);
+-}
+-
+-static int pia335x_j043wqcn_init_hw(void)
+-{
+-	int gpio = GPIO_LCD_PENDOWN;
+-	int ret = 0;
+-	pr_info("pia335x_init: init J043WQCN0101\n");
+-	ret = gpio_request_one(gpio, GPIOF_DIR_IN, "j043wqcn_pen_down");
+-	if (ret < 0) {
+-		pr_err("Failed to request GPIO_LCD_PENDOWN: %d\n", ret);
+-		return ret;
+-	}
+-	gpio_set_debounce(gpio, 0xa);
+-	omap_mux_init_gpio(GPIO_LCD_PENDOWN, OMAP_PIN_INPUT_PULLUP);
+-	irq_set_irq_type(OMAP_GPIO_IRQ(GPIO_LCD_PENDOWN), IRQ_TYPE_EDGE_FALLING);
++#include <linux/input/ft5x06_ts.h>
+ 
+-	return ret;
+-}
+-
+-static struct j043wqcn_platform_data j043wqcn_info = {
+-	.model = 2007,
+-	.x_plate_ohms = 180,
+-	.get_pendown_state = pia335x_j043wqcn_pendown,
+-	.init_platform_hw = pia335x_j043wqcn_init_hw,
++/* Touch GPIOs */
++static struct pinmux_config km_mmi_touch_pin_mux[] = {
++	/* touch INT */
++	{"gpmc_csn3.gpio2_0",		AM33XX_PIN_INPUT_PULLUP},
++	/* touch wake */
++	{"gpmc_clk.gpio2_1",		AM33XX_PIN_INPUT_PULLUP},
++	{NULL, 0},
+ };
+ 
+-/* FIXME: i2c bus */
+-static struct i2c_board_info __initdata pia335x_i2c1_j043wqcn[] = {
++/* Touch interface FT5406 */
++#if defined(CONFIG_TOUCHSCREEN_FT5X06) || \
++	defined(CONFIG_TOUCHSCREEN_EDT_FT5X06_MODULE)
++static struct ft5x06_ts_platform_data km_mmi_touch_data = {
++	.x_max    = 480,
++	.y_max    = 272,
++	.irq_gpio = GPIO_LCD_PENDOWN,
++	.irqflags = IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++};
++static struct i2c_board_info km_mmi_i2c1_touch[] = {
+ 	{
+-		I2C_BOARD_INFO("j043wqcn", 0x4B),	/* TODO: which i2c-address? */
++		/* j043wqcn */
++		I2C_BOARD_INFO("ft5x06_ts", 0x38),
+ 		.irq = OMAP_GPIO_IRQ(GPIO_LCD_PENDOWN),
+-		.platform_data = &j043wqcn_info,
+-	},
++		.platform_data = &km_mmi_touch_data,
++	}
+ };
+ 
+-static void __init pia335x_touch_init(void)
++static void pia335x_touch_init(void)
+ {
+-	pr_info("pia335x_init: init touch controller J043WQCN0101\n");
+-	i2c_register_board_info(1, pia335x_i2c1_j043wqcn,
+-			ARRAY_SIZE(pia335x_i2c1_j043wqcn));
++	struct i2c_adapter *adapter;
++	struct i2c_client *client;
++
++	pr_info("pia335x_init: init touch controller FT5x06\n");
++
++	setup_pin_mux(km_mmi_touch_pin_mux);
++
++	/* I2C adapter request */
++	adapter = i2c_get_adapter(1);
++	if (!adapter) {
++		pr_err("failed to get adapter i2c%u\n", 1);
++		return;
++	}
++	client = i2c_new_device(adapter, km_mmi_i2c1_touch);
++
++	if (!client)
++		pr_err("failed to register ft5x06 to i2c%u\n", 1);
++
++	i2c_put_adapter(adapter);
+ }
+ #else
+ static void __init pia335x_touch_init(void)
+@@ -305,7 +342,8 @@ static struct lcd_ctrl_config lcd_cfg = {
+ 	.raster_order		= 0,
+ };
+ 
+-struct da8xx_lcdc_platform_data  pia335x_NHD_480272MF_ATXI_pdata = {
++struct da8xx_lcdc_platform_data  km_mmi_lcd_pdata = {
++	/* display is a J043WQCN0101, works as NHD-4.3-ATXI */
+ 	.manu_name              = "NHD",
+ 	.controller_data        = &lcd_cfg,
+ 	.type                   = "NHD-4.3-ATXI#-T-1",
+@@ -358,7 +396,7 @@ static void pia335x_lcd_init(int id)
+ 	}
+ 	switch (id) {
+ 	case PIA335_KM_MMI:
+-		pia335x_NHD_480272MF_ATXI_pdata.panel_power_ctrl =
++		km_mmi_lcd_pdata.panel_power_ctrl =
+ 				pia335x_mmi_lcd_power_ctrl;
+ 		/* backlight GPIO */
+ 		if ((ret = gpio_request_one(GPIO_LCD_BACKLIGHT,
+@@ -372,34 +410,30 @@ static void pia335x_lcd_init(int id)
+ 		}
+ 
+ 		/* DISPLAY_EN GPIO */
+-		if ((ret = gpio_request_one(GPIO_LCD_DISP,
+-				GPIOF_DIR_OUT | GPIOF_INIT_HIGH, "lcd-disp")) != 0) {
+-			pr_err("%s: GPIO_LCD_DISP request failed: %d\n", __func__, ret);
+-			gpio_free(GPIO_LCD_BACKLIGHT);
++	if ((ret = gpio_request_one(GPIO_LCD_DISP,
++			GPIOF_DIR_OUT | GPIOF_INIT_HIGH, "lcd-disp")) != 0) {
++		pr_err("%s: GPIO_LCD_DISP request failed: %d\n", __func__, ret);
++		gpio_free(GPIO_LCD_BACKLIGHT);
+ 			return;
+ 		} else {
+ 			//gpio_direction_output(GPIO_LCD_DISP, 1);
+ 			omap_mux_init_gpio(GPIO_LCD_DISP, OMAP_PIN_INPUT_PULLDOWN);
+ 			gpio_export(GPIO_LCD_DISP, true);
+ 		}
++		lcdc_pdata = &km_mmi_lcd_pdata;
+ 
+-		pr_info("pia335x_init: init LCD\n");
+-		lcdc_pdata = &pia335x_NHD_480272MF_ATXI_pdata;
+-
+-		/* initialize touch interface only for LCD display */
+-		pia335x_touch_init();
+ 		break;
+ 	default:
+ 		pr_err("LCDC not supported on this device (%d)\n", id);
+ 		return;
+ 	}
+ 
++	pr_info("pia335x_init: init LCD: %s\n", lcdc_pdata->type);
+ 	if (am33xx_register_lcdc(lcdc_pdata))
+ 		pr_info("Failed to register LCDC device\n");
+ 
+-	if (am33xx_register_mfd_tscadc(&tscadc))
+-		pr_err("failed to register touchscreen device\n");
+-	return;
++	/* initialize touch interface only for LCD display */
++	pia335x_touch_init();
+ 
+ 	return;
+ }
+@@ -528,10 +562,9 @@ static struct pinmux_config km_e2_leds_pin_mux[] = {
+ };
+ 
+ static struct pinmux_config km_e2_rs485_pin_mux[] = {
+-	/* signal not implemented in mux33xx.c
+-	{"mii1_rxd2.uart3_txd", OMAP_MUX_MODE1 | AM33XX_PIN_INPUT_PULLUP},
+-	{"mii1_rxd3.uart3_rxd", OMAP_MUX_MODE1 | AM33XX_PULL_ENBL},*/
+ 	{"lcd_data11.gpio2_17", OMAP_MUX_MODE7 | AM33XX_PIN_INPUT_PULLUP},
++	{"mii1_rxd2.uart3_txd", AM33XX_PIN_OUTPUT_PULLUP},
++	{"mii1_rxd3.uart3_rxd", AM33XX_PIN_INPUT_PULLUP},
+ 	{NULL, 0},
+ };
+ 
+@@ -624,6 +657,22 @@ static void km_e2_clkout2_enable(void)
+ 	setup_pin_mux(clkout2_pin_mux);
+ }
+ 
++static void km_mmi_clkout2_enable(void)
++{
++	/* code to enable default 32k clock output*/
++	struct clk *ck_32;
++
++	ck_32 = clk_get(NULL, "clkout2_ck");
++	if (IS_ERR(ck_32)) {
++		pr_err("Cannot clk_get ck_32\n");
++		return;
++	}
++
++	clk_enable(ck_32);
++
++	setup_pin_mux(clkout2_pin_mux);
++}
++
+ /* NAND partition information */
+ static struct mtd_partition pia335x_nand_partitions[] = {
+ /* All the partition sizes are listed in terms of NAND block size */
+@@ -846,6 +895,10 @@ static void mmc0_init(int pia_id)
+ 		setup_pin_mux(mmc0_e2_pin_mux);
+ 		break;
+ 	case PIA335_KM_MMI:
++		/* not used on KM MMI */
++		pia335x_mmc[0].gpio_wp = -EINVAL;
++		pia335x_mmc[0].gpio_cd = -EINVAL,
++		pia335x_mmc[0].nonremovable = true,
+ 		setup_pin_mux(mmc0_mmi_pin_mux);
+ 		break;
+ 	}
+@@ -866,6 +919,7 @@ static struct gpio_led gpio_leds[] = {
+ 	{
+ 		.name			= "am335x:KM_MMI:usr2",
+ 		.gpio			= GPIO_TO_PIN(0, 31),	/* LED2 */
++		.default_trigger	= "mmc0",
+ 	},
+ };
+ 
+@@ -1187,22 +1241,175 @@ static int pia335x_rtc_init(void)
+ 	return 0;
+ }
+ 
++static struct omap_musb_board_data musb_board_data = {
++	.interface_type	= MUSB_INTERFACE_ULPI,
++	/*
++	 * mode[0:3] = USB0PORT's mode
++	 * mode[4:7] = USB1PORT's mode
++	 */
++	.mode           = (MUSB_HOST << 4) | MUSB_OTG,
++	.power		= 500,
++	.instances	= 1,
++};
++
++/* Accelerometer LIS331DLH */
++#include <linux/lis3lv02d.h>
++
++static struct lis3lv02d_platform_data lis331dlh_pdata = {
++	.click_flags = LIS3_CLICK_SINGLE_X |
++			LIS3_CLICK_SINGLE_Y |
++			LIS3_CLICK_SINGLE_Z,
++	.wakeup_flags = LIS3_WAKEUP_X_LO | LIS3_WAKEUP_X_HI |
++			LIS3_WAKEUP_Y_LO | LIS3_WAKEUP_Y_HI |
++			LIS3_WAKEUP_Z_LO | LIS3_WAKEUP_Z_HI,
++	.irq_cfg = LIS3_IRQ1_CLICK | LIS3_IRQ2_CLICK,
++	.wakeup_thresh	= 10,
++	.click_thresh_x = 10,
++	.click_thresh_y = 10,
++	.click_thresh_z = 10,
++	.g_range	= 2,
++	.st_min_limits[0] = 120,
++	.st_min_limits[1] = 120,
++	.st_min_limits[2] = 140,
++	.st_max_limits[0] = 550,
++	.st_max_limits[1] = 550,
++	.st_max_limits[2] = 750,
++};
++
++static struct i2c_board_info lis331dlh_i2c_boardinfo[] = {
++	{
++		I2C_BOARD_INFO("lis331dlh", 0x18),
++		.platform_data = &lis331dlh_pdata,
++	},
++};
++
++static void lis331dlh_init(void)
++{
++	struct i2c_adapter *adapter;
++	struct i2c_client *client;
++	unsigned int i2c_instance;
++
++	i2c_instance = 1;
++
++	/* I2C adapter request */
++	adapter = i2c_get_adapter(i2c_instance);
++	if (!adapter) {
++		pr_err("failed to get adapter i2c%u\n", i2c_instance);
++		return;
++	}
++
++	client = i2c_new_device(adapter, lis331dlh_i2c_boardinfo);
++	if (!client)
++		pr_err("failed to register lis331dlh to i2c%u\n", i2c_instance);
++
++	i2c_put_adapter(adapter);
++}
++
++/*
++ * Audio
++ */
++
++/* Enable clkout1 */
++static struct pinmux_config clkout1_pin_mux[] = {
++	/*
++	 * Setting clkout1 pin-mux manually will allow user
++	 * to extract raw oscillator clock (Master_OSC)
++	 */
++	{"xdma_event_intr0.clkout1", OMAP_MUX_MODE3 | AM33XX_PIN_OUTPUT},
++	{NULL, 0},
++};
++
++/* Module pin mux for mcasp0 */
++static struct pinmux_config mcasp0_pin_mux[] = {
++	/* Audio.BCLK */
++	{"mcasp0_aclkx.mcasp0_aclkx", OMAP_MUX_MODE0 | AM33XX_PIN_INPUT_PULLDOWN},
++	/* Audio.FSX */
++	{"mcasp0_fsx.mcasp0_fsx", OMAP_MUX_MODE0 | AM33XX_PIN_INPUT_PULLDOWN},
++	/* Audio.DIN */
++	{"mcasp0_aclkr.mcasp0_axr2", OMAP_MUX_MODE2 | AM33XX_PIN_INPUT_PULLDOWN},
++	/* Audio.DOUT */
++	{"mcasp0_ahclkx.mcasp0_axr3", OMAP_MUX_MODE2 | AM33XX_PIN_INPUT_PULLDOWN},
++	{NULL, 0},
++};
++
++static u8 am335x_iis_serializer_direction1[] = {
++	INACTIVE_MODE,	INACTIVE_MODE,	TX_MODE,	RX_MODE,
++	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,
++	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,
++	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,	INACTIVE_MODE,
++};
++
++static struct snd_platform_data am335x_km_mmi_snd_data1 = {
++	.tx_dma_offset	= 0x46000000,	/* McASP1 */
++	.rx_dma_offset	= 0x46000000,
++	.op_mode	= DAVINCI_MCASP_IIS_MODE,
++	.num_serializer	= ARRAY_SIZE(am335x_iis_serializer_direction1),
++	.tdm_slots	= 2,
++	.serial_dir	= am335x_iis_serializer_direction1,
++	.asp_chan_q	= EVENTQ_2,
++	.version	= MCASP_VERSION_3,
++	.txnumevt	= 1,
++	.rxnumevt	= 1,
++};
++
++/* Setup McASP 0 */
++static void mcasp0_init(int pia_id)
++{
++	/* Configure McASP */
++	setup_pin_mux(mcasp0_pin_mux);
++	switch (pia_id) {
++	case PIA335_KM_MMI:
++		am335x_register_mcasp(&am335x_km_mmi_snd_data1, 0);
++		break;
++	default:
++		break;
++	}
++
++	return;
++}
++
++static struct i2c_board_info tlv320aic3x_i2c_boardinfo[] = {
++	{
++		I2C_BOARD_INFO("tlv320aic3x", 0x1b),
++	},
++};
++
++static void tlv320aic3x_i2c_init(void)
++{
++	struct i2c_adapter *adapter;
++	struct i2c_client *client;
++	unsigned int i2c_instance = 1;
++
++	/* I2C adapter request */
++	adapter = i2c_get_adapter(i2c_instance);
++	if (!adapter) {
++		pr_err("failed to get adapter i2c%u\n", i2c_instance);
++		return;
++	}
++
++	client = i2c_new_device(adapter, tlv320aic3x_i2c_boardinfo);
++	if (!client)
++		pr_err("failed to register tlv320aic3x to i2c%u\n", i2c_instance);
++
++	i2c_put_adapter(adapter);
++}
++
+ static void setup_e2(void)
+ {
+ 	pr_info("piA335x: Setup KM E2.\n");
++	am33xx_piaid = PIA335_KM_E2;
+ 	/* EVM - Starter Kit */
+ /*	static struct evm_dev_cfg evm_sk_dev_cfg[] = {
+ 		{mmc1_wl12xx_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
+ 		{enable_ecap2,     DEV_ON_BASEBOARD, PROFILE_ALL},
+-		{mfd_tscadc_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
+ 		{gpio_keys_init,  DEV_ON_BASEBOARD, PROFILE_ALL},
+ 		{lis331dlh_init, DEV_ON_BASEBOARD, PROFILE_ALL},
+ 		{mcasp1_init,   DEV_ON_BASEBOARD, PROFILE_ALL},
+ 		{uart1_wl12xx_init, DEV_ON_BASEBOARD, PROFILE_ALL},
+-		{wl12xx_init,       DEV_ON_BASEBOARD, PROFILE_ALL},
+ 		{gpio_ddr_vtt_enb_init,	DEV_ON_BASEBOARD, PROFILE_ALL},
+ 		{NULL, 0, 0},
+ 	};*/
++	setup_pin_mux(km_e2_board_pin_mux);
+ 	pia335x_rtc_init();
+ 	km_e2_i2c2_init(); /* second i2c bus */
+ 	mmc0_init(PIA335_KM_E2);
+@@ -1219,32 +1426,38 @@ static void setup_e2(void)
+ 	km_e2_rs485_init();
+ 	km_e2_ls7366_init();
+ 
++	pr_info("piA335x: musb_init\n");
++	usb_musb_init(&musb_board_data);
++
+ 	pr_info("piA335x: cpsw_init\n");
+ 	am33xx_cpsw_init(AM33XX_CPSW_MODE_MII, "0:1e", "0:00");
+ }
+ 
+ static void setup_mmi(void)
+ {
+-	pr_info("piA335x: Setup KM MMI.\n");
++	pr_info("piA335x MMI: Setup KM MMI.\n");
++	am33xx_piaid = PIA335_KM_MMI;
++
++	setup_pin_mux(km_mmi_gpio_pin_mux);
+ 
+ 	pia335x_rtc_init();
+ 
+ 	mmc0_init(PIA335_KM_MMI);
+ 
+-	/* KM MMI has Micro-SD slot which doesn't have Write Protect pin */
+-	pia335x_mmc[0].gpio_wp = -EINVAL;
+ 
+-	/* KM MMI has Micro-SD slot which doesn't have Card Detect pin */
+-	pia335x_mmc[0].gpio_cd = -EINVAL,
+-	pia335x_mmc[0].nonremovable	= true,
++	km_mmi_clkout2_enable();
++	lis331dlh_init();
++	/* Enable clkout1 */
++	setup_pin_mux(clkout1_pin_mux);
++	/* Register TLV320AIC3106 on I2C-1 */
++	tlv320aic3x_i2c_init();
++	mcasp0_init(PIA335_KM_MMI);
+ 
+-	//TODO: add DaVinci Ethernet init
+ 	pr_info("piA335x: cpsw_init\n");
+ 	am33xx_cpsw_init(AM33XX_CPSW_MODE_MII, NULL, NULL);
+ 
+ 	gpio_led_init();
+ 	pia335x_lcd_init(PIA335_KM_MMI);
+-
+ }
+ 
+ void am33xx_cpsw_macidfillup(char *eeprommacid0, char *eeprommacid1);
+@@ -1322,17 +1535,6 @@ out:
+ 	machine_halt();
+ }
+ 
+-static struct omap_musb_board_data musb_board_data = {
+-	.interface_type	= MUSB_INTERFACE_ULPI,
+-	/*
+-	 * mode[0:3] = USB0PORT's mode
+-	 * mode[4:7] = USB1PORT's mode
+-	 */
+-	.mode           = (MUSB_HOST << 4) | MUSB_OTG,
+-	.power		= 500,
+-	.instances	= 1,
+-};
+-
+ /**
+  * I2C devices
+  */
+@@ -1340,7 +1542,7 @@ static struct omap_musb_board_data musb_board_data = {
+ static struct at24_platform_data pia335x_eeprom_info = {
+ 	.byte_len       = 128,
+ 	.page_size      = 8,
+-	.flags          = AT24_FLAG_TAKE8ADDR,
++	.flags          = 0,
+ 	.setup          = pia335x_setup,
+ 	.context        = (void *)NULL,
+ };
+@@ -1367,7 +1569,6 @@ static struct tps65910_board pia335x_tps65910_info = {
+ 	.irq = GPIO_TO_PIN(0, 28),
+ };
+ 
+-
+ static struct i2c_board_info __initdata pia335x_i2c0_boardinfo[] = {
+ 	{
+ 		/* Daughter Board EEPROM */
+@@ -1384,7 +1585,7 @@ static void __init pia335x_i2c_init(void)
+ {
+ 	/* I2C1 must be muxed in u-boot */
+ 	pr_info("piA335x: %s", __func__);
+-	omap_register_i2c_bus(1, 100, pia335x_i2c0_boardinfo,
++	omap_register_i2c_bus(1, 400, pia335x_i2c0_boardinfo,
+ 				ARRAY_SIZE(pia335x_i2c0_boardinfo));
+ }
+ 
+@@ -1465,8 +1666,6 @@ static void __init pia335x_init(void)
+ 	pia335x_i2c_init();
+ 	pr_info("piA335x: sdrc_init\n");
+ 	omap_sdrc_init(NULL, NULL);
+-	pr_info("piA335x: musb_init\n");
+-	usb_musb_init(&musb_board_data);
+ 	/* XXX what for? */
+ 	omap_board_config = pia335x_config;
+ 	omap_board_config_size = ARRAY_SIZE(pia335x_config);
+diff --git a/arch/arm/mach-omap2/include/mach/board-am335xevm.h b/arch/arm/mach-omap2/include/mach/board-am335xevm.h
+index 650cfdc..c40a5b0 100644
+--- a/arch/arm/mach-omap2/include/mach/board-am335xevm.h
++++ b/arch/arm/mach-omap2/include/mach/board-am335xevm.h
+@@ -26,7 +26,6 @@
+ #define BEAGLE_BONE_A3		3
+ #define EVM_SK			4
+ #define GEN_PURP_DDR3_EVM	5
+-#define PIA335_KM_E2		20
+ 
+ /* REVIST : check posibility of PROFILE_(x) syntax usage */
+ #define PROFILE_NONE	-1	/* Few EVM doesn't have profiles */
+diff --git a/arch/arm/mach-omap2/include/mach/board-am335xpia.h b/arch/arm/mach-omap2/include/mach/board-am335xpia.h
+new file mode 100644
+index 0000000..119723f
+--- /dev/null
++++ b/arch/arm/mach-omap2/include/mach/board-am335xpia.h
+@@ -0,0 +1,26 @@
++/*
++ * Code for supporting AM335X PIA.
++ *
++ * Copyright (C) {2013} pironex GmbH - http://www.pironex.de/
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation version 2.
++ *
++ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
++ * kind, whether express or implied; without even the implied warranty
++ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#ifndef _BOARD_AM335XPIA_H
++#define _BOARD_AM335XPIA_H
++
++#define PIA335_KM_E2		20
++#define PIA335_KM_MMI		21
++
++#ifndef __ASSEMBLER__
++int am335x_pia_get_id(void);
++
++#endif
++#endif
+diff --git a/arch/arm/mach-omap2/mux33xx.c b/arch/arm/mach-omap2/mux33xx.c
+index 44c42bc..e6f2dc0 100644
+--- a/arch/arm/mach-omap2/mux33xx.c
++++ b/arch/arm/mach-omap2/mux33xx.c
+@@ -261,10 +261,10 @@ static struct omap_mux __initdata am33xx_muxmodes[] = {
+ 		"mii1_rxclk", NULL, "rgmii1_rclk", "mmc0_dat6",
+ 		"mmc1_dat1", NULL, "mcasp0_fsx", "gpio3_10"),
+ 	_AM33XX_MUXENTRY(MII1_RXD3, 0,
+-		"mii1_rxd3", NULL, "rgmii1_rd3", "mmc0_dat5",
++		"mii1_rxd3", "uart3_rxd", "rgmii1_rd3", "mmc0_dat5",
+ 		"mmc1_dat2", NULL, "mcasp0_axr0", "gpio2_18"),
+ 	_AM33XX_MUXENTRY(MII1_RXD2, 0,
+-		"mii1_rxd2", NULL, "rgmii1_rd2", "mmc0_dat4",
++		"mii1_rxd2", "uart3_txd", "rgmii1_rd2", "mmc0_dat4",
+ 		"mmc1_dat3", NULL, "mcasp0_axr1", "gpio2_19"),
+ 	_AM33XX_MUXENTRY(MII1_RXD1, 0,
+ 		"mii1_rxd1", "rmii1_rxd1", "rgmii1_rd1", "mcasp1_axr3",
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 49308eb..2fd49d8 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -363,18 +363,18 @@ config TOUCHSCREEN_PENMOUNT
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called penmount.
+ 
+-config TOUCHSCREEN_EDT_FT5X06
+-	tristate "EDT FocalTech FT5x06 I2C Touchscreen support"
++config TOUCHSCREEN_FT5X06
++	tristate "FocalTech touchscreens"
+ 	depends on I2C
+ 	help
+-	  Say Y here if you have an EDT "Polytouch" touchscreen based
+-	  on the FocalTech FT5x06 family of controllers connected to
+-	  your system.
++	  Say Y here if you have a ft5X06 touchscreen.
++	  Ft5x06 controllers are multi touch controllers which can
++	  report 5 touches at a time.
+ 
+ 	  If unsure, say N.
+ 
+ 	  To compile this driver as a module, choose M here: the
+-	  module will be called edt-ft5x06.
++	  module will be called ft5x06_ts.
+ 
+ config TOUCHSCREEN_MIGOR
+ 	tristate "Renesas MIGO-R touchscreen"
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 6342335..f473a8b 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -19,7 +19,7 @@ obj-$(CONFIG_TOUCHSCREEN_BU21013)       += bu21013_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110)	+= cy8ctmg110_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_DA9034)	+= da9034-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_DYNAPRO)	+= dynapro.o
+-obj-$(CONFIG_TOUCHSCREEN_EDT_FT5X06)	+= edt-ft5x06.o
++obj-$(CONFIG_TOUCHSCREEN_FT5X06)	+= ft5x06_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_HAMPSHIRE)	+= hampshire.o
+ obj-$(CONFIG_TOUCHSCREEN_GUNZE)		+= gunze.o
+ obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_ts.o
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+deleted file mode 100644
+index 6495777..0000000
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ /dev/null
+@@ -1,901 +0,0 @@
+-/*
+- * Copyright (C) 2012 Simon Budig, <simon.budig@kernelconcepts.de>
+- *
+- * This software is licensed under the terms of the GNU General Public
+- * License version 2, as published by the Free Software Foundation, and
+- * may be copied, distributed, and modified under those terms.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public
+- * License along with this library; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+- */
+-
+-/*
+- * This is a driver for the EDT "Polytouch" family of touch controllers
+- * based on the FocalTech FT5x06 line of chips.
+- *
+- * Development of this driver has been sponsored by Glyn:
+- *    http://www.glyn.com/Products/Displays
+- */
+-
+-#include <linux/module.h>
+-#include <linux/ratelimit.h>
+-#include <linux/interrupt.h>
+-#include <linux/input.h>
+-#include <linux/i2c.h>
+-#include <linux/uaccess.h>
+-#include <linux/delay.h>
+-#include <linux/debugfs.h>
+-#include <linux/slab.h>
+-#include <linux/gpio.h>
+-#include <linux/input/mt.h>
+-#include <linux/input/edt-ft5x06.h>
+-
+-#define MAX_SUPPORT_POINTS		5
+-
+-#define WORK_REGISTER_THRESHOLD		0x00
+-#define WORK_REGISTER_REPORT_RATE	0x08
+-#define WORK_REGISTER_GAIN		0x30
+-#define WORK_REGISTER_OFFSET		0x31
+-#define WORK_REGISTER_NUM_X		0x33
+-#define WORK_REGISTER_NUM_Y		0x34
+-
+-#define WORK_REGISTER_OPMODE		0x3c
+-#define FACTORY_REGISTER_OPMODE		0x01
+-
+-#define TOUCH_EVENT_DOWN		0x00
+-#define TOUCH_EVENT_UP			0x01
+-#define TOUCH_EVENT_ON			0x02
+-#define TOUCH_EVENT_RESERVED		0x03
+-
+-#define EDT_NAME_LEN			23
+-#define EDT_SWITCH_MODE_RETRIES		10
+-#define EDT_SWITCH_MODE_DELAY		5 /* msec */
+-#define EDT_RAW_DATA_RETRIES		100
+-#define EDT_RAW_DATA_DELAY		1 /* msec */
+-
+-struct edt_ft5x06_ts_data {
+-	struct i2c_client *client;
+-	struct input_dev *input;
+-	u16 num_x;
+-	u16 num_y;
+-
+-#if defined(CONFIG_DEBUG_FS)
+-	struct dentry *debug_dir;
+-	u8 *raw_buffer;
+-	size_t raw_bufsize;
+-#endif
+-
+-	struct mutex mutex;
+-	bool factory_mode;
+-	int threshold;
+-	int gain;
+-	int offset;
+-	int report_rate;
+-
+-	char name[EDT_NAME_LEN];
+-};
+-
+-static int edt_ft5x06_ts_readwrite(struct i2c_client *client,
+-				   u16 wr_len, u8 *wr_buf,
+-				   u16 rd_len, u8 *rd_buf)
+-{
+-	struct i2c_msg wrmsg[2];
+-	int i = 0;
+-	int ret;
+-
+-	if (wr_len) {
+-		wrmsg[i].addr  = client->addr;
+-		wrmsg[i].flags = 0;
+-		wrmsg[i].len = wr_len;
+-		wrmsg[i].buf = wr_buf;
+-		i++;
+-	}
+-	if (rd_len) {
+-		wrmsg[i].addr  = client->addr;
+-		wrmsg[i].flags = I2C_M_RD;
+-		wrmsg[i].len = rd_len;
+-		wrmsg[i].buf = rd_buf;
+-		i++;
+-	}
+-
+-	ret = i2c_transfer(client->adapter, wrmsg, i);
+-	if (ret < 0)
+-		return ret;
+-	if (ret != i)
+-		return -EIO;
+-
+-	return 0;
+-}
+-
+-static bool edt_ft5x06_ts_check_crc(struct edt_ft5x06_ts_data *tsdata,
+-				    u8 *buf, int buflen)
+-{
+-	int i;
+-	u8 crc = 0;
+-
+-	for (i = 0; i < buflen - 1; i++)
+-		crc ^= buf[i];
+-
+-	if (crc != buf[buflen-1]) {
+-		dev_err_ratelimited(&tsdata->client->dev,
+-				    "crc error: 0x%02x expected, got 0x%02x\n",
+-				    crc, buf[buflen-1]);
+-		return false;
+-	}
+-
+-	return true;
+-}
+-
+-static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+-{
+-	struct edt_ft5x06_ts_data *tsdata = dev_id;
+-	struct device *dev = &tsdata->client->dev;
+-	u8 cmd = 0xf9;
+-	u8 rdbuf[26];
+-	int i, type, x, y, id;
+-	int error;
+-
+-	memset(rdbuf, 0, sizeof(rdbuf));
+-
+-	error = edt_ft5x06_ts_readwrite(tsdata->client,
+-					sizeof(cmd), &cmd,
+-					sizeof(rdbuf), rdbuf);
+-	if (error) {
+-		dev_err_ratelimited(dev, "Unable to fetch data, error: %d\n",
+-				    error);
+-		goto out;
+-	}
+-
+-	if (rdbuf[0] != 0xaa || rdbuf[1] != 0xaa || rdbuf[2] != 26) {
+-		dev_err_ratelimited(dev, "Unexpected header: %02x%02x%02x!\n",
+-				    rdbuf[0], rdbuf[1], rdbuf[2]);
+-		goto out;
+-	}
+-
+-	if (!edt_ft5x06_ts_check_crc(tsdata, rdbuf, 26))
+-		goto out;
+-
+-	for (i = 0; i < MAX_SUPPORT_POINTS; i++) {
+-		u8 *buf = &rdbuf[i * 4 + 5];
+-		bool down;
+-
+-		type = buf[0] >> 6;
+-		/* ignore Reserved events */
+-		if (type == TOUCH_EVENT_RESERVED)
+-			continue;
+-
+-		x = ((buf[0] << 8) | buf[1]) & 0x0fff;
+-		y = ((buf[2] << 8) | buf[3]) & 0x0fff;
+-		id = (buf[2] >> 4) & 0x0f;
+-		down = (type != TOUCH_EVENT_UP);
+-
+-		input_mt_slot(tsdata->input, id);
+-		input_mt_report_slot_state(tsdata->input, MT_TOOL_FINGER, down);
+-
+-		if (!down)
+-			continue;
+-
+-		input_report_abs(tsdata->input, ABS_MT_POSITION_X, x);
+-		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, y);
+-	}
+-
+-	input_mt_report_pointer_emulation(tsdata->input, true);
+-	input_sync(tsdata->input);
+-
+-out:
+-	return IRQ_HANDLED;
+-}
+-
+-static int edt_ft5x06_register_write(struct edt_ft5x06_ts_data *tsdata,
+-				     u8 addr, u8 value)
+-{
+-	u8 wrbuf[4];
+-
+-	wrbuf[0] = tsdata->factory_mode ? 0xf3 : 0xfc;
+-	wrbuf[1] = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
+-	wrbuf[2] = value;
+-	wrbuf[3] = wrbuf[0] ^ wrbuf[1] ^ wrbuf[2];
+-
+-	return edt_ft5x06_ts_readwrite(tsdata->client, 4, wrbuf, 0, NULL);
+-}
+-
+-static int edt_ft5x06_register_read(struct edt_ft5x06_ts_data *tsdata,
+-				    u8 addr)
+-{
+-	u8 wrbuf[2], rdbuf[2];
+-	int error;
+-
+-	wrbuf[0] = tsdata->factory_mode ? 0xf3 : 0xfc;
+-	wrbuf[1] = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
+-	wrbuf[1] |= tsdata->factory_mode ? 0x80 : 0x40;
+-
+-	error = edt_ft5x06_ts_readwrite(tsdata->client, 2, wrbuf, 2, rdbuf);
+-	if (error)
+-		return error;
+-
+-	if ((wrbuf[0] ^ wrbuf[1] ^ rdbuf[0]) != rdbuf[1]) {
+-		dev_err(&tsdata->client->dev,
+-			"crc error: 0x%02x expected, got 0x%02x\n",
+-			wrbuf[0] ^ wrbuf[1] ^ rdbuf[0], rdbuf[1]);
+-		return -EIO;
+-	}
+-
+-	return rdbuf[0];
+-}
+-
+-struct edt_ft5x06_attribute {
+-	struct device_attribute dattr;
+-	size_t field_offset;
+-	u8 limit_low;
+-	u8 limit_high;
+-	u8 addr;
+-};
+-
+-#define EDT_ATTR(_field, _mode, _addr, _limit_low, _limit_high)		\
+-	struct edt_ft5x06_attribute edt_ft5x06_attr_##_field = {	\
+-		.dattr = __ATTR(_field, _mode,				\
+-				edt_ft5x06_setting_show,		\
+-				edt_ft5x06_setting_store),		\
+-		.field_offset =						\
+-			offsetof(struct edt_ft5x06_ts_data, _field),	\
+-		.limit_low = _limit_low,				\
+-		.limit_high = _limit_high,				\
+-		.addr = _addr,						\
+-	}
+-
+-static ssize_t edt_ft5x06_setting_show(struct device *dev,
+-				       struct device_attribute *dattr,
+-				       char *buf)
+-{
+-	struct i2c_client *client = to_i2c_client(dev);
+-	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+-	struct edt_ft5x06_attribute *attr =
+-			container_of(dattr, struct edt_ft5x06_attribute, dattr);
+-	u8 *field = (u8 *)((char *)tsdata + attr->field_offset);
+-	int val;
+-	size_t count = 0;
+-	int error = 0;
+-
+-	mutex_lock(&tsdata->mutex);
+-
+-	if (tsdata->factory_mode) {
+-		error = -EIO;
+-		goto out;
+-	}
+-
+-	val = edt_ft5x06_register_read(tsdata, attr->addr);
+-	if (val < 0) {
+-		error = val;
+-		dev_err(&tsdata->client->dev,
+-			"Failed to fetch attribute %s, error %d\n",
+-			dattr->attr.name, error);
+-		goto out;
+-	}
+-
+-	if (val != *field) {
+-		dev_warn(&tsdata->client->dev,
+-			 "%s: read (%d) and stored value (%d) differ\n",
+-			 dattr->attr.name, val, *field);
+-		*field = val;
+-	}
+-
+-	count = scnprintf(buf, PAGE_SIZE, "%d\n", val);
+-out:
+-	mutex_unlock(&tsdata->mutex);
+-	return error ?: count;
+-}
+-
+-static ssize_t edt_ft5x06_setting_store(struct device *dev,
+-					struct device_attribute *dattr,
+-					const char *buf, size_t count)
+-{
+-	struct i2c_client *client = to_i2c_client(dev);
+-	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+-	struct edt_ft5x06_attribute *attr =
+-			container_of(dattr, struct edt_ft5x06_attribute, dattr);
+-	u8 *field = (u8 *)((char *)tsdata + attr->field_offset);
+-	unsigned int val;
+-	int error;
+-
+-	mutex_lock(&tsdata->mutex);
+-
+-	if (tsdata->factory_mode) {
+-		error = -EIO;
+-		goto out;
+-	}
+-
+-	error = kstrtouint(buf, 0, &val);
+-	if (error)
+-		goto out;
+-
+-	if (val < attr->limit_low || val > attr->limit_high) {
+-		error = -ERANGE;
+-		goto out;
+-	}
+-
+-	error = edt_ft5x06_register_write(tsdata, attr->addr, val);
+-	if (error) {
+-		dev_err(&tsdata->client->dev,
+-			"Failed to update attribute %s, error: %d\n",
+-			dattr->attr.name, error);
+-		goto out;
+-	}
+-
+-	*field = val;
+-
+-out:
+-	mutex_unlock(&tsdata->mutex);
+-	return error ?: count;
+-}
+-
+-static EDT_ATTR(gain, S_IWUSR | S_IRUGO, WORK_REGISTER_GAIN, 0, 31);
+-static EDT_ATTR(offset, S_IWUSR | S_IRUGO, WORK_REGISTER_OFFSET, 0, 31);
+-static EDT_ATTR(threshold, S_IWUSR | S_IRUGO,
+-		WORK_REGISTER_THRESHOLD, 20, 80);
+-static EDT_ATTR(report_rate, S_IWUSR | S_IRUGO,
+-		WORK_REGISTER_REPORT_RATE, 3, 14);
+-
+-static struct attribute *edt_ft5x06_attrs[] = {
+-	&edt_ft5x06_attr_gain.dattr.attr,
+-	&edt_ft5x06_attr_offset.dattr.attr,
+-	&edt_ft5x06_attr_threshold.dattr.attr,
+-	&edt_ft5x06_attr_report_rate.dattr.attr,
+-	NULL
+-};
+-
+-static const struct attribute_group edt_ft5x06_attr_group = {
+-	.attrs = edt_ft5x06_attrs,
+-};
+-
+-#ifdef CONFIG_DEBUG_FS
+-static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
+-{
+-	struct i2c_client *client = tsdata->client;
+-	int retries = EDT_SWITCH_MODE_RETRIES;
+-	int ret;
+-	int error;
+-
+-	disable_irq(client->irq);
+-
+-	if (!tsdata->raw_buffer) {
+-		tsdata->raw_bufsize = tsdata->num_x * tsdata->num_y *
+-				      sizeof(u16);
+-		tsdata->raw_buffer = kzalloc(tsdata->raw_bufsize, GFP_KERNEL);
+-		if (!tsdata->raw_buffer) {
+-			error = -ENOMEM;
+-			goto err_out;
+-		}
+-	}
+-
+-	/* mode register is 0x3c when in the work mode */
+-	error = edt_ft5x06_register_write(tsdata, WORK_REGISTER_OPMODE, 0x03);
+-	if (error) {
+-		dev_err(&client->dev,
+-			"failed to switch to factory mode, error %d\n", error);
+-		goto err_out;
+-	}
+-
+-	tsdata->factory_mode = true;
+-	do {
+-		mdelay(EDT_SWITCH_MODE_DELAY);
+-		/* mode register is 0x01 when in factory mode */
+-		ret = edt_ft5x06_register_read(tsdata, FACTORY_REGISTER_OPMODE);
+-		if (ret == 0x03)
+-			break;
+-	} while (--retries > 0);
+-
+-	if (retries == 0) {
+-		dev_err(&client->dev, "not in factory mode after %dms.\n",
+-			EDT_SWITCH_MODE_RETRIES * EDT_SWITCH_MODE_DELAY);
+-		error = -EIO;
+-		goto err_out;
+-	}
+-
+-	return 0;
+-
+-err_out:
+-	kfree(tsdata->raw_buffer);
+-	tsdata->raw_buffer = NULL;
+-	tsdata->factory_mode = false;
+-	enable_irq(client->irq);
+-
+-	return error;
+-}
+-
+-static int edt_ft5x06_work_mode(struct edt_ft5x06_ts_data *tsdata)
+-{
+-	struct i2c_client *client = tsdata->client;
+-	int retries = EDT_SWITCH_MODE_RETRIES;
+-	int ret;
+-	int error;
+-
+-	/* mode register is 0x01 when in the factory mode */
+-	error = edt_ft5x06_register_write(tsdata, FACTORY_REGISTER_OPMODE, 0x1);
+-	if (error) {
+-		dev_err(&client->dev,
+-			"failed to switch to work mode, error: %d\n", error);
+-		return error;
+-	}
+-
+-	tsdata->factory_mode = false;
+-
+-	do {
+-		mdelay(EDT_SWITCH_MODE_DELAY);
+-		/* mode register is 0x01 when in factory mode */
+-		ret = edt_ft5x06_register_read(tsdata, WORK_REGISTER_OPMODE);
+-		if (ret == 0x01)
+-			break;
+-	} while (--retries > 0);
+-
+-	if (retries == 0) {
+-		dev_err(&client->dev, "not in work mode after %dms.\n",
+-			EDT_SWITCH_MODE_RETRIES * EDT_SWITCH_MODE_DELAY);
+-		tsdata->factory_mode = true;
+-		return -EIO;
+-	}
+-
+-	if (tsdata->raw_buffer)
+-		kfree(tsdata->raw_buffer);
+-	tsdata->raw_buffer = NULL;
+-
+-	/* restore parameters */
+-	edt_ft5x06_register_write(tsdata, WORK_REGISTER_THRESHOLD,
+-				  tsdata->threshold);
+-	edt_ft5x06_register_write(tsdata, WORK_REGISTER_GAIN,
+-				  tsdata->gain);
+-	edt_ft5x06_register_write(tsdata, WORK_REGISTER_OFFSET,
+-				  tsdata->offset);
+-	edt_ft5x06_register_write(tsdata, WORK_REGISTER_REPORT_RATE,
+-				  tsdata->report_rate);
+-
+-	enable_irq(client->irq);
+-
+-	return 0;
+-}
+-
+-static int edt_ft5x06_debugfs_mode_get(void *data, u64 *mode)
+-{
+-	struct edt_ft5x06_ts_data *tsdata = data;
+-
+-	*mode = tsdata->factory_mode;
+-
+-	return 0;
+-};
+-
+-static int edt_ft5x06_debugfs_mode_set(void *data, u64 mode)
+-{
+-	struct edt_ft5x06_ts_data *tsdata = data;
+-	int retval = 0;
+-
+-	if (mode > 1)
+-		return -ERANGE;
+-
+-	mutex_lock(&tsdata->mutex);
+-
+-	if (mode != tsdata->factory_mode) {
+-		retval = mode ? edt_ft5x06_factory_mode(tsdata) :
+-			        edt_ft5x06_work_mode(tsdata);
+-	}
+-
+-	mutex_unlock(&tsdata->mutex);
+-
+-	return retval;
+-};
+-
+-DEFINE_SIMPLE_ATTRIBUTE(debugfs_mode_fops, edt_ft5x06_debugfs_mode_get,
+-			edt_ft5x06_debugfs_mode_set, "%llu\n");
+-
+-static int edt_ft5x06_debugfs_raw_data_open(struct inode *inode,
+-					    struct file *file)
+-{
+-	file->private_data = inode->i_private;
+-
+-	return 0;
+-}
+-
+-static ssize_t edt_ft5x06_debugfs_raw_data_read(struct file *file,
+-				char __user *buf, size_t count, loff_t *off)
+-{
+-	struct edt_ft5x06_ts_data *tsdata = file->private_data;
+-	struct i2c_client *client = tsdata->client;
+-	int retries  = EDT_RAW_DATA_RETRIES;
+-	int val, i, error;
+-	size_t read = 0;
+-	int colbytes;
+-	char wrbuf[3];
+-	u8 *rdbuf;
+-
+-	if (*off < 0 || *off >= tsdata->raw_bufsize)
+-		return 0;
+-
+-	mutex_lock(&tsdata->mutex);
+-
+-	if (!tsdata->factory_mode || !tsdata->raw_buffer) {
+-		error = -EIO;
+-		goto out;
+-	}
+-
+-	error = edt_ft5x06_register_write(tsdata, 0x08, 0x01);
+-	if (error) {
+-		dev_dbg(&client->dev,
+-			"failed to write 0x08 register, error %d\n", error);
+-		goto out;
+-	}
+-
+-	do {
+-		msleep(EDT_RAW_DATA_DELAY);
+-		val = edt_ft5x06_register_read(tsdata, 0x08);
+-		if (val < 1)
+-			break;
+-	} while (--retries > 0);
+-
+-	if (val < 0) {
+-		error = val;
+-		dev_dbg(&client->dev,
+-			"failed to read 0x08 register, error %d\n", error);
+-		goto out;
+-	}
+-
+-	if (retries == 0) {
+-		dev_dbg(&client->dev,
+-			"timed out waiting for register to settle\n");
+-		error = -ETIMEDOUT;
+-		goto out;
+-	}
+-
+-	rdbuf = tsdata->raw_buffer;
+-	colbytes = tsdata->num_y * sizeof(u16);
+-
+-	wrbuf[0] = 0xf5;
+-	wrbuf[1] = 0x0e;
+-	for (i = 0; i < tsdata->num_x; i++) {
+-		wrbuf[2] = i;  /* column index */
+-		error = edt_ft5x06_ts_readwrite(tsdata->client,
+-						sizeof(wrbuf), wrbuf,
+-						colbytes, rdbuf);
+-		if (error)
+-			goto out;
+-
+-		rdbuf += colbytes;
+-	}
+-
+-	read = min_t(size_t, count, tsdata->raw_bufsize - *off);
+-	if (copy_to_user(buf, tsdata->raw_buffer + *off, read)) {
+-		error = -EFAULT;
+-		goto out;
+-	}
+-
+-	*off += read;
+-out:
+-	mutex_unlock(&tsdata->mutex);
+-	return error ?: read;
+-};
+-
+-
+-static const struct file_operations debugfs_raw_data_fops = {
+-	.open = edt_ft5x06_debugfs_raw_data_open,
+-	.read = edt_ft5x06_debugfs_raw_data_read,
+-};
+-
+-static void __devinit
+-edt_ft5x06_ts_prepare_debugfs(struct edt_ft5x06_ts_data *tsdata,
+-			      const char *debugfs_name)
+-{
+-	tsdata->debug_dir = debugfs_create_dir(debugfs_name, NULL);
+-	if (!tsdata->debug_dir)
+-		return;
+-
+-	debugfs_create_u16("num_x", S_IRUSR, tsdata->debug_dir, &tsdata->num_x);
+-	debugfs_create_u16("num_y", S_IRUSR, tsdata->debug_dir, &tsdata->num_y);
+-
+-	debugfs_create_file("mode", S_IRUSR | S_IWUSR,
+-			    tsdata->debug_dir, tsdata, &debugfs_mode_fops);
+-	debugfs_create_file("raw_data", S_IRUSR,
+-			    tsdata->debug_dir, tsdata, &debugfs_raw_data_fops);
+-}
+-
+-static void __devexit
+-edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
+-{
+-	if (tsdata->debug_dir)
+-		debugfs_remove_recursive(tsdata->debug_dir);
+-	kfree(tsdata->raw_buffer);
+-}
+-
+-#else
+-
+-static inline void
+-edt_ft5x06_ts_prepare_debugfs(struct edt_ft5x06_ts_data *tsdata,
+-			      const char *debugfs_name)
+-{
+-}
+-
+-static inline void
+-edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
+-{
+-}
+-
+-#endif /* CONFIG_DEBUGFS */
+-
+-
+-
+-static int __devinit edt_ft5x06_ts_reset(struct i2c_client *client,
+-					 int reset_pin)
+-{
+-	int error;
+-
+-	if (gpio_is_valid(reset_pin)) {
+-		/* this pulls reset down, enabling the low active reset */
+-		error = gpio_request_one(reset_pin, GPIOF_OUT_INIT_LOW,
+-					 "edt-ft5x06 reset");
+-		if (error) {
+-			dev_err(&client->dev,
+-				"Failed to request GPIO %d as reset pin, error %d\n",
+-				reset_pin, error);
+-			return error;
+-		}
+-
+-		mdelay(50);
+-		gpio_set_value(reset_pin, 1);
+-		mdelay(100);
+-	}
+-
+-	return 0;
+-}
+-
+-static int __devinit edt_ft5x06_ts_identify(struct i2c_client *client,
+-					    char *model_name,
+-					    char *fw_version)
+-{
+-	u8 rdbuf[EDT_NAME_LEN];
+-	char *p;
+-	int error;
+-
+-	error = edt_ft5x06_ts_readwrite(client, 1, "\xbb",
+-					EDT_NAME_LEN - 1, rdbuf);
+-	if (error)
+-		return error;
+-
+-	/* remove last '$' end marker */
+-	rdbuf[EDT_NAME_LEN - 1] = '\0';
+-	if (rdbuf[EDT_NAME_LEN - 2] == '$')
+-		rdbuf[EDT_NAME_LEN - 2] = '\0';
+-
+-	/* look for Model/Version separator */
+-	p = strchr(rdbuf, '*');
+-	if (p)
+-		*p++ = '\0';
+-
+-	strlcpy(model_name, rdbuf + 1, EDT_NAME_LEN);
+-	strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
+-
+-	return 0;
+-}
+-
+-#define EDT_ATTR_CHECKSET(name, reg) \
+-	if (pdata->name >= edt_ft5x06_attr_##name.limit_low &&		\
+-	    pdata->name <= edt_ft5x06_attr_##name.limit_high)		\
+-		edt_ft5x06_register_write(tsdata, reg, pdata->name)
+-
+-static void __devinit
+-edt_ft5x06_ts_get_defaults(struct edt_ft5x06_ts_data *tsdata,
+-			   const struct edt_ft5x06_platform_data *pdata)
+-{
+-	if (!pdata->use_parameters)
+-		return;
+-
+-	/* pick up defaults from the platform data */
+-	EDT_ATTR_CHECKSET(threshold, WORK_REGISTER_THRESHOLD);
+-	EDT_ATTR_CHECKSET(gain, WORK_REGISTER_GAIN);
+-	EDT_ATTR_CHECKSET(offset, WORK_REGISTER_OFFSET);
+-	EDT_ATTR_CHECKSET(report_rate, WORK_REGISTER_REPORT_RATE);
+-}
+-
+-static void __devinit
+-edt_ft5x06_ts_get_parameters(struct edt_ft5x06_ts_data *tsdata)
+-{
+-	tsdata->threshold = edt_ft5x06_register_read(tsdata,
+-						     WORK_REGISTER_THRESHOLD);
+-	tsdata->gain = edt_ft5x06_register_read(tsdata, WORK_REGISTER_GAIN);
+-	tsdata->offset = edt_ft5x06_register_read(tsdata, WORK_REGISTER_OFFSET);
+-	tsdata->report_rate = edt_ft5x06_register_read(tsdata,
+-						WORK_REGISTER_REPORT_RATE);
+-	tsdata->num_x = edt_ft5x06_register_read(tsdata, WORK_REGISTER_NUM_X);
+-	tsdata->num_y = edt_ft5x06_register_read(tsdata, WORK_REGISTER_NUM_Y);
+-}
+-
+-static int __devinit edt_ft5x06_ts_probe(struct i2c_client *client,
+-					 const struct i2c_device_id *id)
+-{
+-	const struct edt_ft5x06_platform_data *pdata =
+-						client->dev.platform_data;
+-	struct edt_ft5x06_ts_data *tsdata;
+-	struct input_dev *input;
+-	int error;
+-	char fw_version[EDT_NAME_LEN];
+-
+-	dev_dbg(&client->dev, "probing for EDT FT5x06 I2C\n");
+-
+-	if (!pdata) {
+-		dev_err(&client->dev, "no platform data?\n");
+-		return -EINVAL;
+-	}
+-
+-	error = edt_ft5x06_ts_reset(client, pdata->reset_pin);
+-	if (error)
+-		return error;
+-
+-	if (gpio_is_valid(pdata->irq_pin)) {
+-		error = gpio_request_one(pdata->irq_pin,
+-					 GPIOF_IN, "edt-ft5x06 irq");
+-		if (error) {
+-			dev_err(&client->dev,
+-				"Failed to request GPIO %d, error %d\n",
+-				pdata->irq_pin, error);
+-			return error;
+-		}
+-	}
+-
+-	tsdata = kzalloc(sizeof(*tsdata), GFP_KERNEL);
+-	input = input_allocate_device();
+-	if (!tsdata || !input) {
+-		dev_err(&client->dev, "failed to allocate driver data.\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
+-	}
+-
+-	mutex_init(&tsdata->mutex);
+-	tsdata->client = client;
+-	tsdata->input = input;
+-	tsdata->factory_mode = false;
+-
+-	error = edt_ft5x06_ts_identify(client, tsdata->name, fw_version);
+-	if (error) {
+-		dev_err(&client->dev, "touchscreen probe failed\n");
+-		goto err_free_mem;
+-	}
+-
+-	edt_ft5x06_ts_get_defaults(tsdata, pdata);
+-	edt_ft5x06_ts_get_parameters(tsdata);
+-
+-	dev_dbg(&client->dev,
+-		"Model \"%s\", Rev. \"%s\", %dx%d sensors\n",
+-		tsdata->name, fw_version, tsdata->num_x, tsdata->num_y);
+-
+-	input->name = tsdata->name;
+-	input->id.bustype = BUS_I2C;
+-	input->dev.parent = &client->dev;
+-
+-	__set_bit(EV_SYN, input->evbit);
+-	__set_bit(EV_KEY, input->evbit);
+-	__set_bit(EV_ABS, input->evbit);
+-	__set_bit(BTN_TOUCH, input->keybit);
+-	input_set_abs_params(input, ABS_X, 0, tsdata->num_x * 64 - 1, 0, 0);
+-	input_set_abs_params(input, ABS_Y, 0, tsdata->num_y * 64 - 1, 0, 0);
+-	input_set_abs_params(input, ABS_MT_POSITION_X,
+-			     0, tsdata->num_x * 64 - 1, 0, 0);
+-	input_set_abs_params(input, ABS_MT_POSITION_Y,
+-			     0, tsdata->num_y * 64 - 1, 0, 0);
+-	error = input_mt_init_slots(input, MAX_SUPPORT_POINTS);
+-	if (error) {
+-		dev_err(&client->dev, "Unable to init MT slots.\n");
+-		goto err_free_mem;
+-	}
+-
+-	input_set_drvdata(input, tsdata);
+-	i2c_set_clientdata(client, tsdata);
+-
+-	error = request_threaded_irq(client->irq, NULL, edt_ft5x06_ts_isr,
+-				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+-				     client->name, tsdata);
+-	if (error) {
+-		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
+-		goto err_free_mem;
+-	}
+-
+-	error = sysfs_create_group(&client->dev.kobj, &edt_ft5x06_attr_group);
+-	if (error)
+-		goto err_free_irq;
+-
+-	error = input_register_device(input);
+-	if (error)
+-		goto err_remove_attrs;
+-
+-	edt_ft5x06_ts_prepare_debugfs(tsdata, dev_driver_string(&client->dev));
+-	device_init_wakeup(&client->dev, 1);
+-
+-	dev_dbg(&client->dev,
+-		"EDT FT5x06 initialized: IRQ pin %d, Reset pin %d.\n",
+-		pdata->irq_pin, pdata->reset_pin);
+-
+-	return 0;
+-
+-err_remove_attrs:
+-	sysfs_remove_group(&client->dev.kobj, &edt_ft5x06_attr_group);
+-err_free_irq:
+-	free_irq(client->irq, tsdata);
+-err_free_mem:
+-	input_free_device(input);
+-	kfree(tsdata);
+-
+-	if (gpio_is_valid(pdata->irq_pin))
+-		gpio_free(pdata->irq_pin);
+-
+-	return error;
+-}
+-
+-static int __devexit edt_ft5x06_ts_remove(struct i2c_client *client)
+-{
+-	const struct edt_ft5x06_platform_data *pdata =
+-						dev_get_platdata(&client->dev);
+-	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+-
+-	edt_ft5x06_ts_teardown_debugfs(tsdata);
+-	sysfs_remove_group(&client->dev.kobj, &edt_ft5x06_attr_group);
+-
+-	free_irq(client->irq, tsdata);
+-	input_unregister_device(tsdata->input);
+-
+-	if (gpio_is_valid(pdata->irq_pin))
+-		gpio_free(pdata->irq_pin);
+-	if (gpio_is_valid(pdata->reset_pin))
+-		gpio_free(pdata->reset_pin);
+-
+-	kfree(tsdata);
+-
+-	return 0;
+-}
+-
+-#ifdef CONFIG_PM_SLEEP
+-static int edt_ft5x06_ts_suspend(struct device *dev)
+-{
+-	struct i2c_client *client = to_i2c_client(dev);
+-
+-	if (device_may_wakeup(dev))
+-		enable_irq_wake(client->irq);
+-
+-	return 0;
+-}
+-
+-static int edt_ft5x06_ts_resume(struct device *dev)
+-{
+-	struct i2c_client *client = to_i2c_client(dev);
+-
+-	if (device_may_wakeup(dev))
+-		disable_irq_wake(client->irq);
+-
+-	return 0;
+-}
+-#endif
+-
+-static SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
+-			 edt_ft5x06_ts_suspend, edt_ft5x06_ts_resume);
+-
+-static const struct i2c_device_id edt_ft5x06_ts_id[] = {
+-	{ "edt-ft5x06", 0 },
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(i2c, edt_ft5x06_ts_id);
+-
+-static struct i2c_driver edt_ft5x06_ts_driver = {
+-	.driver = {
+-		.owner = THIS_MODULE,
+-		.name = "edt_ft5x06",
+-		.pm = &edt_ft5x06_ts_pm_ops,
+-	},
+-	.id_table = edt_ft5x06_ts_id,
+-	.probe    = edt_ft5x06_ts_probe,
+-	.remove   = __devexit_p(edt_ft5x06_ts_remove),
+-};
+-
+-module_i2c_driver(edt_ft5x06_ts_driver);
+-
+-MODULE_AUTHOR("Simon Budig <simon.budig@kernelconcepts.de>");
+-MODULE_DESCRIPTION("EDT FT5x06 I2C Touchscreen Driver");
+-MODULE_LICENSE("GPL");
+diff --git a/drivers/input/touchscreen/ft5x06_ts.c b/drivers/input/touchscreen/ft5x06_ts.c
+new file mode 100644
+index 0000000..a939222
+--- /dev/null
++++ b/drivers/input/touchscreen/ft5x06_ts.c
+@@ -0,0 +1,707 @@
++/* drivers/input/touchscreen/ft5x06_ts.c
++*/
++/*
++ *
++ * FocalTech ft5x06 TouchScreen driver.
++ *
++ * Copyright (c) 2010  Focal tech Ltd.
++ * Copyright (c) 2012, Code Aurora Forum. All rights reserved.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/input/mt.h>
++#include <linux/slab.h>
++#include <linux/interrupt.h>
++#include <linux/delay.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/gpio.h>
++#include <linux/regulator/consumer.h>
++#include <linux/input/ft5x06_ts.h>
++
++#ifdef CONFIG_HAS_EARLYSUSPEND
++#include <linux/earlysuspend.h>
++/* Early-suspend level */
++#define FT5X06_SUSPEND_LEVEL 1
++#endif
++
++#define CFG_MAX_TOUCH_POINTS	5
++
++#define FT_STARTUP_DLY		150
++#define FT_RESET_DLY		20
++
++#define FT_PRESS		0x7F
++#define FT_MAX_ID		0x0F
++#define FT_TOUCH_STEP		6
++#define FT_TOUCH_X_H_POS	3
++#define FT_TOUCH_X_L_POS	4
++#define FT_TOUCH_Y_H_POS	5
++#define FT_TOUCH_Y_L_POS	6
++#define FT_TOUCH_EVENT_POS	3
++#define FT_TOUCH_ID_POS		5
++
++#define POINT_READ_BUF	(3 + FT_TOUCH_STEP * CFG_MAX_TOUCH_POINTS)
++
++/*register address*/
++#define FT5X06_REG_PMODE	0xA5
++#define FT5X06_REG_FW_VER	0xA6
++#define FT5X06_REG_POINT_RATE	0x88
++#define FT5X06_REG_THGROUP	0x80
++
++/* power register bits*/
++#define FT5X06_PMODE_ACTIVE		0x00
++#define FT5X06_PMODE_MONITOR		0x01
++#define FT5X06_PMODE_STANDBY		0x02
++#define FT5X06_PMODE_HIBERNATE		0x03
++
++//#define FT5X06_VTG_MIN_UV	2850000
++//#define FT5X06_VTG_MAX_UV	2850000
++#define FT5X06_VTG_MIN_UV	2600000
++#define FT5X06_VTG_MAX_UV	3300000
++#define FT5X06_I2C_VTG_MIN_UV	1800000
++#define FT5X06_I2C_VTG_MAX_UV	1800000
++
++struct ts_event {
++	u16 x[CFG_MAX_TOUCH_POINTS];	/*x coordinate */
++	u16 y[CFG_MAX_TOUCH_POINTS];	/*y coordinate */
++	/* touch event: 0 -- down; 1-- contact; 2 -- contact */
++	u8 touch_event[CFG_MAX_TOUCH_POINTS];
++	u8 finger_id[CFG_MAX_TOUCH_POINTS];	/*touch ID */
++	u16 pressure;
++	u8 touch_point;
++};
++
++struct ft5x06_ts_data {
++	struct i2c_client *client;
++	struct input_dev *input_dev;
++	struct ts_event event;
++	const struct ft5x06_ts_platform_data *pdata;
++	struct regulator *vdd;
++	struct regulator *vcc_i2c;
++#ifdef CONFIG_HAS_EARLYSUSPEND
++	struct early_suspend early_suspend;
++#endif
++};
++
++/*
++*ft5x06_i2c_read-read data and write data by i2c
++*@client: handle of i2c
++*@writebuf: Data that will be written to the slave
++*@writelen: How many bytes to write
++*@readbuf: Where to store data read from slave
++*@readlen: How many bytes to read
++*
++*Returns negative errno, else the number of messages executed
++*
++*/
++static int ft5x06_i2c_read(struct i2c_client *client, char *writebuf,
++			   int writelen, char *readbuf, int readlen)
++{
++	int ret;
++
++	if (writelen > 0) {
++		struct i2c_msg msgs[] = {
++			{
++			 .addr = client->addr,
++			 .flags = 0,
++			 .len = writelen,
++			 .buf = writebuf,
++			 },
++			{
++			 .addr = client->addr,
++			 .flags = I2C_M_RD,
++			 .len = readlen,
++			 .buf = readbuf,
++			 },
++		};
++		ret = i2c_transfer(client->adapter, msgs, 2);
++		if (ret < 0)
++			dev_err(&client->dev, "f%s: i2c read error.\n",
++				__func__);
++	} else {
++		struct i2c_msg msgs[] = {
++			{
++			 .addr = client->addr,
++			 .flags = I2C_M_RD,
++			 .len = readlen,
++			 .buf = readbuf,
++			 },
++		};
++		ret = i2c_transfer(client->adapter, msgs, 1);
++		if (ret < 0)
++			dev_err(&client->dev, "%s:i2c read error.\n", __func__);
++	}
++	return ret;
++}
++
++/*
++*write data by i2c
++*/
++static int ft5x06_i2c_write(struct i2c_client *client, char *writebuf,
++			    int writelen)
++{
++	int ret;
++
++	struct i2c_msg msgs[] = {
++		{
++		 .addr = client->addr,
++		 .flags = 0,
++		 .len = writelen,
++		 .buf = writebuf,
++		 },
++	};
++
++	ret = i2c_transfer(client->adapter, msgs, 1);
++	if (ret < 0)
++		dev_err(&client->dev, "f%s: i2c write error.\n", __func__);
++
++	return ret;
++}
++
++/*
++*report the point information
++*/
++static void ft5x06_report_value(struct ft5x06_ts_data *data)
++{
++	struct ts_event *event = &data->event;
++	int i;
++	int fingerdown = 0;
++
++	for (i = 0; i < event->touch_point; i++) {
++		if (event->touch_event[i] == 0 || event->touch_event[i] == 2) {
++			event->pressure = FT_PRESS;
++			fingerdown++;
++		} else {
++			event->pressure = 0;
++		}
++
++		input_report_abs(data->input_dev, ABS_MT_POSITION_X,
++				 event->x[i]);
++		input_report_abs(data->input_dev, ABS_MT_POSITION_Y,
++				 event->y[i]);
++		input_report_abs(data->input_dev, ABS_MT_PRESSURE,
++				 event->pressure);
++		input_report_abs(data->input_dev, ABS_MT_TRACKING_ID,
++				 event->finger_id[i]);
++		input_report_abs(data->input_dev, ABS_MT_TOUCH_MAJOR,
++				 event->pressure);
++		input_mt_sync(data->input_dev);
++	}
++
++	input_report_abs(data->input_dev, ABS_X, event->x[0]);
++	input_report_abs(data->input_dev, ABS_Y, event->y[0]);
++	if (event->touch_event[0] == 0 || event->touch_event[0] == 2) {
++		event->pressure = FT_PRESS;
++	} else {
++		event->pressure = 0;
++	}
++	input_report_abs(data->input_dev, ABS_PRESSURE, event->pressure);
++
++	input_report_key(data->input_dev, BTN_TOUCH, !!fingerdown);
++	input_sync(data->input_dev);
++}
++
++/*Read touch point information when the interrupt  is asserted.*/
++static int ft5x06_handle_touchdata(struct ft5x06_ts_data *data)
++{
++	struct ts_event *event = &data->event;
++	int ret, i;
++	u8 buf[POINT_READ_BUF] = { 0 };
++	u8 pointid = FT_MAX_ID;
++
++	ret = ft5x06_i2c_read(data->client, buf, 1, buf, POINT_READ_BUF);
++	if (ret < 0) {
++		dev_err(&data->client->dev, "%s read touchdata failed.\n",
++			__func__);
++		return ret;
++	}
++	memset(event, 0, sizeof(struct ts_event));
++
++	event->touch_point = 0;
++	for (i = 0; i < CFG_MAX_TOUCH_POINTS; i++) {
++		pointid = (buf[FT_TOUCH_ID_POS + FT_TOUCH_STEP * i]) >> 4;
++		if (pointid >= FT_MAX_ID)
++			break;
++		else
++			event->touch_point++;
++		event->x[i] =
++		    (s16) (buf[FT_TOUCH_X_H_POS + FT_TOUCH_STEP * i] & 0x0F) <<
++		    8 | (s16) buf[FT_TOUCH_X_L_POS + FT_TOUCH_STEP * i];
++		event->y[i] =
++		    (s16) (buf[FT_TOUCH_Y_H_POS + FT_TOUCH_STEP * i] & 0x0F) <<
++		    8 | (s16) buf[FT_TOUCH_Y_L_POS + FT_TOUCH_STEP * i];
++		event->touch_event[i] =
++		    buf[FT_TOUCH_EVENT_POS + FT_TOUCH_STEP * i] >> 6;
++		event->finger_id[i] =
++		    (buf[FT_TOUCH_ID_POS + FT_TOUCH_STEP * i]) >> 4;
++	}
++
++	ft5x06_report_value(data);
++
++	return 0;
++}
++
++/*The ft5x06 device will signal the host about TRIGGER_FALLING.
++*Processed when the interrupt is asserted.
++*/
++static irqreturn_t ft5x06_ts_interrupt(int irq, void *dev_id)
++{
++	struct ft5x06_ts_data *data = dev_id;
++	int rc;
++
++	rc = ft5x06_handle_touchdata(data);
++	if (rc)
++		pr_err("%s: handling touchdata failed\n", __func__);
++
++	return IRQ_HANDLED;
++}
++
++static int ft5x06_power_on(struct ft5x06_ts_data *data, bool on)
++{
++	int rc;
++
++	if (!on)
++		goto power_off;
++
++	rc = regulator_enable(data->vdd);
++	if (rc) {
++		dev_err(&data->client->dev,
++			"Regulator vdd enable failed rc=%d\n", rc);
++		return rc;
++	}
++
++	rc = regulator_enable(data->vcc_i2c);
++	if (rc) {
++		dev_err(&data->client->dev,
++			"Regulator vcc_i2c enable failed rc=%d\n", rc);
++		regulator_disable(data->vdd);
++	}
++
++	return rc;
++
++power_off:
++	rc = regulator_disable(data->vdd);
++	if (rc) {
++		dev_err(&data->client->dev,
++			"Regulator vdd disable failed rc=%d\n", rc);
++		return rc;
++	}
++
++	rc = regulator_disable(data->vcc_i2c);
++	if (rc) {
++		dev_err(&data->client->dev,
++			"Regulator vcc_i2c disable failed rc=%d\n", rc);
++		regulator_enable(data->vdd);
++	}
++
++	return rc;
++}
++
++static int ft5x06_power_init(struct ft5x06_ts_data *data, bool on)
++{
++	int rc;
++
++	if (!on)
++		goto pwr_deinit;
++
++	data->vdd = regulator_get(&data->client->dev, "vdd");
++	if (IS_ERR(data->vdd)) {
++		rc = PTR_ERR(data->vdd);
++		dev_err(&data->client->dev,
++			"Regulator get failed vdd rc=%d\n", rc);
++		return rc;
++	}
++
++	if (regulator_count_voltages(data->vdd) > 0) {
++		rc = regulator_set_voltage(data->vdd, FT5X06_VTG_MIN_UV,
++					   FT5X06_VTG_MAX_UV);
++		if (rc) {
++			dev_err(&data->client->dev,
++				"Regulator set_vtg failed vdd rc=%d\n", rc);
++			goto reg_vdd_put;
++		}
++	}
++
++	data->vcc_i2c = regulator_get(&data->client->dev, "vcc_i2c");
++	if (IS_ERR(data->vcc_i2c)) {
++		rc = PTR_ERR(data->vcc_i2c);
++		dev_err(&data->client->dev,
++			"Regulator get failed vcc_i2c rc=%d\n", rc);
++		goto reg_vdd_set_vtg;
++	}
++
++	if (regulator_count_voltages(data->vcc_i2c) > 0) {
++		rc = regulator_set_voltage(data->vcc_i2c, FT5X06_I2C_VTG_MIN_UV,
++					   FT5X06_I2C_VTG_MAX_UV);
++		if (rc) {
++			dev_err(&data->client->dev,
++			"Regulator set_vtg failed vcc_i2c rc=%d\n", rc);
++			goto reg_vcc_i2c_put;
++		}
++	}
++
++	return 0;
++
++reg_vcc_i2c_put:
++	regulator_put(data->vcc_i2c);
++reg_vdd_set_vtg:
++	if (regulator_count_voltages(data->vdd) > 0)
++		regulator_set_voltage(data->vdd, 0, FT5X06_VTG_MAX_UV);
++reg_vdd_put:
++	regulator_put(data->vdd);
++	return rc;
++
++pwr_deinit:
++	if (regulator_count_voltages(data->vdd) > 0)
++		regulator_set_voltage(data->vdd, 0, FT5X06_VTG_MAX_UV);
++
++	regulator_put(data->vdd);
++
++	if (regulator_count_voltages(data->vcc_i2c) > 0)
++		regulator_set_voltage(data->vcc_i2c, 0, FT5X06_I2C_VTG_MAX_UV);
++
++	regulator_put(data->vcc_i2c);
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int ft5x06_ts_suspend(struct device *dev)
++{
++	struct ft5x06_ts_data *data = dev_get_drvdata(dev);
++	char txbuf[2];
++
++	disable_irq(data->client->irq);
++
++	if (gpio_is_valid(data->pdata->reset_gpio)) {
++		txbuf[0] = FT5X06_REG_PMODE;
++		txbuf[1] = FT5X06_PMODE_HIBERNATE;
++		ft5x06_i2c_write(data->client, txbuf, sizeof(txbuf));
++	}
++
++	return 0;
++}
++
++static int ft5x06_ts_resume(struct device *dev)
++{
++	struct ft5x06_ts_data *data = dev_get_drvdata(dev);
++
++	if (gpio_is_valid(data->pdata->reset_gpio)) {
++		gpio_set_value_cansleep(data->pdata->reset_gpio, 0);
++		msleep(FT_RESET_DLY);
++		gpio_set_value_cansleep(data->pdata->reset_gpio, 1);
++	}
++	enable_irq(data->client->irq);
++
++	return 0;
++}
++
++#ifdef CONFIG_HAS_EARLYSUSPEND
++static void ft5x06_ts_early_suspend(struct early_suspend *handler)
++{
++	struct ft5x06_ts_data *data = container_of(handler,
++						   struct ft5x06_ts_data,
++						   early_suspend);
++
++	ft5x06_ts_suspend(&data->client->dev);
++}
++
++static void ft5x06_ts_late_resume(struct early_suspend *handler)
++{
++	struct ft5x06_ts_data *data = container_of(handler,
++						   struct ft5x06_ts_data,
++						   early_suspend);
++
++	ft5x06_ts_resume(&data->client->dev);
++}
++#endif
++
++static const struct dev_pm_ops ft5x06_ts_pm_ops = {
++#ifndef CONFIG_HAS_EARLYSUSPEND
++	.suspend = ft5x06_ts_suspend,
++	.resume = ft5x06_ts_resume,
++#endif
++};
++#endif
++
++static int ft5x06_ts_probe(struct i2c_client *client,
++			   const struct i2c_device_id *id)
++{
++	const struct ft5x06_ts_platform_data *pdata = client->dev.platform_data;
++	struct ft5x06_ts_data *data;
++	struct input_dev *input_dev;
++	u8 reg_value;
++	u8 reg_addr;
++	char txbuf[2];
++	int err;
++
++	if (!pdata) {
++		dev_err(&client->dev, "Invalid pdata\n");
++		return -EINVAL;
++	}
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev, "I2C not supported\n");
++		return -ENODEV;
++	}
++
++	data = kzalloc(sizeof(struct ft5x06_ts_data), GFP_KERNEL);
++	if (!data) {
++		dev_err(&client->dev, "Not enough memory\n");
++		return -ENOMEM;
++	}
++
++	input_dev = input_allocate_device();
++	if (!input_dev) {
++		err = -ENOMEM;
++		dev_err(&client->dev, "failed to allocate input device\n");
++		goto free_mem;
++	}
++
++	data->input_dev = input_dev;
++	data->client = client;
++	data->pdata = pdata;
++
++	input_dev->name = "ft5x06_ts";
++	input_dev->id.bustype = BUS_I2C;
++	input_dev->dev.parent = &client->dev;
++
++	input_set_drvdata(input_dev, data);
++	i2c_set_clientdata(client, data);
++
++	__set_bit(EV_KEY, input_dev->evbit);
++	__set_bit(EV_ABS, input_dev->evbit);
++	__set_bit(BTN_TOUCH, input_dev->keybit);
++
++	/* For single touch */
++	input_set_abs_params(input_dev, ABS_X,
++			     0, pdata->x_max, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y,
++			     0, pdata->y_max, 0, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE,
++			     0, FT_PRESS, 0, 0);
++
++	input_mt_init_slots(input_dev, CFG_MAX_TOUCH_POINTS);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0,
++			     pdata->x_max, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
++			     pdata->y_max, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_TRACKING_ID, 0,
++			     CFG_MAX_TOUCH_POINTS, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, FT_PRESS, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_PRESSURE, 0, FT_PRESS, 0, 0);
++
++	err = input_register_device(input_dev);
++	if (err) {
++		dev_err(&client->dev, "Input device registration failed\n");
++		goto free_inputdev;
++	}
++
++	if (pdata->power_init) {
++		err = pdata->power_init(true);
++		if (err) {
++			dev_err(&client->dev, "power init failed");
++			goto unreg_inputdev;
++		}
++	} else {
++		err = ft5x06_power_init(data, true);
++		if (err) {
++			dev_err(&client->dev, "power init failed");
++			goto unreg_inputdev;
++		}
++	}
++
++	if (pdata->power_on) {
++		err = pdata->power_on(true);
++		if (err) {
++			dev_err(&client->dev, "power on failed");
++			goto pwr_deinit;
++		}
++	} else {
++		err = ft5x06_power_on(data, true);
++		if (err) {
++			dev_err(&client->dev, "power on failed");
++			goto pwr_deinit;
++		}
++	}
++
++	if (gpio_is_valid(pdata->irq_gpio)) {
++		err = gpio_request(pdata->irq_gpio, "ft5x06_irq_gpio");
++		if (err) {
++			dev_err(&client->dev, "irq gpio request failed");
++			goto pwr_off;
++		}
++		err = gpio_direction_input(pdata->irq_gpio);
++		if (err) {
++			dev_err(&client->dev,
++				"set_direction for irq gpio failed\n");
++			goto free_irq_gpio;
++		}
++	}
++
++	if (gpio_is_valid(pdata->reset_gpio)) {
++		err = gpio_request(pdata->reset_gpio, "ft5x06_reset_gpio");
++		if (err) {
++			dev_err(&client->dev, "reset gpio request failed");
++			goto free_irq_gpio;
++		}
++
++		err = gpio_direction_output(pdata->reset_gpio, 0);
++		if (err) {
++			dev_err(&client->dev,
++				"set_direction for reset gpio failed\n");
++			goto free_reset_gpio;
++		}
++		msleep(FT_RESET_DLY);
++		gpio_set_value_cansleep(data->pdata->reset_gpio, 1);
++	}
++
++	/* make sure CTP already finish startup process */
++	msleep(FT_STARTUP_DLY);
++
++	/*get some register information */
++	reg_addr = FT5X06_REG_FW_VER;
++	err = ft5x06_i2c_read(client, &reg_addr, 1, &reg_value, 1);
++	if (err < 0)
++		dev_err(&client->dev, "version read failed");
++
++	dev_info(&client->dev, "[FTS] Firmware version = 0x%x\n", reg_value);
++
++	reg_addr = FT5X06_REG_POINT_RATE;
++	err = ft5x06_i2c_read(client, &reg_addr, 1, &reg_value, 1);
++	if (err < 0)
++		dev_err(&client->dev, "report rate read failed");
++	dev_info(&client->dev, "[FTS] report rate is %dHz.\n", reg_value * 10);
++
++	txbuf[0] = FT5X06_REG_THGROUP;
++	txbuf[1] = pdata->touch_threshold / 4;
++	dev_info(&client->dev, "[FTS] Setting touch threshold to %d.\n",
++			pdata->touch_threshold);
++	err = ft5x06_i2c_write(client, &reg_value, 1);
++	if (err < 0)
++		dev_err(&client->dev, "threshold write failed: %d", err);
++
++	reg_addr = FT5X06_REG_THGROUP;
++	err = ft5x06_i2c_read(client, &reg_addr, 1, &reg_value, 1);
++	if (err < 0)
++		dev_err(&client->dev, "threshold read failed");
++	dev_dbg(&client->dev, "[FTS] touch threshold is %d.\n", reg_value * 4);
++
++	err = request_threaded_irq(client->irq, NULL,
++				   ft5x06_ts_interrupt, pdata->irqflags,
++				   client->dev.driver->name, data);
++	if (err) {
++		dev_err(&client->dev, "request irq failed\n");
++		goto free_reset_gpio;
++	}
++#ifdef CONFIG_HAS_EARLYSUSPEND
++	data->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN +
++	    FT5X06_SUSPEND_LEVEL;
++	data->early_suspend.suspend = ft5x06_ts_early_suspend;
++	data->early_suspend.resume = ft5x06_ts_late_resume;
++	register_early_suspend(&data->early_suspend);
++#endif
++
++	return 0;
++
++free_reset_gpio:
++	if (gpio_is_valid(pdata->reset_gpio))
++		gpio_free(pdata->reset_gpio);
++free_irq_gpio:
++	if (gpio_is_valid(pdata->irq_gpio))
++		gpio_free(pdata->reset_gpio);
++pwr_off:
++	if (pdata->power_on)
++		pdata->power_on(false);
++	else
++		ft5x06_power_on(data, false);
++pwr_deinit:
++	if (pdata->power_init)
++		pdata->power_init(false);
++	else
++		ft5x06_power_init(data, false);
++unreg_inputdev:
++	input_unregister_device(input_dev);
++	input_dev = NULL;
++free_inputdev:
++	input_free_device(input_dev);
++free_mem:
++	kfree(data);
++	return err;
++}
++
++static int __devexit ft5x06_ts_remove(struct i2c_client *client)
++{
++	struct ft5x06_ts_data *data = i2c_get_clientdata(client);
++
++#ifdef CONFIG_HAS_EARLYSUSPEND
++	unregister_early_suspend(&data->early_suspend);
++#endif
++	free_irq(client->irq, data);
++
++	if (gpio_is_valid(data->pdata->reset_gpio))
++		gpio_free(data->pdata->reset_gpio);
++
++	if (gpio_is_valid(data->pdata->irq_gpio))
++		gpio_free(data->pdata->reset_gpio);
++
++	if (data->pdata->power_on)
++		data->pdata->power_on(false);
++	else
++		ft5x06_power_on(data, false);
++
++	if (data->pdata->power_init)
++		data->pdata->power_init(false);
++	else
++		ft5x06_power_init(data, false);
++
++	input_unregister_device(data->input_dev);
++	kfree(data);
++
++	return 0;
++}
++
++static const struct i2c_device_id ft5x06_ts_id[] = {
++	{"ft5x06_ts", 0},
++	{},
++};
++
++MODULE_DEVICE_TABLE(i2c, ft5x06_ts_id);
++
++static struct i2c_driver ft5x06_ts_driver = {
++	.probe = ft5x06_ts_probe,
++	.remove = __devexit_p(ft5x06_ts_remove),
++	.driver = {
++		   .name = "ft5x06_ts",
++		   .owner = THIS_MODULE,
++#ifdef CONFIG_PM
++		   .pm = &ft5x06_ts_pm_ops,
++#endif
++		   },
++	.id_table = ft5x06_ts_id,
++};
++
++static int __init ft5x06_ts_init(void)
++{
++	return i2c_add_driver(&ft5x06_ts_driver);
++}
++module_init(ft5x06_ts_init);
++
++static void __exit ft5x06_ts_exit(void)
++{
++	i2c_del_driver(&ft5x06_ts_driver);
++}
++module_exit(ft5x06_ts_exit);
++
++MODULE_DESCRIPTION("FocalTech ft5x06 TouchScreen driver");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/input/edt-ft5x06.h b/include/linux/input/edt-ft5x06.h
+deleted file mode 100644
+index 8a1e0d1..0000000
+--- a/include/linux/input/edt-ft5x06.h
++++ /dev/null
+@@ -1,24 +0,0 @@
+-#ifndef _EDT_FT5X06_H
+-#define _EDT_FT5X06_H
+-
+-/*
+- * Copyright (c) 2012 Simon Budig, <simon.budig@kernelconcepts.de>
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License version 2 as published by
+- * the Free Software Foundation.
+- */
+-
+-struct edt_ft5x06_platform_data {
+-	int irq_pin;
+-	int reset_pin;
+-
+-	/* startup defaults for operational parameters */
+-	bool use_parameters;
+-	u8 gain;
+-	u8 threshold;
+-	u8 offset;
+-	u8 report_rate;
+-};
+-
+-#endif /* _EDT_FT5X06_H */
+diff --git a/include/linux/input/ft5x06_ts.h b/include/linux/input/ft5x06_ts.h
+new file mode 100644
+index 0000000..c416097
+--- /dev/null
++++ b/include/linux/input/ft5x06_ts.h
+@@ -0,0 +1,32 @@
++/*
++ *
++ * FocalTech ft5x06 TouchScreen driver header file.
++ *
++ * Copyright (c) 2010  Focal tech Ltd.
++ * Copyright (c) 2012, Code Aurora Forum. All rights reserved.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++#ifndef __LINUX_FT5X06_TS_H__
++#define __LINUX_FT5X06_TS_H__
++
++struct ft5x06_ts_platform_data {
++	unsigned long irqflags;
++	u32 x_max;
++	u32 y_max;
++	u32 irq_gpio;
++	u32 reset_gpio;
++	u16  touch_threshold;
++	int (*power_init) (bool);
++	int (*power_on) (bool);
++};
++
++#endif
+diff --git a/sound/soc/davinci/davinci-evm.c b/sound/soc/davinci/davinci-evm.c
+index fe1563c..fb5c33c 100644
+--- a/sound/soc/davinci/davinci-evm.c
++++ b/sound/soc/davinci/davinci-evm.c
+@@ -27,6 +27,9 @@
+ #ifdef CONFIG_MACH_AM335XEVM
+ #include <mach/board-am335xevm.h>
+ #endif
++#ifdef CONFIG_MACH_PIA_AM335X
++#include <mach/board-am335xpia.h>
++#endif
+ 
+ #include "davinci-pcm.h"
+ #include "davinci-i2s.h"
+@@ -66,7 +69,11 @@ static int evm_hw_params(struct snd_pcm_substream *substream,
+ 		else
+ #endif
+ 			sysclk = 12000000;
+-
++#ifdef CONFIG_MACH_PIA_AM335X
++	else if (machine_is_pia_am335x() &&
++			am335x_pia_get_id() == PIA335_KM_MMI)
++			sysclk = 24000000;
++#endif
+ 	else
+ 		return -EINVAL;
+ 
+@@ -271,6 +278,17 @@ static struct snd_soc_dai_link am335x_evm_sk_dai = {
+ 	.ops = &evm_ops,
+ };
+ 
++static struct snd_soc_dai_link am335x_km_mmi_dai = {
++	.name = "TLV320AIC3X",
++	.stream_name = "AIC3X",
++	.cpu_dai_name = "davinci-mcasp.0",
++	.codec_dai_name = "tlv320aic3x-hifi",
++	.codec_name = "tlv320aic3x-codec.1-001b",
++	.platform_name = "davinci-pcm-audio",
++	.init = evm_aic3x_init,
++	.ops = &evm_ops,
++};
++
+ /* davinci dm6446 evm audio machine driver */
+ static struct snd_soc_card dm6446_snd_soc_card_evm = {
+ 	.name = "DaVinci DM6446 EVM",
+@@ -323,6 +341,12 @@ static struct snd_soc_card am335x_evm_sk_snd_soc_card = {
+ 	.num_links = 1,
+ };
+ 
++static struct snd_soc_card am335x_km_mmi_snd_soc_card = {
++	.name = "AM335X KM_MMI",
++	.dai_link = &am335x_km_mmi_dai,
++	.num_links = 1,
++};
++
+ static struct platform_device *evm_snd_device;
+ 
+ static int __init evm_init(void)
+@@ -356,7 +380,15 @@ static int __init evm_init(void)
+ 			evm_snd_dev_data = &am335x_evm_sk_snd_soc_card;
+ #endif
+ 		index = 0;
+-	} else
++	}
++#ifdef CONFIG_MACH_PIA_AM335X
++	else if (machine_is_pia_am335x() &&
++			am335x_pia_get_id() == PIA335_KM_MMI) {
++		evm_snd_dev_data = &am335x_km_mmi_snd_soc_card;
++		index = 0;
++		}
++#endif
++	else
+ 		return -EINVAL;
+ 
+ 	evm_snd_device = platform_device_alloc("soc-audio", index);
