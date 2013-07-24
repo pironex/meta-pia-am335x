@@ -9,18 +9,19 @@ DEFAULT_PREFERENCE = "100"
 #DEFAULT_PREFERENCE_ti33x = "100"
 
 PV = "2012.12+pia"
-PR = "r4"
+PR = "r8"
 
+UBOOT_MACHINE ?= "am335x_pia_mmi_config"
 # SPL build
 UBOOT_BINARY = "u-boot.img"
 UBOOT_IMAGE = "u-boot-${MACHINE}-${PV}-${PR}.img"
 UBOOT_SYMLINK = "u-boot-${MACHINE}.img"
 
-SRC_URI = "git://github.com/pironex/pia-uboot.git;protocol=git;branch=pia-am335x-dev \
-	file://pia-am335x-patches.diff \
+SRC_URI = "git://github.com/pironex/pia-uboot.git;protocol=git;branch=pia-am335x-mmi-dev \
           "
+#	file://01_master.diff
 
-SRCREV = "84f178821e22b242368c94dc6fd5cd565ac62056"
+SRCREV = "e11b002f864d59f26cc156156ab0d2e64f7e5156"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=1707d6db1d42237583f50183a5651ecb"
 
