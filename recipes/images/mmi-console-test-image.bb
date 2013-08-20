@@ -43,5 +43,6 @@ RRECOMMENDS += " \
 	kernel-module-8021q \
 "
 
+IMAGE_FEATURES += "ssh-server-openssh"
 export IMAGE_BASENAME = "mmi-test-console"
 
