@@ -16,7 +16,7 @@ IMAGE_INSTALL += " \
 	angstrom-packagegroup-boot \
 	packagegroup-basic \
 	${CONMANPKGS} \
-	${ROOTFS_PKGMANAGE_PKGS} \
+	${ROOTFS_PKGMANAGE_PKGS} update-alternatives-cworth \
 	timestamp-service \
 "
 
