@@ -7,7 +7,6 @@ IMAGE_INSTALL += " \
 	usbutils \
 	i2c-tools \
 	devmem2 \
-	iw \
 	bonnie++ \
 	hdparm \
 	iozone3 \
@@ -19,6 +18,8 @@ IMAGE_INSTALL += " \
 	fb-test \
 	bc \
 	ethtool \
+	fixmac \
+	iw \
 	tcpdump \
 	tslib \
 	alsa-state \
