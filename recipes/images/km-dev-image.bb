@@ -3,6 +3,11 @@
 #require systemd-image.bb
 require console-image.bb
 
+DEV_PACKAGES = " \
+    gdb \
+    gdbserver \
+"
+
 IMAGE_INSTALL += " \
 	usbutils \
 	i2c-tools \
@@ -33,6 +38,7 @@ IMAGE_INSTALL += " \
 	matrix-gui-browser matrix-gui-qt4-demos matrix-gui-armbenchmarks-demos matrix-gui-ethernet-demos matrix-gui-settings-demos \
 	tslib tslib-tests tslib-calibrate qt4-embedded-plugin-mousedriver-tslib \
 	icu \
+	${DEV_PACKAGES} \
 "
 #	libgles-omap3 \
 #	libgles-omap3-blitwsegl \
@@ -42,11 +48,10 @@ IMAGE_INSTALL += " \
 #	libgles-omap3-rawdemos \
 #	omap3-sgx-modules \
 #
-
-RRECOMMENDS += " \
-	kernel-module-8021q \
-	gdb gdbserver \
-"
+#
+#RRECOMMENDS += " \
+#	gdb gdbserver \
+#"
 
 IMAGE_FEATURES += "ssh-server-openssh eclipse-debug tools-debug"
 export IMAGE_BASENAME = "km-dev"
