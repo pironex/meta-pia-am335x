@@ -1,9 +1,0 @@
-# Image for assisting in hardware bringup
-
-#require hardware-bringup-image.bb
-
-IMAGE_INSTALL += " \
-	ethtool \
-"
-#export IMAGE_BASENAME = "e2-base"
-
