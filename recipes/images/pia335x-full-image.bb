@@ -9,7 +9,7 @@ BENCHMARK_PACKAGES = " \
 	lmbench \
 "
 
-HWTESTING_PACKAGES = " \
+HWTEST_PACKAGES = " \
 	i2c-tools \
 	devmem2 \
 	hdparm \
