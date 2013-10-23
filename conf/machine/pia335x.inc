@@ -35,7 +35,3 @@ IMAGE_FSTYPES += " tar.bz2 "
 
 # Guesswork
 SERIAL_CONSOLE = "115200 ttyO0"
-
-# use real openssh daemon to allow building an SDK as this isn't possible at the moment
-# this is set in angstrom conf now
-#TASK_BASIC_SSHDAEMON = "openssh-sshd openssh-sftp openssh-sftp-server"
