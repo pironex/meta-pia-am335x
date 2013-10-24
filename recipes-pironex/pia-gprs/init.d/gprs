@@ -1,0 +1,131 @@
+#!/bin/sh
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin                                                                                                   
+#DAEMON=/usr/sbin/lighttpd                                                                                                            
+NAME="Telit GE864-Quad V2"
+DESC="GPRS Device"
+#OPTS="-f /etc/lighttpd.conf"
+GPIO_POWERON=29
+GPIO_GPRSONOFF=127
+GPIO_GPRSRESET=126
+GPIO_USB_SW=116
+RUN_CMUX=true
+
+if [ ! -e /etc/default/gprs ] ; then exit 0 ; fi
+
+. /etc/default/gprs
+
+if [ $GPRS_ENABLED == false ] ; then exit 0 ; fi
+
+if [ ! -e /sys/class/gpio/gpio$GPIO_POWERON ] ; then exit 0 ; fi
+
+case "$1" in
+  start)
+	echo -n "Initializing $DESC: "
+	if [ $GPRS_ENABLED == "umts" ] ; then
+		RUN_CMUX=false
+		NAME="Telit UC864-E"
+		if [ -e /sys/class/gpio/gpio$GPIO_USB_SW ] ; then
+			if [ -e /sys/class/gpio/gpio$GPIO_USB_SW/value ] ; then
+				echo 1 > /sys/class/gpio/gpio$GPIO_USB_SW/value
+			fi
+		fi
+	fi
+	if [ -e /sys/class/gpio/gpio$GPIO_GPRSRESET ] ; then
+		if [ -e /sys/class/gpio/gpio$GPIO_GPRSRESET/value ] ; then
+			echo 0 > /sys/class/gpio/gpio$GPIO_GPRSRESET/value
+		fi
+	else
+		echo -n "Getting GPRS POWER GPIO failed!"
+		exit 1
+	fi
+	if [ -e /sys/class/gpio/gpio$GPIO_POWERON ] ; then
+		if [ -e /sys/class/gpio/gpio$GPIO_POWERON/direction ] ; then
+			echo out > /sys/class/gpio/gpio$GPIO_POWERON/direction
+		fi
+		if [ -e /sys/class/gpio/gpio$GPIO_POWERON/value ] ; then
+			# turn off power to get a clean poweron
+			echo 0 > /sys/class/gpio/gpio$GPIO_POWERON/value
+		fi
+	else
+		echo -n "Getting GPRS RESET GPIO failed!"
+		exit 1
+	fi
+	if [ -e /sys/class/gpio/gpio$GPIO_GPRSONOFF ] ; then
+		if [ -e /sys/class/gpio/gpio$GPIO_GPRSONOFF/value ] ; then
+			echo 0 > /sys/class/gpio/gpio$GPIO_GPRSONOFF/value
+		fi
+	else
+		echo -n "Getting GPRS ON/OFF GPIO failed!"
+		exit 1
+	fi
+	# wait to turn power back on
+	sleep 1
+	echo 1 > /sys/class/gpio/gpio$GPIO_POWERON/value
+	sleep 2
+	
+	# 1 second pulse to turn on
+	echo 1 > /sys/class/gpio/gpio$GPIO_GPRSONOFF/value
+	sleep 1
+	echo 0 > /sys/class/gpio/gpio$GPIO_GPRSONOFF/value
+	# takes 300 ms to power on
+	sleep 2
+	
+	if [ $RUN_CMUX == "true" ] ; then
+		if [ -x /usr/sbin/cmux ] ; then
+			echo " with cmux "
+			/usr/sbin/cmux
+		fi
+
+		sleep 1
+		# /etc/init.d/mkcmuxdev.sh
+	fi
+	echo "$NAME."
+	;;
+  stop)
+	# disable USB-Switch
+	if [ $GPRS_ENABLED == "umts" ] ; then
+		echo 0 > /sys/class/gpio/gpio$GPIO_USB_SW/value
+	fi
+                            
+	echo -n "Shutting down $DESC: "
+	# 1 second pulse to turn off
+	echo 1 > /sys/class/gpio/gpio$GPIO_GPRSONOFF/value
+	sleep 3
+	echo 0 > /sys/class/gpio/gpio$GPIO_GPRSONOFF/value
+	# should be turned off for at least 4 seconds!
+	echo 0 > /sys/class/gpio/gpio$GPIO_POWERON/value
+
+	pids=`pidof cmux`
+	if [[ pids != "" ]] ; then
+		echo "$NAME."
+		exit 0
+	fi
+	
+	tty=$(fuser /dev/gsmtty*)
+	if [[ "${tty}" != "" ]] ; then 
+		echo "Kill ${tty}"
+		kill ${tty}
+		sleep 3
+
+		if [[ "${tty}" != "" ]] ; then 
+			echo "Kill -9 ${tty}"
+			kill -9 ${tty}
+			sleep 1
+		fi
+	fi
+	
+	echo "$NAME."
+	if [[ pids != "" ]] ; then
+		echo "Stopping cmux."
+		kill $pids
+	fi
+	;;
+  *)                                                                                                                                 
+	N=/etc/init.d/gprs                                                                                                          
+	echo "Usage: $N {start|stop}" >&2                                                                       
+	exit 1                                                                                                                       
+	;;                                                                                                                           
+esac                                                                                                                                 
+                                                                                                                                     
+exit 0                                                                                                                               

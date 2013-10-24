@@ -1,0 +1,9 @@
+## watchdog settings ##
+
+# Uncomment the following line to disable the use of the external watchdog.
+#WATCHDOG_DISABLED="yes"
+
+# Set watchdog interval in seconds:
+# To use another timeout as the default timeout (60s),
+# uncomment the following line and type in the new value.
+#WATCHDOG_INTERVAL=60

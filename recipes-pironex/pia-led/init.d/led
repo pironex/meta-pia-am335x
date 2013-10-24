@@ -1,0 +1,38 @@
+#! /bin/sh
+#
+# led		Deactivate the heartbeat led.
+#
+# Version:      @(#)led  1.0  07-Nov-2011  pironex GmbH
+#
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+TRIGGERPATH=/sys/class/leds/led1/
+TRIGGER=heartbeat
+NAME="led"
+
+if [ ! -e $TRIGGERPATH ] ; then exit 0 ; fi
+
+case "$1" in
+  start)
+	echo -n "Initializing piA Status LED with trigger $TRIGGER: "
+#	if [ -e $TRIGGERPATH/trigger ]; then
+#		echo $TRIGGER > $TRIGGERPATH/trigger
+#	fi
+	echo "$NAME."
+	;;
+  stop)
+	echo -n "Disabling piA Status LED with trigger $TRIGGER: "
+	if [ -e $TRIGGERPATH/trigger ]; then
+		echo none > $TRIGGERPATH/trigger
+	fi
+	echo "$NAME."
+	;;
+  *)
+	N=/etc/init.d/$NAME
+	echo "Usage: $N {start|stop}" >&2
+	exit 1
+	;;
+esac
+
+
+: exit 0

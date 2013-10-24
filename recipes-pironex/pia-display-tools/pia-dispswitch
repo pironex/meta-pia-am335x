@@ -1,0 +1,72 @@
+#!/bin/sh
+
+SYSFS_DIR="/sys/devices/platform/omapdss/"
+
+echo $#
+
+if [ $# -ge 1 ] ; then
+    DISP=$1;
+else
+    echo "Usage: $0 (lcd|dvi) [xres yres]"
+    exit 1
+fi
+
+BPP=32
+case $DISP in
+    lcd)
+	DISPNUM=0
+	XRES=480
+	YRES=272
+    ;;
+    dvi)
+	DISPNUM=2
+	XRES=1024
+	YRES=768
+    ;;
+    *)
+	echo 'Specify display type as "lcd" or "dvi"'
+	exit 2
+esac
+
+if [ $# -ge 3 ] ; then
+    XRES=$2
+    YRES=$3
+fi
+
+if [ $# -eq 4 ] ; then
+    BPP=$4
+fi
+
+if [ -x /etc/init.d/pvr-init ] ; then
+    echo "Stopping PVR"
+    /etc/init.d/pvr-init stop
+fi
+
+ps ax | grep \\-qws | grep -v grep && echo "WARNING: You are running QTe processes, these will break, when you change the resolution!"
+
+echo "Disabling all displays"
+for i in 0 2 ; do 
+    if [ -e ${SYSFS_DIR}/display${i} ] ; then
+	echo 0 > ${SYSFS_DIR}/display${i}/enabled
+    fi
+done
+
+sleep 1
+echo "Resetting manager"
+if [ -e ${SYSFS_DIR}/manager0 ] ; then
+    echo "" > ${SYSFS_DIR}/manager0/display
+fi
+
+echo "Initializing FB with new resolution ${XRES}x${YRES}-${BPP}"
+fbset -fb /dev/fb0 -xres $XRES -yres $YRES -vxres $XRES -vyres $YRES -depth $BPP
+
+echo "Initializing manager for ${DISP}"
+echo ${DISP} > ${SYSFS_DIR}/manager0/display 
+
+echo "Enabling ${DISP}"
+echo 1 > ${SYSFS_DIR}/display${DISPNUM}/enabled 
+
+if [ -x /etc/init.d/pvr-init ] ; then
+    /etc/init.d/pvr-init start
+fi
+

@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+## Do not configure this file. Edit /etc/default/watchdog instead!
+#
+
+### BEGIN INIT INFO
+# Provides:		watchdog
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	watchdog is a controlling daemon for the external watchdog
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin                                                                                                   
+NAME=watchdog
+DESC="Watchdog Daemon"
+DEV="DS1374"
+DAEMON=/usr/sbin/watchdog
+
+# Reads config file
+test ! -r /etc/default/watchdog || . /etc/default/watchdog
+test "$WATCHDOG_DISABLED" = "yes" && exit 0
+test -x "$DAEMON" || exit 0
+
+INTERVAL="$WATCHDOG_INTERVAL"
+
+case "$1" in
+  start)
+	echo "Starting $DESC "
+	if [ -n "$INTERVAL" ]; then
+	    "$DAEMON" -i $INTERVAL &
+	    echo "(Interval is set to "$INTERVAL"s)"
+	else
+	    "$DAEMON" &
+	fi
+	;;
+  stop)
+	echo -n "Stopping $DESC: "
+	"$DAEMON" -s
+	;;
+  *)                                                                                                                                 
+	N=/etc/init.d/$NAME                                                                                                          
+	echo "Usage: $N {start|stop}" >&2                                                                       
+	exit 1                                                                                                                       
+	;;                                                                                                                           
+esac                                                                                                                                 
+                                                                                                                                     
+exit 0                                                                                                                               

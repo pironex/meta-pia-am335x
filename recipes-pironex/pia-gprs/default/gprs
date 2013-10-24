@@ -1,0 +1,9 @@
+# umts, gprs and false
+#
+# Default is false, you have to enable your device here to initialize it during boot.
+#
+# GPRS_CMUX is ignored when umts is selected
+# GPRS_CMUX should be enabled for GPRS modules if you need more than one serial connection
+# to the GPRS modules (e.g. data connection + call handling at the same time)
+GPRS_ENABLED=false
+GPRS_CMUX=false
