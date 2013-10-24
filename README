@@ -1,11 +1,18 @@
-Machine specific overlay for AM335x based boards by pironex
+Machine specific OpenEmbedded overlay for AM335x and AM35x based 
+boards by pironex.
 
-Initially this repo will also include image and package specific changes
-used to generate images for piA-AM335x.
+This repo will also include image and package specific changes
+used to generate images for piA-AM335x and piA-AM35x.
+
+It is planned to port the outdated piA-AM35x images and packages to
+this layer (initial recipes for u-boot/kernel are done).
 
 
 Dependencies
 ============
 
 - OE layers as created by the Angstrom setup-scripts
-- current base release version v2012.05
+- current base release version v2013.06 (yocto 1.4)
+
+
+For more information, see http://www.pironex.de
