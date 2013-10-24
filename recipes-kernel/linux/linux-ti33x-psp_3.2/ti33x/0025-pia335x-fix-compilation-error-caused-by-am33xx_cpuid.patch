@@ -1,0 +1,32 @@
+From 74885f2a971b8eb02210a122f2498e80f0dbc8c4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Krombholz?= <b.krombholz@pironex.de>
+Date: Wed, 23 Oct 2013 17:33:59 +0200
+Subject: [PATCH 25/27] pia335x: fix compilation error caused by
+ am33xx_cpuidle_config changes
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- remove ddr2_pdown status flag
+
+Signed-off-by: Björn Krombholz <b.krombholz@pironex.de>
+---
+ arch/arm/mach-omap2/board-am335xpia.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-omap2/board-am335xpia.c b/arch/arm/mach-omap2/board-am335xpia.c
+index b9a871e..c4a06d7 100644
+--- a/arch/arm/mach-omap2/board-am335xpia.c
++++ b/arch/arm/mach-omap2/board-am335xpia.c
+@@ -1727,7 +1727,7 @@ static struct resource am33xx_cpuidle_resources[] = {
+ 
+ /* AM33XX devices support DDR2 power down */
+ static struct am33xx_cpuidle_config pia335x_cpuidle_pdata = {
+-	.ddr2_pdown	= 1,
++	//.ddr2_pdown	= 1,
+ };
+ 
+ static struct platform_device pia335x_cpuidle_device = {
+-- 
+1.8.4.rc3
+

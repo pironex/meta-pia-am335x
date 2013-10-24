@@ -1,0 +1,65 @@
+From 4876f98b78ccdc83f4623bd6ba5eac709be18a37 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Krombholz?= <b.krombholz@pironex.de>
+Date: Wed, 23 Oct 2013 17:37:41 +0200
+Subject: [PATCH 24/27] fix permissions that got changed by crypto patches
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Björn Krombholz <b.krombholz@pironex.de>
+---
+ arch/arm/configs/am335x_evm_defconfig      | 0
+ arch/arm/mach-omap2/devices.c              | 0
+ arch/arm/mach-omap2/omap_hwmod_33xx_data.c | 0
+ drivers/char/hw_random/Kconfig             | 0
+ drivers/char/hw_random/Makefile            | 0
+ drivers/char/hw_random/omap4-rng.c         | 0
+ drivers/crypto/Kconfig                     | 0
+ drivers/crypto/Makefile                    | 0
+ drivers/crypto/omap4-aes.c                 | 0
+ drivers/crypto/omap4-sham.c                | 0
+ 10 files changed, 0 insertions(+), 0 deletions(-)
+ mode change 100755 => 100644 arch/arm/configs/am335x_evm_defconfig
+ mode change 100755 => 100644 arch/arm/mach-omap2/devices.c
+ mode change 100755 => 100644 arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+ mode change 100755 => 100644 drivers/char/hw_random/Kconfig
+ mode change 100755 => 100644 drivers/char/hw_random/Makefile
+ mode change 100755 => 100644 drivers/char/hw_random/omap4-rng.c
+ mode change 100755 => 100644 drivers/crypto/Kconfig
+ mode change 100755 => 100644 drivers/crypto/Makefile
+ mode change 100755 => 100644 drivers/crypto/omap4-aes.c
+ mode change 100755 => 100644 drivers/crypto/omap4-sham.c
+
+diff --git a/arch/arm/configs/am335x_evm_defconfig b/arch/arm/configs/am335x_evm_defconfig
+old mode 100755
+new mode 100644
+diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
+old mode 100755
+new mode 100644
+diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
+old mode 100755
+new mode 100644
+diff --git a/drivers/char/hw_random/Kconfig b/drivers/char/hw_random/Kconfig
+old mode 100755
+new mode 100644
+diff --git a/drivers/char/hw_random/Makefile b/drivers/char/hw_random/Makefile
+old mode 100755
+new mode 100644
+diff --git a/drivers/char/hw_random/omap4-rng.c b/drivers/char/hw_random/omap4-rng.c
+old mode 100755
+new mode 100644
+diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
+old mode 100755
+new mode 100644
+diff --git a/drivers/crypto/Makefile b/drivers/crypto/Makefile
+old mode 100755
+new mode 100644
+diff --git a/drivers/crypto/omap4-aes.c b/drivers/crypto/omap4-aes.c
+old mode 100755
+new mode 100644
+diff --git a/drivers/crypto/omap4-sham.c b/drivers/crypto/omap4-sham.c
+old mode 100755
+new mode 100644
+-- 
+1.8.4.rc3
+

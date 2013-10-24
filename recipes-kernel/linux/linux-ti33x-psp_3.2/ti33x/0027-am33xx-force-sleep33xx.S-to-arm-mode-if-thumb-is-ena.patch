@@ -1,0 +1,31 @@
+From bd99d377d4ca281290ff632454170062db011952 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Krombholz?= <b.krombholz@pironex.de>
+Date: Wed, 23 Oct 2013 18:40:31 +0200
+Subject: [PATCH 27/27] am33xx: force sleep33xx.S to arm mode if thumb is
+ enabled
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- adrl doesn't exist in thumb
+
+Signed-off-by: Björn Krombholz <b.krombholz@pironex.de>
+---
+ arch/arm/mach-omap2/sleep33xx.S | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/mach-omap2/sleep33xx.S b/arch/arm/mach-omap2/sleep33xx.S
+index d431800..7954d02 100644
+--- a/arch/arm/mach-omap2/sleep33xx.S
++++ b/arch/arm/mach-omap2/sleep33xx.S
+@@ -30,6 +30,7 @@
+ #include "prm33xx.h"
+ #include "control.h"
+ 
++	.arm			@ force arm mode to allow ADRL
+ /*
+  * We should probably pass in the virtual address of PRCM, Control and EMIF
+  * along with the physical addresses, load it into the registers
+-- 
+1.8.4.rc3
+

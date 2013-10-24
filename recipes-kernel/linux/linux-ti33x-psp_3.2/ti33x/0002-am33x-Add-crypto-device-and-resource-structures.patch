@@ -1,0 +1,116 @@
+From 6a5c45b8c83bb5734a049a0d8900ab2e36066449 Mon Sep 17 00:00:00 2001
+From: Greg Turner <gregturner@ti.com>
+Date: Thu, 17 May 2012 14:45:05 -0500
+Subject: [PATCH 02/27] am33x: Add crypto device and resource structures
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+* Add platform device and resource structures to devices.c
+* Structures are for the AES and SHA/MD5 crypto modules
+* Used in the OMAP4 crypto driver
+
+Signed-off-by: Greg Turner <gregturner@ti.com>
+Signed-off-by: Björn Krombholz <b.krombholz@pironex.de>
+---
+ arch/arm/mach-omap2/devices.c | 67 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 67 insertions(+)
+ mode change 100644 => 100755 arch/arm/mach-omap2/devices.c
+
+diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
+old mode 100644
+new mode 100755
+index 6494bee..98af2fa
+--- a/arch/arm/mach-omap2/devices.c
++++ b/arch/arm/mach-omap2/devices.c
+@@ -49,6 +49,7 @@
+ #include <plat/omap_hwmod.h>
+ #include <plat/omap_device.h>
+ #include <plat/omap4-keypad.h>
++#include <plat/am33xx.h>
+ #include <plat/config_pwm.h>
+ #include <plat/cpu.h>
+ #include <plat/gpmc.h>
+@@ -705,6 +706,41 @@ static void omap_init_sham(void)
+ 	}
+ 	platform_device_register(&sham_device);
+ }
++
++#elif defined(CONFIG_CRYPTO_DEV_OMAP4_SHAM) || defined(CONFIG_CRYPTO_DEV_OMAP4_SHAM_MODULE)
++
++static struct resource omap4_sham_resources[] = {
++	{
++		.start	= AM33XX_SHA1MD5_P_BASE,
++		.end	= AM33XX_SHA1MD5_P_BASE + 0x120,
++		.flags	= IORESOURCE_MEM,
++	},
++	{
++		.start	= AM33XX_IRQ_SHAEIP57t0_P,
++		.flags	= IORESOURCE_IRQ,
++	},
++	{
++		.start	= AM33XX_DMA_SHAEIP57T0_DIN,
++		.flags	= IORESOURCE_DMA,
++	}
++};
++
++static int omap4_sham_resources_sz = ARRAY_SIZE(omap4_sham_resources);
++
++
++static struct platform_device sham_device = {
++	.name		= "omap4-sham",
++	.id		= -1,
++};
++
++static void omap_init_sham(void)
++{
++	sham_device.resource = omap4_sham_resources;
++	sham_device.num_resources = omap4_sham_resources_sz;
++
++	platform_device_register(&sham_device);
++}
++
+ #else
+ static inline void omap_init_sham(void) { }
+ #endif
+@@ -775,6 +811,37 @@ static void omap_init_aes(void)
+ 	platform_device_register(&aes_device);
+ }
+ 
++#elif defined(CONFIG_CRYPTO_DEV_OMAP4_AES) || defined(CONFIG_CRYPTO_DEV_OMAP4_AES_MODULE)
++
++static struct resource omap4_aes_resources[] = {
++	{
++		.start	= AM33XX_AES0_P_BASE,
++		.end	= AM33XX_AES0_P_BASE + 0x4C,
++		.flags	= IORESOURCE_MEM,
++	},
++	{
++		.start	= AM33XX_DMA_AESEIP36T0_DOUT,
++		.flags	= IORESOURCE_DMA,
++	},
++	{
++		.start	= AM33XX_DMA_AESEIP36T0_DIN,
++		.flags	= IORESOURCE_DMA,
++	}
++};
++static int omap4_aes_resources_sz = ARRAY_SIZE(omap4_aes_resources);
++
++static struct platform_device aes_device = {
++	.name		= "omap4-aes",
++	.id		= -1,
++};
++
++static void omap_init_aes(void)
++{
++	aes_device.resource = omap4_aes_resources;
++	aes_device.num_resources = omap4_aes_resources_sz;
++	platform_device_register(&aes_device);
++}
++
+ #else
+ static inline void omap_init_aes(void) { }
+ #endif
+-- 
+1.8.4.rc3
+
