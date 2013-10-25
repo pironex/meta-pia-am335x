@@ -43,6 +43,16 @@ GFX_PACKAGES = " \
 	icu \
 "
 
+SGX_PACKAGES = "\
+    libgles-omap3 \
+    libgles-omap3-blitwsegl \
+    libgles-omap3-flipwsegl \
+    libgles-omap3-frontwsegl \
+    libgles-omap3-linuxfbwsegl \
+    libgles-omap3-rawdemos \
+    omap3-sgx-modules \
+"
+
 SOUND_PACKAGES = " \
 	alsa-utils-alsamixer \
 "
@@ -76,6 +86,7 @@ IMAGE_INSTALL += " \
 	${EXTRA_MACHINE_IMAGE_INSTALL} \
 	${@base_contains("MACHINE_FEATURES", "alsa", "${SOUND_PACKAGES}", "",d)} \
 	${@base_contains("MACHINE_FEATURES", "screen", "${GFX_PACKAGES}", "",d)} \
+	${@base_contains("MACHINE_FEATURES", "sgx", "${SGX_PACKAGES}", "",d)} \
 	${@base_contains("MACHINE_FEATURES", "touchscreen", "${TOUCH_PACKAGES}", "",d)} \
 	mc \
 "
