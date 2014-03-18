@@ -4,9 +4,9 @@
 # Filename: pia-led.bb
 
 DESCRIPTION = "Status LED handling for piA-AM35x boards"
-LICENSE = "MIT"
+LICENSE = "CLOSED"
 PV = "0.1.0"
-PR = "r4"
+PR = "r1"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 COMPATIBLE_MACHINE = "pia-am35x"

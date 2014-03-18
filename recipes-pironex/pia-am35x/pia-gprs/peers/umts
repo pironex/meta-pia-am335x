@@ -1,0 +1,31 @@
+/dev/ttyUSB0 230400
+debug
+kdebug 7
+logfile "/tmp/ppp.log"
+connect 'chat -vsf /etc/ppp/chats/umts'
+noccp
+nobsdcomp
+noaccomp
+novj
+novjccomp
+noauth
+#asyncmap A0000
+asyncmap 0
+:10.0.0.1
+noipdefault
+defaultroute
+replacedefaultroute
+usepeerdns
+#nodetach
+user o2
+password o2
+#ipcp-accept-remote
+ipcp-accept-local
+#modem
+persist
+passive
+maxfail 0
+holdoff 10
+lcp-echo-interval 120
+lcp-echo-failure 2
+connect-delay 3000

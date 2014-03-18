@@ -1,0 +1,13 @@
+ABORT   "BUSY"
+ABORT   "NO CARRIER"
+ABORT   "ERROR"
+ABORT   "NO DIALTONE"
+ABORT   "NO ANSWER"
+TIMEOUT 90
+""      @/etc/ppp/chats/pin TIMEOUT 10
+ERROR-AT-OK  AT+CGDCONT=1,"IP","internet"
+#ERROR-AT-OK AT+CGDCONT=1,"IP","internet.t-d1.de"
+OK      AT#GAUTH=1
+#ERROR-AT-OK  "ATD*99***1#"
+OK	"ATD*99***1#"
+CONNECT ""

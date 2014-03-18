@@ -4,7 +4,7 @@
 # Filename: pia-display-tools.bb
 
 DESCRIPTION = "Allow runtime switching of LCD/DVI output for piAx-AM3517"
-LICENSE = "MIT"
+LICENSE = "CLOSED"
 PV = "0.1.0"
 PR = "r1"
 

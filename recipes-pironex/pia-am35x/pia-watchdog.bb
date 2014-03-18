@@ -4,7 +4,7 @@
 # Filename: pia-watchdog.bb
 
 DESCRIPTION = "Watchdog handling for piA-AM35x boards"
-LICENSE = "MIT"
+LICENSE = "CLOSED"
 PV = "0.1.0"
 PR = "r3"
 
@@ -13,7 +13,7 @@ COMPATIBLE_MACHINE = "pia-am35x"
 SRC_URI = "\
   file://init.d/watchdog \
   file://watchdog_conf \
-  file://pia-watchdog/src \
+  file://src \
 "
 
 inherit update-rc.d
@@ -22,7 +22,7 @@ INITSCRIPT_NAME = "watchdog"
 # start early, kill last
 INITSCRIPT_PARAMS = "start 03 2 3 4 5 . stop 99 0 6 ."
 
-S = "${WORKDIR}/pia-watchdog/src"
+S = "${WORKDIR}/src"
 
 do_compile() {
 	cd ${S}
