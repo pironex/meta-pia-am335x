@@ -7,7 +7,7 @@ XSERVER = "xserver-xorg \
            xf86-video-fbdev \
            xf86-input-tslib "
 
-MACHINE_FEATURES = "kernel26 apm vfat "
+MACHINE_FEATURES = "kernel26 apm vfat ext2 ethernet "
 
 EXTRA_IMAGEDEPENDS = "u-boot"
 
