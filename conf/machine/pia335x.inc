@@ -19,6 +19,14 @@ PREFERRED_PROVIDER_u-boot = "u-boot"
 PREFERRED_PROVIDER_gcc-cross-canadian-arm = "gcc-cross-canadian-arm"
 PREFERRED_PROVIDER_binutils-cross-canadian-arm = "binutils-cross-canadian-arm"
 
+PIA_QT_PROVIDER = "${@base_contains('MACHINE_FEATURES','sgx','qt4-embedded-gles','qt4-embedded',d)}"
+PREFERRED_PROVIDER_qt4-embedded = "${PIA_QT_PROVIDER}"
+#PREFERRED_PROVIDER_qt4-embedded = "qt4-embedded-gles"
+
+PREFERRED_VERSION_qt4-embedded = "4.8.4"
+PREFERRED_VERSION_qt4-native = "4.8.4"
+PREFERRED_VERSION_nativesdk-qt4-tools = "4.8.4"
+
 # Use v4.09.00.01 of the Graphics SDK
 PREFERRED_VERSION_omap3-sgx-modules = "4.09.00.01"
 PREFERRED_VERSION_libgles-omap3 = "4.09.00.01"
