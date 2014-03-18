@@ -1,4 +1,10 @@
 toolchain_create_sdk_env_script_append() {
+	echo 'export OE_QMAKE_HOST_BINDIR_QT=${QT_TOOLS_PREFIX}' >> $script
+	#echo 'export OE_QMAKE_STRIP="echo"' >> $script
+
+	echo 'export QMAKE_DEFAULT_LIBDIRS=${QT_QMAKE_LIBDIR_QT}' >> $script
+	echo 'export QMAKE_DEFAULT_INCDIRS=${QT_QMAKE_INCDIR_QT}' >> $script
+
 	#Adds qt.conf file that points qmake to properly locate Qt library and header files.
 	#This enables Qt Creator to work properly
 	#taken from meta-arago's meta-toolchain-arago-qte.bb
@@ -6,7 +12,9 @@ toolchain_create_sdk_env_script_append() {
 	qt_conf="${SDK_OUTPUT}/${SDKPATHNATIVE}${bindir_nativesdk}/qt.conf"
 	touch $qt_conf
 	echo '[Paths]' >> $qt_conf
-	echo 'Prefix = $(SDK_PATH_TARGET)' >> $qt_conf
-	echo 'Libraries = $(OE_QMAKE_LIBDIR_QT)' >> $qt_conf
-	echo 'Headers = $(OE_QMAKE_INCDIR_QT)' >> $qt_conf
+	echo 'Prefix = ${SDKPATHTARGET}/{prefix_nativesdk}' >> $qt_conf
+	echo 'Libraries = ${QT_QMAKE_LIBDIR_QT}' >> $qt_conf
+	echo 'Headers = ${QT_QMAKE_INCDIR_QT}' >> $qt_conf
+	echo 'HostPrefix = ${SDKPATHNATIVE}/usr' >> $qt_conf
+	echo 'HostBinaries = ${QT_TOOLS_PREFIX}' >> $qt_conf
 }
