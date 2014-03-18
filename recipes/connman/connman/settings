@@ -7,4 +7,4 @@ Enable=true
 
 # Enable wireless by default on Angstrom devices
 [WiFi]
-Enable=false
+Enable=true
