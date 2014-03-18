@@ -1,6 +1,4 @@
 # common machine settings for AM335x based boards
-SOC_FAMILY = "ti33x"
-
 require conf/machine/include/ti33x.inc
 
 PREFERRED_PROVIDER_virtual/xserver = "xserver-xorg"
