@@ -10,9 +10,10 @@ DEFAULT_PREFERENCE_pia-am335x = "100"
 DEFAULT_PREFERENCE_ti33x = "100"
 
 PV = "2012.12-pia"
-PR = "r13"
+PR = "r15"
 
 UBOOT_MACHINE ?= "am335x_pia_config"
+
 # SPL build
 UBOOT_BINARY = "u-boot.img"
 UBOOT_IMAGE = "u-boot-${MACHINE}-${PV}-${PR}.img"
@@ -22,7 +23,8 @@ SPL_BINARY = "MLO"
 
 #SRCREV = "111dba415f7cf83daa64a3aaadcc7e6a31c7b049"
 #SRCREV = "384e05e4a90e57791d49969f0f13756357b56b2e"
-SRCREV = "b694001f95f649318032b6ccc9d0f6648ba84378"
+#SRCREV = "b694001f95f649318032b6ccc9d0f6648ba84378"
+SRCREV = "c96fcc725957ce9f7c34c116266dab525a55743d"
 
 SRC_URI = "git://github.com/pironex/pia-uboot.git;protocol=git;branch=master \
           "
