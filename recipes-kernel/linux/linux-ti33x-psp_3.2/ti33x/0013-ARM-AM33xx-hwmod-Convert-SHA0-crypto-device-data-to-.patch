@@ -1,7 +1,7 @@
-From a4fa50185e0801e2b0b8ec544a0517e784f40ad3 Mon Sep 17 00:00:00 2001
+From c167e65384e3fdb689288b9933c68fa2d06649a8 Mon Sep 17 00:00:00 2001
 From: "Mark A. Greer" <mgreer@animalcreek.com>
 Date: Tue, 11 Dec 2012 09:20:16 -0700
-Subject: [PATCH 13/27] ARM: AM33xx: hwmod: Convert SHA0 crypto device data to
+Subject: [PATCH 13/25] ARM: AM33xx: hwmod: Convert SHA0 crypto device data to
  hwmod
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -168,5 +168,5 @@ index ee3ebd9..ad606c6 100755
  
  /* 'smartreflex' class */
 -- 
-1.8.4.rc3
+1.9.1
 

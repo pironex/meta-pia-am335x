@@ -1,0 +1,29 @@
+From cfcdda3a3e6b6e99c5796f417268dcdd0e489883 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Krombholz?= <b.krombholz@pironex.de>
+Date: Wed, 23 Oct 2013 17:34:47 +0200
+Subject: [PATCH 25/25] random: ocf: fix internal api usage for mix_pool_bytes
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Björn Krombholz <b.krombholz@pironex.de>
+---
+ drivers/char/random.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index e195505..630335f 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -843,7 +843,7 @@ void add_disk_randomness(struct gendisk *disk)
+  */
+ void random_input_words(__u32 *buf, size_t wordcount, int ent_count)
+ {
+-	mix_pool_bytes(&input_pool, buf, wordcount*4);
++	mix_pool_bytes(&input_pool, buf, wordcount*4, NULL);
+ 
+ 	credit_entropy_bits(&input_pool, ent_count);
+ 
+-- 
+1.9.1
+

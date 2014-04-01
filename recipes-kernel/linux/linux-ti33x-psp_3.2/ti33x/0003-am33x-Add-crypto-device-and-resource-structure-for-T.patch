@@ -1,7 +1,7 @@
-From aeadb55512a933ff49346a102bd614a00b20d80c Mon Sep 17 00:00:00 2001
+From 7a9bcf04edb207ea24370e498e9b32f680c6a5b5 Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Thu, 17 May 2012 14:49:39 -0500
-Subject: [PATCH 03/27] am33x: Add crypto device and resource structure for
+Subject: [PATCH 03/25] am33x: Add crypto device and resource structure for
  TRNG
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,5 +62,5 @@ index 1971932..52720b4
  static inline void omap_init_rng(void) {}
  #endif
 -- 
-1.8.4.rc3
+1.9.1
 

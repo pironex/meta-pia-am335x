@@ -1,7 +1,7 @@
-From 6a5c45b8c83bb5734a049a0d8900ab2e36066449 Mon Sep 17 00:00:00 2001
+From 69b7dfc3a5f1f7a8056f01e986ae47038278d5e3 Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Thu, 17 May 2012 14:45:05 -0500
-Subject: [PATCH 02/27] am33x: Add crypto device and resource structures
+Subject: [PATCH 02/25] am33x: Add crypto device and resource structures
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -112,5 +112,5 @@ index 6494bee..98af2fa
  static inline void omap_init_aes(void) { }
  #endif
 -- 
-1.8.4.rc3
+1.9.1
 

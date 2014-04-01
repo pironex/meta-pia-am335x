@@ -1,7 +1,7 @@
-From 76aa042d5202e147a8360f1719bda8486a9dfa27 Mon Sep 17 00:00:00 2001
+From 9c62aa736dec8580859ec7264e20f2911a7f9247 Mon Sep 17 00:00:00 2001
 From: Joel A Fernandes <joelagnel@ti.com>
 Date: Wed, 13 Feb 2013 15:37:15 -0600
-Subject: [PATCH 23/27] omap4-rng: Remove check for GP-only device type in RNG
+Subject: [PATCH 23/25] omap4-rng: Remove check for GP-only device type in RNG
  driver
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -30,5 +30,5 @@ index 98c96c1..b57d13b 100755
  
  	return platform_driver_register(&omap4_rng_driver);
 -- 
-1.8.4.rc3
+1.9.1
 

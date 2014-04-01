@@ -1,7 +1,7 @@
-From 88280738d2c46a8c06e6da1a33e6aef7b0af8523 Mon Sep 17 00:00:00 2001
+From 69a223b19004dcb5f298c5d3e60b157dcb986dee Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Thu, 17 May 2012 14:53:25 -0500
-Subject: [PATCH 04/27] am33x: Add crypto drivers to Kconfig and Makefiles
+Subject: [PATCH 04/25] am33x: Add crypto drivers to Kconfig and Makefiles
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -125,5 +125,5 @@ index 53ea501..5b420a5
  obj-$(CONFIG_CRYPTO_DEV_PICOXCELL) += picoxcell_crypto.o
  obj-$(CONFIG_CRYPTO_DEV_S5P) += s5p-sss.o
 -- 
-1.8.4.rc3
+1.9.1
 

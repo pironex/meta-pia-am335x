@@ -1,7 +1,7 @@
-From 890423b0cc709427984d10366b972bb2566fbec4 Mon Sep 17 00:00:00 2001
+From 8ab84421d9678db595ad87def1d7c67710c4216f Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Fri, 8 Jun 2012 13:54:13 -0500
-Subject: [PATCH 09/27] Add crypto driver settings to defconfig
+Subject: [PATCH 09/25] Add crypto driver settings to defconfig
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -133,5 +133,5 @@ index a096bf5..29cb5c1
  
  #
 -- 
-1.8.4.rc3
+1.9.1
 

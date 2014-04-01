@@ -1,7 +1,7 @@
-From 2d17352a7bed4623273373b00a9e9cacb71a401d Mon Sep 17 00:00:00 2001
+From 6a4c653a6338cea24815da4ccf1317c2121ca6bc Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Thu, 3 May 2012 10:33:13 -0500
-Subject: [PATCH 10/27] AM335x OCF Driver for Linux 3
+Subject: [PATCH 10/25] AM335x OCF Driver for Linux 3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -7229,5 +7229,5 @@ index fa5f722..2bf49fd 100644
  struct pid *get_task_pid(struct task_struct *task, enum pid_type type)
  {
 -- 
-1.8.4.rc3
+1.9.1
 

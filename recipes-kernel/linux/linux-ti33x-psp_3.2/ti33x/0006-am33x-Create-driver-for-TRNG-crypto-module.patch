@@ -1,7 +1,7 @@
-From 2697d4bd4d91398337d6dd39fcb7df2f11926a4b Mon Sep 17 00:00:00 2001
+From 52f03bc090d756e54882317deb3157ff938b3b8c Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Thu, 17 May 2012 15:11:26 -0500
-Subject: [PATCH 06/27] am33x: Create driver for TRNG crypto module
+Subject: [PATCH 06/25] am33x: Create driver for TRNG crypto module
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -325,5 +325,5 @@ index 0000000..523ec63
 +MODULE_LICENSE("GPL");
 +MODULE_DESCRIPTION("AM33X TRNG driver");
 -- 
-1.8.4.rc3
+1.9.1
 

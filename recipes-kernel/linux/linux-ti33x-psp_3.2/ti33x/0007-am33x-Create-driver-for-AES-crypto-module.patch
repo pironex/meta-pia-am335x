@@ -1,7 +1,7 @@
-From 7a79a3d0b18ec1759c57f56151cc63b8344fe3f1 Mon Sep 17 00:00:00 2001
+From 2c997105800e180fc47367dcfa67e1beb1165147 Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Thu, 17 May 2012 15:17:13 -0500
-Subject: [PATCH 07/27] am33x: Create driver for AES crypto module
+Subject: [PATCH 07/25] am33x: Create driver for AES crypto module
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -972,5 +972,5 @@ index 0000000..f0b3fe2
 +MODULE_LICENSE("GPL v2");
 +MODULE_AUTHOR("Herman Schuurman");
 -- 
-1.8.4.rc3
+1.9.1
 

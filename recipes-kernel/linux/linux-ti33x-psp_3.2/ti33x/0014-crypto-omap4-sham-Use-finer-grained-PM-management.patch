@@ -1,7 +1,7 @@
-From 761762bb8f3eb4c467bda583b2d371c26c8b6808 Mon Sep 17 00:00:00 2001
+From 2bd8081a3c50b6cf74a44d4bb42463bf048bb5ba Mon Sep 17 00:00:00 2001
 From: "Mark A. Greer" <mgreer@animalcreek.com>
 Date: Tue, 11 Dec 2012 09:40:05 -0700
-Subject: [PATCH 14/27] crypto: omap4-sham: Use finer-grained PM management
+Subject: [PATCH 14/25] crypto: omap4-sham: Use finer-grained PM management
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -98,5 +98,5 @@ index 2fb71b9..6985c87 100755
  	omap4_sham_dma_cleanup(dd);
  	if (dd->irq >= 0)
 -- 
-1.8.4.rc3
+1.9.1
 

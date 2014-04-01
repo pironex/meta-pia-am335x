@@ -1,7 +1,7 @@
-From a41623564832a35f440df94f4e73b02dc39b2f4f Mon Sep 17 00:00:00 2001
+From 6402d5241e1667ea61c2d6e50d779360592a5cac Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Wed, 18 Jul 2012 09:15:18 -0500
-Subject: [PATCH 11/27] Add pm_runtime API to crypto driver
+Subject: [PATCH 11/25] Add pm_runtime API to crypto driver
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -398,5 +398,5 @@ index 79f6be9..21f1b48 100755
  	if (dd->irq >= 0)
  		free_irq(dd->irq, dd);
 -- 
-1.8.4.rc3
+1.9.1
 

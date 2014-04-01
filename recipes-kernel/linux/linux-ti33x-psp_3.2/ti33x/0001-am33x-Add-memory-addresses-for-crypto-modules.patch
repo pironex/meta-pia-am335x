@@ -1,7 +1,7 @@
-From 2aabe47ed36550fe7c0f004eaf06216de5521e0c Mon Sep 17 00:00:00 2001
+From f627984d28c2ba28734cc04b7d23b0f17689b57b Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Thu, 17 May 2012 14:25:40 -0500
-Subject: [PATCH 01/27] am33x: Add memory addresses for crypto modules
+Subject: [PATCH 01/25] am33x: Add memory addresses for crypto modules
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,5 +42,5 @@ index 5475b5c..32522df
  #define AM33XX_ASP1_BASE	0x4803C000
  
 -- 
-1.8.4.rc3
+1.9.1
 

@@ -1,7 +1,7 @@
-From 19c4e9285a8f7fcd40b7a93cc79703caa5da970c Mon Sep 17 00:00:00 2001
+From 7b504f16bb190a99859cca5821f86c1ca1e80f4d Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Thu, 17 May 2012 14:59:38 -0500
-Subject: [PATCH 05/27] am33x: Create header file for OMAP4 crypto modules
+Subject: [PATCH 05/25] am33x: Create header file for OMAP4 crypto modules
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -214,5 +214,5 @@ index 0000000..d9d6315
 +
 +#endif /* __DRIVERS_CRYPTO_AM33X_H */
 -- 
-1.8.4.rc3
+1.9.1
 

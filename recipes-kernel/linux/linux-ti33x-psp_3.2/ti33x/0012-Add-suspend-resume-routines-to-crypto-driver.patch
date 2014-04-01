@@ -1,7 +1,7 @@
-From 2732f56adc7ea15f967c310a1ffb08808020b358 Mon Sep 17 00:00:00 2001
+From 0e0c5383693f9e9d98ef7d8992de9c32049985f0 Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Thu, 19 Jul 2012 15:27:59 -0500
-Subject: [PATCH 12/27] Add suspend resume routines to crypto driver
+Subject: [PATCH 12/25] Add suspend resume routines to crypto driver
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -149,5 +149,5 @@ index 21f1b48..2fb71b9 100755
  };
  
 -- 
-1.8.4.rc3
+1.9.1
 

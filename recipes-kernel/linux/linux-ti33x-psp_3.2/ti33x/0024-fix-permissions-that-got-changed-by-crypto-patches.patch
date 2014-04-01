@@ -1,7 +1,7 @@
-From 4876f98b78ccdc83f4623bd6ba5eac709be18a37 Mon Sep 17 00:00:00 2001
+From d5384ae5a7b26ad7a9e320acf1d9c164c145d11f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Bj=C3=B6rn=20Krombholz?= <b.krombholz@pironex.de>
 Date: Wed, 23 Oct 2013 17:37:41 +0200
-Subject: [PATCH 24/27] fix permissions that got changed by crypto patches
+Subject: [PATCH 24/25] fix permissions that got changed by crypto patches
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,5 +61,5 @@ diff --git a/drivers/crypto/omap4-sham.c b/drivers/crypto/omap4-sham.c
 old mode 100755
 new mode 100644
 -- 
-1.8.4.rc3
+1.9.1
 

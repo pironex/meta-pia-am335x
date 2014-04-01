@@ -1,7 +1,7 @@
-From 511052db9d47b1a0f187a0eee717649a953287a9 Mon Sep 17 00:00:00 2001
+From f52da9054a126ba5455d7f14ef7be5158c689439 Mon Sep 17 00:00:00 2001
 From: "Mark A. Greer" <mgreer@animalcreek.com>
 Date: Wed, 12 Dec 2012 00:43:45 -0700
-Subject: [PATCH 15/27] crypto: omap4-sham: Add suspend/resume PM support
+Subject: [PATCH 15/25] crypto: omap4-sham: Add suspend/resume PM support
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,5 +56,5 @@ index 6985c87..963d0e1 100755
  };
  
 -- 
-1.8.4.rc3
+1.9.1
 

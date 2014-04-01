@@ -1,7 +1,7 @@
-From 5f28ddbdcf976d90f1ce46d3041ffbc9b0eb3cbf Mon Sep 17 00:00:00 2001
+From a58d1bd65fccc351056240a1292641a5dcd9b324 Mon Sep 17 00:00:00 2001
 From: Greg Turner <gregturner@ti.com>
 Date: Thu, 17 May 2012 15:19:26 -0500
-Subject: [PATCH 08/27] am33x: Create driver for SHA/MD5 crypto module
+Subject: [PATCH 08/25] am33x: Create driver for SHA/MD5 crypto module
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1445,5 +1445,5 @@ index 0000000..79f6be9
 +MODULE_LICENSE("GPL v2");
 +MODULE_AUTHOR("Herman Schuurman");
 -- 
-1.8.4.rc3
+1.9.1
 

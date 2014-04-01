@@ -1,7 +1,7 @@
-From dda93796529c2ce3413ba83788311feada287287 Mon Sep 17 00:00:00 2001
+From 52e5035e8623d22d3ebc5b16c0c85b5cd0f05c29 Mon Sep 17 00:00:00 2001
 From: "Mark A. Greer" <mgreer@animalcreek.com>
 Date: Wed, 12 Dec 2012 16:17:12 -0700
-Subject: [PATCH 21/27] ARM: AM33xx: hwmod: Convert RNG device data to hwmod
+Subject: [PATCH 21/25] ARM: AM33xx: hwmod: Convert RNG device data to hwmod
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -176,5 +176,5 @@ index 52720b4..52d7ad4 100755
  static inline void omap_init_rng(void) {}
  #endif
 -- 
-1.8.4.rc3
+1.9.1
 
