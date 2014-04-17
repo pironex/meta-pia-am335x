@@ -2,9 +2,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/connman:"
 
 SRC_URI += "file://settings"
 
-
-
-do_install_append_pia-am335x_mmi() {
+do_install_append_pia-am335x-mmi() {
 	install -d ${D}${localstatedir}/lib/connman/
 	install -m 0644 ${WORKDIR}/settings ${D}${localstatedir}/lib/connman/
 }
