@@ -1,18 +1,19 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/linux-ti33x-psp_3.2:"
 
 # update package version to kernel version matching the SRCREV
-PV = "${@base_contains('DISTRO_FEATURES', 'tipspkernel', "3.2", "3.2.51", d)}"
+PV = "3.2.51+gitr${SRCPV}"
 
-BRANCH = "pia335x-3.2-dev"
+KERNEL_BRANCH ?= "pia335x-dev"
 #SRCREV = "2f636aa3aad808df1f5feb2fccdb05315ceb5e9f"
 #prev
 #SRCREV = "00a8e793e4dfe0b01cad599f4fd39e0d9ebd63d8"
-SRCREV = "d15ac2939c6f94c172f5957b29952b35cf06a6c3"
+#SRCREV = "96ccc27c1bc2b5aaab5c9e2578ed5bce7e38d853"
+SRCREV = "${AUTOREV}"
 
-KERNEL_LOCALVERSION = "g${SRCREV}"
-MACHINE_KERNEL_PR_append = ".pia003"
+#KERNEL_LOCALVERSION = "gitr${SRCPV}"
+MACHINE_KERNEL_PR_append = ".pia007"
 
-SRC_URI = "git://192.168.1.90/kernel/linux-pia-bk.git;protocol=git;branch=${BRANCH} \
+SRC_URI = "git://192.168.1.90/kernel/linux-pia-bk.git;protocol=git;branch=${KERNEL_BRANCH} \
         file://defconfig \
         file://configs \
         file://logo_linux_clut224.ppm \
