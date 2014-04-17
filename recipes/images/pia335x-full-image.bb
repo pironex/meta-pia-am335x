@@ -15,32 +15,35 @@ HWTOOLS_PACKAGES = " \
 	memtester \
 	powertop \
 	rt-tests \
+	net-tools \
 "
 
 DEV_PACKAGES = " \
 	bash \
-    gdb \
-    gdbserver \
-    htop \
-    iotop \
-    latencytop \
+	gdb \
+	gdbserver \
+	htop \
+	iotop \
+	latencytop \
 "
 
 SOUND_PACKAGES = " \
 	alsa-utils-alsamixer \
 "
 
-EXTRA_MACHINE_IMAGE_INSTALL_pia-am335x += " \
+EXTRA_MACHINE_IMAGE_INSTALL_pia-am335x = " \
 	${DEV_PACKAGES} \
 	${BENCHMARK_PACKAGES} \
 	${HWTOOLS_PACKAGES} \
+	packagegroup-pia-demos \
 "
 
 EXTRA_MACHINE_IMAGE_INSTALL_pia-am335x-mmi = " \
 	${DEV_PACKAGES} \
 	${BENCHMARK_PACKAGES} \
 	${HWTOOLS_PACKAGES} \
-" 
+	packagegroup-pia-demos \
+"
 
 EXTRA_MACHINE_IMAGE_INSTALL_pia-am335x-e2 = " \
 	${DEV_PACKAGES} \
@@ -48,18 +51,19 @@ EXTRA_MACHINE_IMAGE_INSTALL_pia-am335x-e2 = " \
 	${HWTOOLS_PACKAGES} \
 "
 
-EXTRA_MACHINE_IMAGE_INSTALL_pia-am35x += " \
+EXTRA_MACHINE_IMAGE_INSTALL_pia-am35x = " \
 	${DEV_PACKAGES} \
 	${BENCHMARK_PACKAGES} \
 	${HWTOOLS_PACKAGES} \
 " 
 
 IMAGE_INSTALL += " \
-	${EXTRA_MACHINE_IMAGE_INSTALL} \
 	${@base_contains("MACHINE_FEATURES", "alsa", "${SOUND_PACKAGES}", "",d)} \
 	${@base_contains("MACHINE_FEATURES", "screen", "packagegroup-pia-gfx", "",d)} \
+	${EXTRA_MACHINE_IMAGE_INSTALL} \
 	mc \
 "
+
 #	libgles-omap3 \
 #	libgles-omap3-blitwsegl \
 #	libgles-omap3-flipwsegl \
