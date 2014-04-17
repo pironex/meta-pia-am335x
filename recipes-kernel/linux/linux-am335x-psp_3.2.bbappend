@@ -1,6 +1,11 @@
 require linux-pia335x_3.2.x.inc
 
+
+#SRC_REV_pia-am335x_mmi = "96ccc27c1bc2b5aaab5c9e2578ed5bce7e38d853"
+#SRC_REV_pia-am335x_mmi = "96ccc27c1bc2b5aaab5c9e2578ed5bce7e38d853"
 SRC_URI_append = " ${PATCHES} "
+
+PV = "3.2.51+gitr${SRCPV}"
 
 #PATCHES = " file://0001-am33x-Add-memory-addresses-for-crypto-modules.patch \
 #                file://0002-am33x-Add-crypto-device-and-resource-structures.patch \
@@ -50,7 +55,6 @@ PATCHES = " file://0001-am33x-Add-memory-addresses-for-crypto-modules.patch \
 	file://0022-hwrng-omap4-rng-Convert-to-use-pm_runtime-API.patch \
 	file://0023-omap4-rng-Remove-check-for-GP-only-device-type-in-RN.patch \
 	file://0024-fix-permissions-that-got-changed-by-crypto-patches.patch \
-	file://0025-pia335x-fix-compilation-error-caused-by-am33xx_cpuid.patch \
 	file://0026-random-ocf-fix-internal-api-usage-for-mix_pool_bytes.patch \
 	file://0027-am33xx-force-sleep33xx.S-to-arm-mode-if-thumb-is-ena.patch \
 "
