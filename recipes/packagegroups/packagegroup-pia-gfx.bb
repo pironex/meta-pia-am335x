@@ -1,6 +1,5 @@
 DESCRIPTION = "GUI support for LCD/DVI displays"
 LICENSE = "MIT"
-PR = "r001"
 
 inherit packagegroup
 

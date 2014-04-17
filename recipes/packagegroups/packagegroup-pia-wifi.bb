@@ -1,6 +1,5 @@
 DESCRIPTION = "WIFI related packages for piA."
 LICENSE = "MIT"
-PR = "r001"
 
 inherit packagegroup
 

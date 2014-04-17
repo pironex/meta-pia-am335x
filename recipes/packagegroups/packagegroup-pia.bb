@@ -1,6 +1,5 @@
 DESCRIPTION = "Additional packages for piA AM35x"
 LICENSE = "MIT"
-PR = "r002"
 
 inherit packagegroup
 

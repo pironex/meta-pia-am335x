@@ -1,6 +1,5 @@
 DESCRIPTION = "GSM/GPRS related packages for piA."
 LICENSE = "MIT"
-PR = "r001"
 
 inherit packagegroup
 

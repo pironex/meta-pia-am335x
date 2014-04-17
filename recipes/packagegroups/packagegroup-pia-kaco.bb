@@ -1,6 +1,5 @@
 DESCRIPTION = "Additional packages for KACO EMS images"
 LICENSE = "MIT"
-PR = "r005"
 
 inherit packagegroup
 
