@@ -1,6 +1,5 @@
 DESCRIPTION = "Support for 3D-Graphics on piAx"
 LICENSE = "MIT"
-PR = "r001"
 
 inherit packagegroup
 

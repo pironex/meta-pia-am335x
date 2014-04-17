@@ -1,6 +1,5 @@
 DESCRIPTION = "Various demo applications."
 LICENSE = "MIT"
-PR = "r001"
 
 inherit packagegroup
 
@@ -13,6 +12,7 @@ RDEPENDS_${PN} = " \
 	matrix-gui-ethernet-demos \
 	matrix-gui-settings-demos \
 	qt4-embedded-demos \
+	qt4-embedded-examples \
 	qt-tstat \
 "
 #	bigbuckbunny-480p
