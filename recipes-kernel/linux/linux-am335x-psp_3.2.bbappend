@@ -1,6 +1,11 @@
 require linux-pia335x_3.2.x.inc
 
+
+#SRC_REV_pia-am335x_mmi = "96ccc27c1bc2b5aaab5c9e2578ed5bce7e38d853"
+#SRC_REV_pia-am335x_mmi = "96ccc27c1bc2b5aaab5c9e2578ed5bce7e38d853"
 SRC_URI_append = " ${PATCHES} "
+
+PV = "3.2.51+gitr${SRCPV}"
 
 #PATCHES = " file://0001-am33x-Add-memory-addresses-for-crypto-modules.patch \
 #                file://0002-am33x-Add-crypto-device-and-resource-structures.patch \
