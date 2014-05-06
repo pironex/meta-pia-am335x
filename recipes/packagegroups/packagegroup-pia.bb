@@ -8,6 +8,7 @@ SYSTOOLS_PACKAGES = " \
 	coreutils \
 	devmem2 \
 	dosfstools \
+	ethtool \
 	fixmac \
 	i2c-tools \
 	iproute2 \

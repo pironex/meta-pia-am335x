@@ -13,6 +13,7 @@ UBOOT_MACHINE ?= "am35x_pia_config"
 # SPL build
 UBOOT_BINARY = "u-boot.img"
 UBOOT_IMAGE = "u-boot-${MACHINE}-${PV}-${PR}.img"
+SPL_IMAGE = "MLO-${MACHINE}-${PV}-${PR}.img"
 UBOOT_SYMLINK = "u-boot-${MACHINE}.img"
 
 SPL_BINARY = "MLO"
