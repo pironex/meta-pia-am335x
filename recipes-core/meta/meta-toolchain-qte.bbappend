@@ -12,9 +12,9 @@ toolchain_create_sdk_env_script_append() {
 	qt_conf="${SDK_OUTPUT}/${SDKPATHNATIVE}${bindir_nativesdk}/qt.conf"
 	touch $qt_conf
 	echo '[Paths]' >> $qt_conf
-	echo 'Prefix = ${SDKPATHTARGET}/{prefix_nativesdk}' >> $qt_conf
-	echo 'Libraries = ${QT_QMAKE_LIBDIR_QT}' >> $qt_conf
-	echo 'Headers = ${QT_QMAKE_INCDIR_QT}' >> $qt_conf
+	echo 'Prefix = ${SDKTARGETSYSROOT}/${prefix_nativesdk}' >> $qt_conf
+	echo 'Libraries = ${SDKTARGETSYSROOT}/${libdir}' >> $qt_conf
+	echo 'Headers = ${SDKTARGETSYSROOT}/${includedir}/${QT_DIR_NAME}' >> $qt_conf
 	echo 'HostPrefix = ${SDKPATHNATIVE}/usr' >> $qt_conf
-	echo 'HostBinaries = ${QT_TOOLS_PREFIX}' >> $qt_conf
+	echo 'HostBinaries = ${SDKPATHNATIVE}/usr/bin' >> $qt_conf
 }

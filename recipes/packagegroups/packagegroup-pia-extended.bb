@@ -1,6 +1,5 @@
 DESCRIPTION = "Additional demos and utility packages for piA AM35x that require more space. Can be uninstalled."
 LICENSE = "MIT"
-PR = "r001"
 
 inherit packagegroup
 
@@ -9,8 +8,6 @@ inherit packagegroup
 RDEPENDS_${PN} = ' \
 	packagegroup-pia \
 	dbus dbus-systemd dbus-c++ \
-	\
-	ethtool \
 '
 
 # packages required for expansion boards, display
