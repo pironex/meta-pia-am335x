@@ -26,6 +26,4 @@ IMAGE_INSTALL += "\
 #    ${XSERVER}
 #    ${SPLASH} 
 
-IMAGE_FEATURES += " ssh-server-openssh eclipse-debug tools-debug "
-
 export IMAGE_BASENAME = "piax-image"

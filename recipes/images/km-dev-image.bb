@@ -9,6 +9,5 @@ IMAGE_INSTALL += " \
 	glib-2.0 \
 "
 
-#IMAGE_FEATURES += " ssh-server-openssh eclipse-debug tools-debug"
 export IMAGE_BASENAME = "km-dev"
 

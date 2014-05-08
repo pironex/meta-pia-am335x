@@ -69,6 +69,5 @@ IMAGE_INSTALL += " \
 #	omap3-sgx-modules
 
 
-IMAGE_FEATURES += " ssh-server-openssh eclipse-debug tools-debug "
 export IMAGE_BASENAME = "pia335x-full"
 
