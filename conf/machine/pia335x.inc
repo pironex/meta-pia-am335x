@@ -21,9 +21,9 @@ PIA_QT_PROVIDER = "${@base_contains('MACHINE_FEATURES','sgx','qt4-embedded-gles'
 PREFERRED_PROVIDER_qt4-embedded = "${PIA_QT_PROVIDER}"
 #PREFERRED_PROVIDER_qt4-embedded = "qt4-embedded-gles"
 
-PREFERRED_VERSION_qt4-embedded = "4.8.4"
-PREFERRED_VERSION_qt4-native = "4.8.4"
-PREFERRED_VERSION_nativesdk-qt4-tools = "4.8.4"
+PREFERRED_VERSION_qt4-embedded = "4.8.5"
+PREFERRED_VERSION_qt4-native = "4.8.5"
+PREFERRED_VERSION_nativesdk-qt4-tools = "4.8.5"
 
 PREFERRED_PROVIDER_virtual/kernel = "linux-am335x-psp"
 
