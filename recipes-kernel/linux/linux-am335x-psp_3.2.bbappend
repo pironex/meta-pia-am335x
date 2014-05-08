@@ -50,7 +50,9 @@ PATCHES = " file://0001-am33x-Add-memory-addresses-for-crypto-modules.patch \
 	file://0022-hwrng-omap4-rng-Convert-to-use-pm_runtime-API.patch \
 	file://0023-omap4-rng-Remove-check-for-GP-only-device-type-in-RN.patch \
 	file://0024-fix-permissions-that-got-changed-by-crypto-patches.patch \
-	file://0025-pia335x-fix-compilation-error-caused-by-am33xx_cpuid.patch \
 	file://0026-random-ocf-fix-internal-api-usage-for-mix_pool_bytes.patch \
 	file://0027-am33xx-force-sleep33xx.S-to-arm-mode-if-thumb-is-ena.patch \
 "
+
+#	file://0025-pia335x-fix-compilation-error-caused-by-am33xx_cpuid.patch \
+#
