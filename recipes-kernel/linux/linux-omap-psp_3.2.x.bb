@@ -5,7 +5,7 @@ KERNEL_IMAGETYPE = "uImage"
 
 COMPATIBLE_MACHINE = "(omap3)"
 
-PV = "3.2.50"
+PV = "3.2.54"
 
 # pia35x_release_3.2_201310
 #SRCREV = "135789084f0bf303771170a8728d1b946ee8a92d"
@@ -14,7 +14,7 @@ MACHINE_KERNEL_PR = "r011+gitr${SRCREV}"
 
 #only 
 #FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-SRC_URI = "git://192.168.1.90/kernel/linux-pia-bk.git;branch=master;protocol=git \
+SRC_URI = "git://192.168.1.90/kernel/linux-pia-bk.git;branch=pia35x-3.2-dev;protocol=git \
            file://defconfig \
 "
 
