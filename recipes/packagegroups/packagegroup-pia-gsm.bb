@@ -3,15 +3,21 @@ LICENSE = "MIT"
 
 inherit packagegroup
 
+EXTRA_DEPENDS = ""
+EXTRA_DEPENDS_pia_am35x = " pia-gprs \
+"
+
 RDEPENDS_${PN} = " \
 	ppp ppp-tools \
-	pia-gprs \
+	${EXTRA_DEPENDS} \
 "
+
 #	TODO libgsm1
 
 RRECOMMENDS_${PN} = " \
- 	kernel-module-option \
+	kernel-module-option \
 	kernel-module-ppp-async \
 	kernel-module-ppp-generic \
 	kernel-module-n-gsm \
-" 
+"
+

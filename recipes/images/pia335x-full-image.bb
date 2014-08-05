@@ -16,6 +16,7 @@ HWTOOLS_PACKAGES = " \
 	powertop \
 	rt-tests \
 	net-tools \
+	tcpdump \
 "
 
 DEV_PACKAGES = " \
@@ -51,6 +52,10 @@ EXTRA_MACHINE_IMAGE_INSTALL_pia-am335x-e2 = " \
 	${HWTOOLS_PACKAGES} \
 "
 
+EXTRA_MACHINE_IMAGE_INSTALL_pia-am335x-apc = " \
+	${DEV_PACKAGES} \
+	${HWTOOLS_PACKAGES} \
+"
 EXTRA_MACHINE_IMAGE_INSTALL_pia-am35x = " \
 	${DEV_PACKAGES} \
 	${BENCHMARK_PACKAGES} \

@@ -12,6 +12,7 @@ SYSTOOLS_PACKAGES = " \
 	fixmac \
 	i2c-tools \
 	iproute2 \
+	mmc-utils \
 	mtd-utils \
 	net-tools \
 	ntpdate \
