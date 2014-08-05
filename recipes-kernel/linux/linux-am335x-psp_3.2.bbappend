@@ -1,5 +1,6 @@
 require linux-pia335x_3.2.x.inc
 
+KERNEL_IMAGETYPE = "zImage"
 
 #SRC_REV_pia-am335x_mmi = "96ccc27c1bc2b5aaab5c9e2578ed5bce7e38d853"
 #SRC_REV_pia-am335x_mmi = "96ccc27c1bc2b5aaab5c9e2578ed5bce7e38d853"
