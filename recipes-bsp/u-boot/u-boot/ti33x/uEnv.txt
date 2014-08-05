@@ -1,0 +1,1 @@
+debug=early_printk debug systemd.log_level=err

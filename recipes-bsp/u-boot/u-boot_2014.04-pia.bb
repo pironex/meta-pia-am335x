@@ -7,12 +7,12 @@ COMPATIBLE_MACHINE = "(pia-am335x|pia-am335x-e2|pia-am335x-mmi)"
 
 DEFAULT_PREFERENCE_pia-am335x-e2 = "100"
 DEFAULT_PREFERENCE_pia-am335x-mmi = "100"
-DEFAULT_PREFERENCE_pia-am335x = "10"
-DEFAULT_PREFERENCE_ti33x = "10"
+DEFAULT_PREFERENCE_pia-am335x = "100"
+DEFAULT_PREFERENCE_ti33x = "100"
 
 SRCREV = "${AUTOREV}"
-PV = "2012.12-pia+git${SRCPV}"
-PR = "r17"
+PV = "2014.04-pia+git${SRCPV}"
+PR = "r01"
 
 UBOOT_MACHINE ?= "am335x_pia_config"
 UBOOT_BRANCH ?= "pia-am335x-dev"
@@ -23,6 +23,8 @@ UBOOT_IMAGE = "u-boot-${MACHINE}-${PKGV}-${PKGR}.img"
 UBOOT_SYMLINK = "u-boot-${MACHINE}.img"
 
 SPL_BINARY = "MLO"
+
+LIC_FILES_CHKSUM = "file://README;beginline=1;endline=6;md5=157ab8408beab40cd8ce1dc69f702a6c"
 
 #SRCREV = "111dba415f7cf83daa64a3aaadcc7e6a31c7b049"
 #SRCREV = "384e05e4a90e57791d49969f0f13756357b56b2e"
