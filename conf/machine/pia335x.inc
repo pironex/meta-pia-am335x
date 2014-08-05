@@ -7,6 +7,8 @@ XSERVER = "xserver-xorg \
            xf86-video-fbdev \
            xf86-input-tslib "
 
+#MACHINE_FEATURES = "kernel26 apm usbgadget usbhost vfat ext2 screen alsa ethernet sgx"
+# override ti33x features as we don't support SGX, ALSA, USB, Screen on every board
 MACHINE_FEATURES = "kernel26 apm vfat ext2 ethernet "
 
 EXTRA_IMAGEDEPENDS = "u-boot"
