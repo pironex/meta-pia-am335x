@@ -45,7 +45,7 @@ PREFERRED_PROVIDER_mysql5-native = "mariadb-native"
 PREFERRED_PROVIDER_mysql5-client = "mariadb"
 PREFERRED_PROVIDER_mysql5-server = "mariadb"
 
-PREFERRED_PROVIDER_wl12xx-firmware = "wl12xx-firmware"
+PREFERRED_PROVIDER_wl12xx-firmware = "linux-firmware-wl12xx"
 
 IMAGE_FSTYPES += " tar.bz2 "
 
