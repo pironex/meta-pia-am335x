@@ -49,6 +49,10 @@ MACH_PACKAGES_pia-am35x += " \
 	pia-watchdog \
 "
 
+MACH_PACKAGES_pia-am335x-apc += " \
+	gpsd \
+"
+
 RDEPENDS_${PN} = ' \
 	${SYSTOOLS_PACKAGES} \
 	${TOOLS_PACKAGES} \

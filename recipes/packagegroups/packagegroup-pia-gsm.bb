@@ -7,6 +7,8 @@ EXTRA_DEPENDS = ""
 EXTRA_DEPENDS_pia_am35x = " pia-gprs \
 "
 
+EXTRA_DEPENDS_pia-am335x-apc += " gpsd gps-utils gpsd-machine-conf "
+
 RDEPENDS_${PN} = " \
 	ppp ppp-tools \
 	${EXTRA_DEPENDS} \
