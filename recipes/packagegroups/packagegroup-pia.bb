@@ -23,6 +23,7 @@ SYSTOOLS_PACKAGES = " \
 	screen \
 	lmsensors-sensors \
 	connman-client connman-tests connman-tools connman-angstrom-settings \
+	cronie \
 "
 
 TOOLS_PACKAGES = " \
@@ -70,5 +71,6 @@ RDEPENDS_${PN} = ' \
 
 RRECOMMENDS_${PN} = ' \
 	${KERNELMOD_PACKAGES} \
+	busybox-hwclock \
 '
 # 	kernel-modules
