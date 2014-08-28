@@ -8,6 +8,7 @@ inherit packagegroup
 RDEPENDS_${PN} = ' \
 	packagegroup-pia \
 	dbus dbus-systemd dbus-c++ \
+	packagegroup-pia-qte \
 '
 
 # packages required for expansion boards, display

@@ -36,7 +36,6 @@ QTGFX_PACKAGES = "\
 	qt4-embedded-plugin-imageformat-tiff \
 	qt4-embedded-plugin-mousedriver-tslib \
 	qt4-embedded-plugin-phonon-backend-gstreamer \
-	qt4-embedded-plugin-sqldriver-sqlite \
 	qt4-embedded-qmlviewer \
 	qt4-embedded-plugin-gfxdriver-gfxtransformed \
 	libqt-embeddeddeclarative4 \
@@ -47,13 +46,14 @@ QTGFX_PACKAGES = "\
 QTBASE_PACKAGES = "\
 	icu \
 	libqt-embeddedcore4 \
-	libqt-embeddedclucene4 \	
+	libqt-embeddedclucene4 \
 	libqt-embeddednetwork4 \
 	libqt-embeddedxmlpatterns4 \
 	qt4-embedded-plugin-script-dbus \
 	qt4-embedded-plugin-bearer-connman \
 	qt4-embedded-plugin-bearer-generic \
 	qt4-embedded-plugin-sqldriver-sqlite \
+	qt4-embedded-plugin-sqldriver-sqlmysql \
 "
 
 RDEPENDS_${PN} = "\
