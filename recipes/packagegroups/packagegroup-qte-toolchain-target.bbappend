@@ -6,12 +6,14 @@ QT_SGX_DEV_SUPPORT = " \
 "
 
 RDEPENDS_${PN} += " \
-	libqwt-dev \
 	libsocketcan-dev \
 	opencv-dev \
 	dbus-c++-dev \
 	libusb1-dev \
 	qt4-embedded-dev \
 	libpcap-dev \
+	gpsd-dev \
         ${@base_contains('MACHINE_FEATURES', 'sgx', '${QT_SGX_DEV_SUPPORT}', '', d)} \
 "
+#	libqwt-dev \
+#
