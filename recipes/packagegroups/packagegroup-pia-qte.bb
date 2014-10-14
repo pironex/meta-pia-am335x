@@ -39,7 +39,6 @@ QTGFX_PACKAGES = "\
 	qt4-embedded-qmlviewer \
 	qt4-embedded-plugin-gfxdriver-gfxtransformed \
 	libqt-embeddeddeclarative4 \
-	qwt-e \
 "
 #	packagegroup-core-qt4e 
 
@@ -56,11 +55,19 @@ QTBASE_PACKAGES = "\
 	qt4-embedded-plugin-sqldriver-sqlmysql \
 "
 
+QTGFX_RECOMMENDS = " \
+	qwt-e \
+"
+
 RDEPENDS_${PN} = "\
 	${QTBASE_PACKAGES} \
 	${@base_contains('MACHINE_FEATURES', 'screen', '${QTGFX_PACKAGES}', '', d)} \
 	${@base_contains('MACHINE_FEATURES', 'sgx', '${QT_SGX_SUPPORT}', '', d)} \
 	${@base_contains('MACHINE_FEATURES', 'touchscreen', 'qt4-embedded-plugin-mousedriver-tslib', '', d)} \
+"
+
+RRECOMMENDS_${PN} = "\
+	${@base_contains('MACHINE_FEATURES', 'screen', '${QTGFX_RECOMMENDS}', '', d)} \
 "
 #TODO
 #	qt4-embedded-plugin-sqldriver-sqlmysql
