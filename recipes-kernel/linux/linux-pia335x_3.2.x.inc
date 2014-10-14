@@ -11,7 +11,7 @@ MACHINE_KERNEL_PR_append = "+pia007"
 KERNEL_IMAGE_BASE_NAME = "${KERNEL_IMAGETYPE}-${PKGE}-${PKGV}-${MACHINE}-${DATETIME}"
 MODULE_IMAGE_BASE_NAME = "modules-${PKGE}-${PKGV}-${MACHINE}-${DATETIME}"
 
-PR = "r30+pia007"
+PR = "r30+pia008"
 
 #SRC_URI = "git://192.168.1.90/kernel/linux-pia-bk.git;protocol=git;branch=${KERNEL_BRANCH}
 SRC_URI = "git://github.com/pironex/pia-linux-kernel.git;protocol=https;branch=${KERNEL_BRANCH} \
