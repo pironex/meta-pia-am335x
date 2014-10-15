@@ -16,14 +16,16 @@ RCONFLICTS_${PN} += "ti-compat-wireless-wl12xx"
 
 COMPATIBLE_MACHINE = "(omap-a15|ti33x)"
 
-PV = "r8.a8.08"
+PV = "r8.a8.10"
 inherit module
 
 PR = "${MACHINE_KERNEL_PR}"
-PR_append = "b+pia002"
+PR_append = "b+pia003"
 
 # Tags: ol_r8.a8.10
-SRCREV_wl18xx = "eaa1820c02dc076e6ad9254e9cb7a3bb0c17471b"
+#SRCREV_wl18xx = "eaa1820c02dc076e6ad9254e9cb7a3bb0c17471b"
+# Tag: olr8.a8.10_32 + fix for platform data struct layout
+SRCREV_wl18xx = "0c3a054b1695529a0226c2c425dba92ec815e806"
 #SRCREV_compat = "5d80865281795f962e1400a95202bbd07dd763c0"
 #SRCREV_compat = "fb63eb94e9c4fc2a33ac78af54abc2e9526d350c"
 SRCREV_compat = "${AUTOREV}"
