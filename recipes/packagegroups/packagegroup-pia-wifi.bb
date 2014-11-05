@@ -9,6 +9,8 @@ BT_PACKAGES = " \
 	pulseaudio-module-loopback pulseaudio-module-bluetooth-discover \
 	pulseaudio-module-bluetooth-device \
 	bluez4 bluez4-agent bluez-hcidump openobex openobex-apps obexftp ussp-push \
+	kernel-module-bluetooth kernel-module-hci-uart kernel-module-btwilnk \
+	bt-firmware \
 "
 #	bluez-tools bt-enable \
 #
@@ -16,8 +18,8 @@ BT_PACKAGES = " \
 RDEPENDS_${PN} = " \
 	iw wireless-tools \ 
 	rfkill wpa-supplicant \
-	linux-firmware \
 "
+#	linux-firmware \
 #	linux-firmware-wl12xx bt-firmware \
 #
 
@@ -27,6 +29,11 @@ RRECOMMENDS_${PN} = " \
 	kernel-module-rtlwifi kernel-module-rtl8192c-common kernel-module-rtl8192cu \
 	kernel-module-rt2x00lib kernel-module-rt2x00usb \
 	kernel-module-rfcomm kernel-module-rfkill \
+	linux-firmware-ralink linux-firmware-rtl8192cu \
+	linux-firmware-rtl8192ce linux-firmware-rtl8192su linux-firmware-rtl8192cu \
+	linux-firmware-ath9k \
+	ti-compat-wireless-wl18xx wl12xx-firmware wlconf \
+	${BT_PACKAGES} \
 " 
 
 #ti-wifi-utils

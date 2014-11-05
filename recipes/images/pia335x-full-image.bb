@@ -9,7 +9,7 @@ BENCHMARK_PACKAGES = " \
 	lmbench \
 "
 
-HWTOOLS_PACKAGES = " \ 
+HWTOOLS_PACKAGES = " \
 	evtest \
 	hdparm \
 	memtester \

@@ -34,11 +34,7 @@ TOOLS_PACKAGES = " \
 "
 
 KERNELMOD_PACKAGES = " \
-	linux-firmware-ralink linux-firmware-wl12xx linux-firmware-rtl8192cu \
-	linux-firmware-rtl8192ce linux-firmware-rtl8192su linux-firmware-rtl8192cu \
-	linux-firmware-ath9k linux-firmware-wl12xx \
 	kernel-module-g-serial \
-	kernel-module-bluetooth kernel-module-hci-uart kernel-module-btwilnk \
 	kernel-module-usbserial \
 	kernel-module-omap-aes kernel-module-omap-sham \
 	kernel-module-dm9601 \
