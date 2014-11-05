@@ -13,11 +13,9 @@ MACHINE_FEATURES = "kernel26 apm vfat ext2 ethernet "
 
 EXTRA_IMAGEDEPENDS = "u-boot"
 
-PREFERRED_VERSION_bluez4 = "4.101"
-PREFERRED_VERSION_wpa-supplicant = "2.0"
 PREFERRED_PROVIDER_u-boot = "u-boot"
-##PREFERRED_PROVIDER_gcc-cross-canadian-arm = "gcc-cross-canadian-arm"
-##PREFERRED_PROVIDER_binutils-cross-canadian-arm = "binutils-cross-canadian-arm"
+#PREFERRED_PROVIDER_gcc-cross-canadian-arm = "gcc-cross-canadian-arm"
+#PREFERRED_PROVIDER_binutils-cross-canadian-arm = "binutils-cross-canadian-arm"
 
 PIA_QT_PROVIDER = "${@base_contains('MACHINE_FEATURES','sgx','qt4-embedded-gles','qt4-embedded',d)}"
 PREFERRED_PROVIDER_qt4-embedded = "${PIA_QT_PROVIDER}"
@@ -45,7 +43,10 @@ PREFERRED_PROVIDER_mysql5-native = "mariadb-native"
 PREFERRED_PROVIDER_mysql5-client = "mariadb"
 PREFERRED_PROVIDER_mysql5-server = "mariadb"
 
-PREFERRED_PROVIDER_wl12xx-firmware = "linux-firmware-wl12xx"
+PREFERRED_PROVIDER_wl12xx-firmware = "wl18xx-firmware"
+PREFERRED_PROVIDER_wpa-supplicant = "wpa-supplicant-wl18xx"
+#PREFERRED_VERSION_wpa-supplicant = "2.0"
+#PREFERRED_VERSION_bluez4 = "4.101"
 
 IMAGE_FSTYPES += " tar.bz2 "
 
