@@ -31,7 +31,6 @@ RRECOMMENDS_${PN} = ' \
 	ppp-doc \
 	tar-doc \
 	vim-doc \
-	wpa-supplicant-doc \
 	\
 	perl perl-module-posix perl-module-exporter-heavy perl-module-fcntl \
 	openvpn \
