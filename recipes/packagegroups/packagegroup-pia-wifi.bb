@@ -17,13 +17,19 @@ BT_PACKAGES = " \
 
 RDEPENDS_${PN} = " \
 	iw wireless-tools \ 
-	rfkill wpa-supplicant \
+	rfkill \
 "
 #	linux-firmware \
 #	linux-firmware-wl12xx bt-firmware \
 #
 
 # TODO check bluetooth-gui wl1271-demo from arago
+
+RRECOMMENDS_${PN}_omap3 = ""
+
+RRECOMMENDS_${PN}_ti33x = " \
+	ti-compat-wireless-wl18xx wpa-supplicant \
+"
 
 RRECOMMENDS_${PN} = " \
 	kernel-module-rtlwifi kernel-module-rtl8192c-common kernel-module-rtl8192cu \
@@ -32,7 +38,7 @@ RRECOMMENDS_${PN} = " \
 	linux-firmware-ralink linux-firmware-rtl8192cu \
 	linux-firmware-rtl8192ce linux-firmware-rtl8192su linux-firmware-rtl8192cu \
 	linux-firmware-ath9k \
-	ti-compat-wireless-wl18xx wl12xx-firmware wlconf \
+	wl12xx-firmware wlconf \
 	${BT_PACKAGES} \
 " 
 
