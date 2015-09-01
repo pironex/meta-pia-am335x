@@ -5,16 +5,21 @@ KERNEL_IMAGETYPE = "uImage"
 
 COMPATIBLE_MACHINE = "(omap3)"
 
-PV = "3.2.54"
+PV = "3.2.54+gitr${SRCPV}"
 
 # pia35x_release_3.2_201310
 #SRCREV = "135789084f0bf303771170a8728d1b946ee8a92d"
 SRCREV = "${AUTOREV}"
-MACHINE_KERNEL_PR = "r011+gitr${SRCREV}"
+MACHINE_KERNEL_PR_append = "r011+gitr${SRCREV}"
+
+KERNEL_BRANCH = "pia35x-3.2-dev"
+
+KERNEL_IMAGE_BASE_NAME = "${KERNEL_IMAGETYPE}-${PKGE}-${PKGV}-${MACHINE}-${DATETIME}"
+MODULE_IMAGE_BASE_NAME = "modules-${PKGE}-${PKGV}-${MACHINE}-${DATETIME}"
 
 #only 
 #FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-SRC_URI = "git://192.168.1.90/kernel/linux-pia-bk.git;branch=pia35x-3.2-dev;protocol=git \
+SRC_URI = "git://192.168.1.90/kernel/linux-pia-bk.git;branch=${KERNEL_BRANCH};protocol=git \
            file://defconfig \
 "
 
