@@ -17,9 +17,9 @@ KERNEL_BRANCH = "pia35x-3.2-dev"
 KERNEL_IMAGE_BASE_NAME = "${KERNEL_IMAGETYPE}-${PKGE}-${PKGV}-${MACHINE}-${DATETIME}"
 MODULE_IMAGE_BASE_NAME = "modules-${PKGE}-${PKGV}-${MACHINE}-${DATETIME}"
 
-#only 
-#FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-SRC_URI = "git://192.168.1.90/kernel/linux-pia-bk.git;branch=${KERNEL_BRANCH};protocol=git \
+#local git:
+#SRC_URI = "git://192.168.1.90/kernel/linux-pia-bk.git;branch=${KERNEL_BRANCH};protocol=git"
+SRC_URI = "git://github.com/pironex/pia-linux-kernel.git;protocol=https;branch=${KERNEL_BRANCH} \
            file://defconfig \
 "
 
