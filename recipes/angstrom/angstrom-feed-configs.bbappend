@@ -2,7 +2,7 @@
 PIRONEX_FEED_URI = "http://feeds.pironex.de"
 
 ANGSTROM_URI = "${PIRONEX_FEED_URI}"
-FEED_BASEPATH = "oe1312/"
+FEED_BASEPATH = "oe1512/"
 
 # override angstrom uri as MACHINE_ARCH doesn't exist for piA-am35x
 do_compile_append() {

@@ -1,1 +1,0 @@
-../../meta-arago/meta-arago-distro/classes/qt-vars.bbclass
