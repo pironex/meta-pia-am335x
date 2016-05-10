@@ -32,4 +32,4 @@ UBOOT_ARCH = "arm"
 IMAGE_FSTYPES += " tar.bz2 "
 
 # Guesswork
-SERIAL_CONSOLE = "115200 ttyS0"
+SERIAL_CONSOLE = "115200 ttyO0"

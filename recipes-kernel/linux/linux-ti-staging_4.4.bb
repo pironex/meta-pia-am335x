@@ -30,7 +30,7 @@ RDEPENDS_kernel-base_append_ti43x = " amx3-cm3"
 
 # Default is to package all dtb files for ti33x devices unless building
 # for the specific beaglebone machine.
-KERNEL_DEVICETREE_ti33x = "am335x-evm.dtb am335x-evmsk.dtb am335x-bone.dtb am335x-boneblack.dtb am335x-pia-base.dtb am335x-pia-dr.dtb am335x-pia-sk.dtb am335x-pia-cantft"
+KERNEL_DEVICETREE_ti33x = "am335x-evm.dtb am335x-evmsk.dtb am335x-bone.dtb am335x-boneblack.dtb am335x-pia-base.dtb am335x-pia-dr.dtb am335x-pia-sk.dtb am335x-pia-cantft.dtb"
 #KERNEL_DEVICETREE_ti43x = "am43x-epos-evm.dtb am43x-epos-evm-hdmi.dtb am437x-gp-evm.dtb am437x-gp-evm-hdmi.dtb am437x-sk-evm.dtb"
 #KERNEL_DEVICETREE_beaglebone = "am335x-bone.dtb am335x-boneblack.dtb"
 #KERNEL_DEVICETREE_omap5-evm = "omap5-uevm.dtb"
