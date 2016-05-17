@@ -10,7 +10,7 @@ EXTRA_MACHINE_IMAGE_INSTALL ?= ""
 IMAGE_INSTALL += " \
 	packagegroup-pia-tools \
 	libmodbus \
-	${@base_contains("MACHINE_FEATURES", "alsa", "alsa-state", "",d)} \
+	${@base_contains("MACHINE_FEATURES", "alsa", "packagegroup-pia-audio", "",d)} \
 	${@base_contains("MACHINE_FEATURES", "can", "canutils", "", d)} \
 	${@base_contains("MACHINE_FEATURES", "gsm", "packagegroup-pia-gsm", "", d)} \
 	${@base_contains("MACHINE_FEATURES", "usbhost", "usbutils", "", d)} \
