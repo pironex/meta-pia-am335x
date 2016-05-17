@@ -10,6 +10,9 @@ EXTRA_MACHINE_IMAGE_INSTALL ?= ""
 IMAGE_INSTALL += " \
 	packagegroup-qt5-apps \
 	packagegroup-qt5 \
+	qtimageformats \
+	qtgraphicaleffects \
+	qtserialport \
 "
 
 
