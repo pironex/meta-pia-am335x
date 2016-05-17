@@ -4,10 +4,10 @@ LICENSE = "MIT"
 inherit packagegroup
 
 EXTRA_DEPENDS = ""
-EXTRA_DEPENDS_pia_am35x = " pia-gprs \
+EXTRA_DEPENDS_pia-am35x = " pia-gprs \
 "
 
-EXTRA_DEPENDS_pia += " gpsd gps-utils gpsd-machine-conf "
+EXTRA_DEPENDS_pia-am335x += " gpsd gps-utils gpsd-machine-conf "
 
 RDEPENDS_${PN} = " \
 	ppp ppp-tools \
