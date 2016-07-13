@@ -54,7 +54,8 @@ S = "${WORKDIR}/git"
 BRANCH = "${KERNEL_BRANCH}"
 
 #SRCREV = "9abbabaf42f4231cec3fd43ccf660af14b3e4b0f"
-SRCREV = "ac992cceccf8d742b76bd64f1487d6dd63a0f06b"
+#SRCREV = "ac992cceccf8d742b76bd64f1487d6dd63a0f06b"
+SRCREV = "5142ea93673c175d2ca3bfaf2c45c0308865b881"
 PV = "4.4.8+git${SRCPV}"
 
 # Append to the MACHINE_KERNEL_PR so that a new SRCREV will cause a rebuild
