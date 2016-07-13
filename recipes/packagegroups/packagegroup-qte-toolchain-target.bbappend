@@ -11,8 +11,8 @@ RDEPENDS_${PN} += " \
 	dbus-c++-dev \
 	libusb1-dev \
 	qt4-embedded-dev \
-	libpcap-dev \
 	gpsd-dev \
+	libpcap-dev \
 	libmodbus-dev \
         ${@base_contains('MACHINE_FEATURES', 'sgx', '${QT_SGX_DEV_SUPPORT}', '', d)} \
 "

@@ -14,6 +14,7 @@ DEV_PACKAGES = " \
 
 SCRIPTING_PACKAGES = " \
 	bash util-linux-bash-completion \
+	bc \
 	mc-helpers-perl \
 	perl \
 	python-io python-json python-fcntl \
