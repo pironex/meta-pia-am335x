@@ -30,6 +30,7 @@ RDEPENDS_kernel-base_append_ti43x = " amx3-cm3"
 
 # Default is to package all dtb files for ti33x devices unless building
 # for the specific beaglebone machine.
+#KERNEL_DEVICETREE_ti33x = "am335x-evm.dtb am335x-evmsk.dtb am335x-bone.dtb am335x-boneblack.dtb am335x-pia-base.dtb am335x-pia-dr.dtb am335x-pia-sf.dtb am335x-pia-sk.dtb am335x-pia-cantft.dtb"
 KERNEL_DEVICETREE_ti33x = "am335x-evm.dtb am335x-evmsk.dtb am335x-bone.dtb am335x-boneblack.dtb am335x-pia-base.dtb am335x-pia-dr.dtb am335x-pia-sk.dtb am335x-pia-cantft.dtb"
 #KERNEL_DEVICETREE_ti43x = "am43x-epos-evm.dtb am43x-epos-evm-hdmi.dtb am437x-gp-evm.dtb am437x-gp-evm-hdmi.dtb am437x-sk-evm.dtb"
 #KERNEL_DEVICETREE_beaglebone = "am335x-bone.dtb am335x-boneblack.dtb"
@@ -55,7 +56,11 @@ BRANCH = "${KERNEL_BRANCH}"
 
 #SRCREV = "9abbabaf42f4231cec3fd43ccf660af14b3e4b0f"
 #SRCREV = "ac992cceccf8d742b76bd64f1487d6dd63a0f06b"
+# 4.4.8 Release
 SRCREV = "5142ea93673c175d2ca3bfaf2c45c0308865b881"
+# 4.4.12 ti-merge
+#SRCREV = "41602a3c8e0b7ee090908356cbf84a339fe6c9da"
+
 PV = "4.4.8+git${SRCPV}"
 
 # Append to the MACHINE_KERNEL_PR so that a new SRCREV will cause a rebuild
