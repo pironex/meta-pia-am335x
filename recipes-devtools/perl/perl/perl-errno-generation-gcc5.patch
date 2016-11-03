@@ -1,0 +1,24 @@
+Upstream-Status:Inappropriate [embedded specific]
+
+The upstream code assumes that the compiler version used to compiler miniperl/perl-native
+is the same as the one being used to build the perl binary. Since most people are not running
+systems with gcc 5, it is unlikely that it will work on any supported host. Switch out gccversion
+for the version extracted from $CC --version.
+
+Index: perl-5.22.0/ext/Errno/Errno_pm.PL
+===================================================================
+--- perl-5.22.0.orig/ext/Errno/Errno_pm.PL
++++ perl-5.22.0/ext/Errno/Errno_pm.PL
+@@ -224,9 +224,11 @@ sub write_errno_pm {
+ 
+     {	# BeOS (support now removed) did not enter this block
+     # invoke CPP and read the output
++        my $compiler = $ENV{'CC'};
++        my $compiler_out = `$compiler --version`;
+ 
+ 	my $inhibit_linemarkers = '';
+-	if ($Config{gccversion} =~ /\A(\d+)\./ and $1 >= 5) {
++	if ($compiler_out =~ /\A[^\d]+(\d+)\./ and $1 >= 5) {
+ 	    # GCC 5.0 interleaves expanded macros with line numbers breaking
+ 	    # each line into multiple lines. RT#123784
+ 	    $inhibit_linemarkers = ' -P';
