@@ -14,6 +14,9 @@ do_compile_append() {
 
 FILES_${PN} = "${sysconfdir}/opkg/base-feed.conf \
                ${sysconfdir}/opkg/debug-feed.conf \
+               ${sysconfdir}/opkg/perl-feed.conf \
+               ${sysconfdir}/opkg/python-feed.conf \
+               ${sysconfdir}/opkg/gstreamer-feed.conf \
                ${sysconfdir}/opkg/${MACHINE_ARCH}-feed.conf \
                ${sysconfdir}/opkg/noarch-feed.conf \
                ${sysconfdir}/opkg/sdk-feed.conf \
@@ -21,6 +24,9 @@ FILES_${PN} = "${sysconfdir}/opkg/base-feed.conf \
 
 CONFFILES_${PN} += "${sysconfdir}/opkg/base-feed.conf \
                ${sysconfdir}/opkg/debug-feed.conf \
+               ${sysconfdir}/opkg/perl-feed.conf \
+               ${sysconfdir}/opkg/python-feed.conf \
+               ${sysconfdir}/opkg/gstreamer-feed.conf \
                ${sysconfdir}/opkg/${MACHINE_ARCH}-feed.conf \
                ${sysconfdir}/opkg/noarch-feed.conf \
                ${sysconfdir}/opkg/sdk-feed.conf \
