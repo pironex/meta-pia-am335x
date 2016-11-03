@@ -5,10 +5,18 @@ PACKAGECONFIG_append = "linuxfb"
 GLES_EXTRA_DEPS = ""
 GLES_EXTRA_DEPS_ti33x = "libdrm"
 
-PACKAGECONFIG_GL = "gles2"
+#removed for testing without OpenGL
+#PACKAGECONFIG_GL = "gles2"
+#PACKAGECONFIG_GL = ""
 PACKAGECONFIG_FB = "linuxfb"
 
 PACKAGECONFIG[gles2] = "-opengl es2 -eglfs,,virtual/libgles2 virtual/egl ${GLES_EXTRA_DEPS}"
+PACKAGECONFIG[gl] = "-opengl desktop -no-eglfs,-no-opengl,virtual/libgl"
+PACKAGECONFIG += "sql-sqlite \
+    tslib \
+"
+
+
 
 #PR_append = "-pia001"
 
