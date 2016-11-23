@@ -1,0 +1,1 @@
+PACKAGECONFIG += "alsa pulseaudio gstreamer "
