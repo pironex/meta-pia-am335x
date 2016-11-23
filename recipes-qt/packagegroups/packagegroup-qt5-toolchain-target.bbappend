@@ -3,7 +3,7 @@ RDEPENDS_${PN} += " \
     libmodbus-dev \
     libpcap-dev \
     libsocketcan-dev \
-    libusb1-dev \
+    libusb1-dev libusb-compat-dev \
     mosquitto-dev \
 "
 
