@@ -3,20 +3,14 @@
 #DISTRO_UPDATE_ALTERNATIVES += "update-alternatives-cworth"
 
 #require ${COREBASE}/../meta-angstrom/recipes-images/angstrom/console-image.bb
-require ${COREBASE}/../meta-angstrom/recipes-images/angstrom/angstrom-image.bb
+require pia335x-base-image.bb
 
 EXTRA_MACHINE_IMAGE_INSTALL ?= ""
 
 IMAGE_INSTALL += " \
-	packagegroup-pia-tools \
-	libmodbus \
-	${@base_contains("MACHINE_FEATURES", "alsa", "packagegroup-pia-audio", "",d)} \
-	${@base_contains("MACHINE_FEATURES", "can", "canutils", "", d)} \
-	${@base_contains("MACHINE_FEATURES", "gsm", "packagegroup-pia-gsm", "", d)} \
-	${@base_contains("MACHINE_FEATURES", "usbhost", "usbutils", "", d)} \
+	${@base_contains("MACHINE_FEATURES", "wifi", "packagegroup-pia-wifi", "", d)} \
 "
 
-#	${@base_contains("MACHINE_FEATURES", "wifi", "packagegroup-pia-wifi", "", d)} \
 #
 
 export IMAGE_BASENAME = "pia335x-ext"

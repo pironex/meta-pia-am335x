@@ -5,18 +5,20 @@ inherit packagegroup
 
 
 DEV_PACKAGES = " \
+	canutils \
 	devmem2 \
 	evtest \
 	gdbserver \
 	i2c-tools \
 	ldd \
+	lrzsz \
 "
 
 SCRIPTING_PACKAGES = " \
 	bash util-linux-bash-completion \
 	bc \
 	mc-helpers-perl \
-	perl \
+	perl perl-modules \
 	python-io python-json python-fcntl \
 	mc-helpers-python \
 "
@@ -25,13 +27,10 @@ RDEPENDS_${PN} = " \
 	${DEV_PACKAGES} \
 	${SCRIPTING_PACKAGES} \
 	htop \
-	lrzsz \
 	mc mc-fish mc-helpers \
-	mosquitto \
 	nano \
 	picocom \
 	setserial \
-	sqlite3 \
 	stat \
 	tcpdump \
 	usbutils \
@@ -42,4 +41,7 @@ RDEPENDS_${PN} = " \
 #	mosquitto-clients libmosquittopp1
 
 RRECOMMENDS_${PN} = " \
+	libmodbus \
+	mosquitto \
+	sqlite3 \
 "

@@ -10,5 +10,6 @@ RDEPENDS_${PN} = " \
 
 RRECOMMENDS_${PN} = " \
 	pulseaudio-server \
+	pulseaudio-misc \
 "
 
