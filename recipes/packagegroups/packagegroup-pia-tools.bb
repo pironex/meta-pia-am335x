@@ -8,10 +8,13 @@ DEV_PACKAGES = " \
 	canutils \
 	devmem2 \
 	evtest \
-	gdbserver \
+	gdbserver gdb \
 	i2c-tools \
+	iotop \
 	ldd \
 	lrzsz \
+	lsof \
+	mmc-utils \
 "
 
 SCRIPTING_PACKAGES = " \
@@ -29,18 +32,22 @@ RDEPENDS_${PN} = " \
 	htop \
 	mc mc-fish mc-helpers \
 	nano \
+	net-tools \
 	picocom \
+	procps \
 	setserial \
 	stat \
 	tcpdump \
+	tmux \
 	usbutils \
-	util-linux-lscpu util-linux-hwclock \
+	util-linux util-linux-lscpu util-linux-hwclock \
 	xz \
 "
 
 #	mosquitto-clients libmosquittopp1
 
 RRECOMMENDS_${PN} = " \
+	cifs-utils \
 	libmodbus \
 	mosquitto \
 	sqlite3 \
