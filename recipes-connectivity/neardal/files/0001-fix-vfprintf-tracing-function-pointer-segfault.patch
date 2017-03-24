@@ -1,0 +1,34 @@
+From cf8145d50974c79b7f4888a239c5c7b96470d72d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Krombholz?= <b.krombholz@pironex.de>
+Date: Wed, 30 Nov 2016 17:23:33 +0100
+Subject: [PATCH] fix vfprintf tracing function pointer segfault
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When the function pointer neardal_output_cb is called in neardal_trace,
+its address is 0 for some reason, causing the call to SEGFAULT.
+
+Make the gloabal pointer static to ensure the initialization.
+
+Signed-off-by: BjÃ¶rn Krombholz <b.krombholz@pironex.de>
+---
+ lib/neardal_traces.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/neardal_traces.c b/lib/neardal_traces.c
+index d7214e7..ef84b9d 100644
+--- a/lib/neardal_traces.c
++++ b/lib/neardal_traces.c
+@@ -30,7 +30,7 @@
+ 
+ #define NB_COLUMN		16
+ 
+-int (*neardal_output_cb)(FILE *fp, const char *fmt, va_list ap) = vfprintf;
++static int (*neardal_output_cb)(FILE *fp, const char *fmt, va_list ap) = vfprintf;
+ 
+ void neardal_trace(const char *func, FILE *fp, char *fmt, ...)
+ {
+-- 
+2.10.2
+
