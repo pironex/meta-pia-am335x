@@ -1,3 +1,4 @@
+# from arago-extras layer
 SUMMARY = "Wayland, a protocol between a compositor and clients"
 DESCRIPTION = "Wayland is a protocol for a compositor to talk to its clients \
 as well as a C library implementation of that protocol. The compositor can be \
