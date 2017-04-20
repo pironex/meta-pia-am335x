@@ -49,6 +49,7 @@ RDEPENDS_${PN} = " \
 RRECOMMENDS_${PN} = " \
 	cifs-utils \
 	libmodbus \
+	memtester \
 	mosquitto \
 	sqlite3 \
 "
