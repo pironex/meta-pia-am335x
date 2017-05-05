@@ -5,6 +5,7 @@ RDEPENDS_${PN} += " \
     libsocketcan-dev \
     libusb1-dev libusb-compat-dev \
     mosquitto-dev \
+    neardal-dev neard-dev \
 "
 
 RRECOMMENDS_${PN} += " \
