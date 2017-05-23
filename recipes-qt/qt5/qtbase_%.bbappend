@@ -15,7 +15,7 @@ PR_append = "-pia001"
 
 # qt_env.sh handling
 QT_ENV = "qt_env.sh"
-QT_ENV_ti33x = "${@base_contains('DISTRO_FEATURES', 'wayland', 'qt_env.sh', 'qt_env_ti33x.sh', d)}"
+QT_ENV_ti33x = "${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'qt_env.sh', 'qt_env_ti33x.sh', d)}"
 
 SRC_URI += "\
     file://${QT_ENV} \
