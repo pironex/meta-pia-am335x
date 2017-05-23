@@ -9,9 +9,9 @@ IMAGE_INSTALL += " \
 	packagegroup-core-full-cmdline \
 	${CORE_IMAGE_EXTRA_INSTALL} \
 	packagegroup-pia-tools \
-	${@base_contains("MACHINE_FEATURES", "alsa", "packagegroup-pia-audio", "",d)} \
-	${@base_contains("MACHINE_FEATURES", "gsm", "packagegroup-pia-gsm", "", d)} \
-	${@base_contains("MACHINE_FEATURES", "usbhost", "usbutils", "", d)} \
+	${@bb.utils.contains("MACHINE_FEATURES", "alsa", "packagegroup-pia-audio", "",d)} \
+	${@bb.utils.contains("MACHINE_FEATURES", "gsm", "packagegroup-pia-gsm", "", d)} \
+	${@bb.utils.contains("MACHINE_FEATURES", "usbhost", "usbutils", "", d)} \
 "
 
 export IMAGE_BASENAME = "pia335x-base"

@@ -64,9 +64,9 @@ EXTRA_MACHINE_IMAGE_INSTALL_pia-am35x = " \
 " 
 
 IMAGE_INSTALL += " \
-	${@base_contains("MACHINE_FEATURES", "alsa", "${SOUND_PACKAGES}", "",d)} \
-	${@base_contains("MACHINE_FEATURES", "screen", "packagegroup-pia-gfx", "",d)} \
-	${@base_contains("MACHINE_FEATURES", "wifi", "packagegroup-pia-wifi", "", d)} \
+	${@bb.utils.contains("MACHINE_FEATURES", "alsa", "${SOUND_PACKAGES}", "",d)} \
+	${@bb.utils.contains("MACHINE_FEATURES", "screen", "packagegroup-pia-gfx", "",d)} \
+	${@bb.utils.contains("MACHINE_FEATURES", "wifi", "packagegroup-pia-wifi", "", d)} \
 	packagegroup-pia-qte \
 	${EXTRA_MACHINE_IMAGE_INSTALL} \
 	mc \

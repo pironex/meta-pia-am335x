@@ -17,7 +17,7 @@ ANGSTROM_EXTRA_INSTALL ?= ""
 #SPLASH = "exquisite exquisite-themes exquisite-theme-angstrom"
 
 IMAGE_INSTALL += "\
-	${@base_contains('MACHINE_FEATURES','screen','packagegroup-pia-gfx','',d)} \
+	${@bb.utils.contains('MACHINE_FEATURES','screen','packagegroup-pia-gfx','',d)} \
 	packagegroup-pia-extended \
 	packagegroup-pia-demos \
 "

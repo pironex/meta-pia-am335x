@@ -6,7 +6,7 @@ EXTRA_MACHINE_IMAGE_INSTALL ?= ""
 REQUIRED_DISTRO_FEATURES = "wayland"
 
 IMAGE_INSTALL += " \
-    ${@base_contains('DISTRO_FEATURES', 'wayland', 'qtwayland-plugins', '', d)} \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'qtwayland-plugins', '', d)} \
     weston \
     weston-init \
 "
