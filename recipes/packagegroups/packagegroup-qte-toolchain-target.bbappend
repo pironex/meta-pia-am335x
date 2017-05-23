@@ -14,7 +14,7 @@ RDEPENDS_${PN} += " \
 	gpsd-dev \
 	libpcap-dev \
 	libmodbus-dev \
-        ${@base_contains('MACHINE_FEATURES', 'sgx', '${QT_SGX_DEV_SUPPORT}', '', d)} \
+        ${@bb.utils.contains('MACHINE_FEATURES', 'sgx', '${QT_SGX_DEV_SUPPORT}', '', d)} \
 "
 #	libqwt-dev \
 #
