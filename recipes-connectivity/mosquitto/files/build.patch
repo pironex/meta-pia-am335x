@@ -16,7 +16,7 @@ diff --git a/client/Makefile b/client/Makefile
 index bd65355..4e5a640 100644
 --- a/client/Makefile
 +++ b/client/Makefile
-@@ -24,8 +24,8 @@ client_shared.o : client_shared.c client_shared.h
+@@ -24,8 +24,8 @@ client_shared.o : client_shared.c client
  
  install : all
  	$(INSTALL) -d ${DESTDIR}$(prefix)/bin
@@ -31,7 +31,7 @@ diff --git a/config.mk b/config.mk
 index c0f175f..3427b83 100644
 --- a/config.mk
 +++ b/config.mk
-@@ -240,7 +240,7 @@ ifeq ($(WITH_DOCS),yes)
+@@ -241,7 +241,7 @@ ifeq ($(WITH_DOCS),yes)
  endif
  
  INSTALL?=install
@@ -44,7 +44,7 @@ diff --git a/lib/Makefile b/lib/Makefile
 index 825fcea..9b7c05c 100644
 --- a/lib/Makefile
 +++ b/lib/Makefile
-@@ -25,7 +25,7 @@ all : libmosquitto.so.${SOVERSION} libmosquitto.a
+@@ -25,7 +25,7 @@ all : libmosquitto.so.${SOVERSION} libmo
  
  install : all
  	$(INSTALL) -d ${DESTDIR}$(prefix)/lib${LIB_SUFFIX}/
@@ -70,14 +70,16 @@ diff --git a/src/Makefile b/src/Makefile
 index 2cfb7d4..9a97644 100644
 --- a/src/Makefile
 +++ b/src/Makefile
-@@ -103,10 +103,10 @@ mosquitto_passwd.o : mosquitto_passwd.c
+@@ -103,12 +103,12 @@ mosquitto_passwd.o : mosquitto_passwd.c
  
  install : all
  	$(INSTALL) -d ${DESTDIR}$(prefix)/sbin
 -	$(INSTALL) -s --strip-program=${CROSS_COMPILE}${STRIP} mosquitto ${DESTDIR}${prefix}/sbin/mosquitto
 +	$(INSTALL) mosquitto ${DESTDIR}${prefix}/sbin/mosquitto
+	$(INSTALL) -d ${DESTDIR}$(prefix)/include
  	$(INSTALL) mosquitto_plugin.h ${DESTDIR}${prefix}/include/mosquitto_plugin.h
  ifeq ($(WITH_TLS),yes)
+	$(INSTALL) -d ${DESTDIR}$(prefix)/bin
 -	$(INSTALL) -s --strip-program=${CROSS_COMPILE}${STRIP} mosquitto_passwd ${DESTDIR}${prefix}/bin/mosquitto_passwd
 +	$(INSTALL) mosquitto_passwd ${DESTDIR}${prefix}/bin/mosquitto_passwd
  endif
