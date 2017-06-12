@@ -1,6 +1,8 @@
 # main image for piA with QT5 support
 require pia335x-base-image.bb
 
+inherit populate_sdk_qt5
+
 EXTRA_MACHINE_IMAGE_INSTALL ?= ""
 
 IMAGE_INSTALL += " \
