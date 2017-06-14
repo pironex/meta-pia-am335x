@@ -3,7 +3,7 @@ SUMMARY = "Open source MQTT v3.1 implemention"
 DESCRIPTION = "Mosquitto is an open source (BSD licensed) message broker that implements the MQ Telemetry Transport protocol version 3.1. MQTT provides a lightweight method of carrying out messaging using a publish/subscribe model. "
 HOMEPAGE = "http://mosquitto.org/"
 SECTION = "console/network"
-LICENSE = "BSD"
+LICENSE = "EPL-1.0"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=62ddc846179e908dc0c8efec4a42ef20"
 
 DEPENDS = "c-ares openssl util-linux python"
