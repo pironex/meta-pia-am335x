@@ -15,6 +15,7 @@ DEV_PACKAGES = " \
 	lrzsz \
 	lsof \
 	mmc-utils \
+	lua \
 "
 
 SCRIPTING_PACKAGES = " \
@@ -45,9 +46,9 @@ RDEPENDS_${PN} = " \
 "
 
 #	mosquitto-clients libmosquittopp1
+#	cifs-utils
 
 RRECOMMENDS_${PN} = " \
-	cifs-utils \
 	libmodbus \
 	memtester \
 	mosquitto \
