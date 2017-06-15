@@ -15,3 +15,7 @@ RDEPENDS_${PN} = " \
 	quitbattery \
 	quitindicators \
 "
+
+RRECOMMENDS_${PN} = " \
+	qtdeclarative-tools \
+"
