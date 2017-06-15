@@ -58,7 +58,7 @@ Protocol 2
 #IgnoreRhosts yes
 
 # To disable tunneled clear text passwords, change to no here!
-PasswordAuthentication no
+PasswordAuthentication yes
 PermitEmptyPasswords yes
 
 # Change to no to disable s/key passwords
