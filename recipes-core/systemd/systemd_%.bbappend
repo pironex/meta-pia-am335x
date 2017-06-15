@@ -11,7 +11,31 @@ SRC_URI += "file://journald.conf \
 "
 
 # We use systemd-networkd as the system's network-manager
-PACKAGECONFIG += " \
+PACKAGECONFIG = "xz \
+	ldconfig \
+	${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
+	${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'xkbcommon', '', d)} \
+	${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux', '', d)} \
+	${@bb.utils.contains('DISTRO_FEATURES', 'wifi', 'rfkill', '', d)} \
+	${@bb.utils.contains('MACHINE_FEATURES', 'efi', 'efi', '', d)} \
+	binfmt \
+	randomseed \
+	machined \
+	backlight \
+	quotacheck \
+	hostnamed \
+	${@bb.utils.contains('TCLIBC', 'glibc', 'myhostname sysusers', '', d)} \
+	hibernate \
+	timedated \
+	timesyncd \
+	localed \
+	kdbus \
+	ima \
+	smack \
+	logind \
+	firstboot \
+	utmp \
+	polkit \
 	networkd \
 	resolved \
 	iptc \
