@@ -12,6 +12,8 @@ IMAGE_INSTALL += " \
 	${@bb.utils.contains("MACHINE_FEATURES", "alsa", "packagegroup-pia-audio", "",d)} \
 	${@bb.utils.contains("MACHINE_FEATURES", "gsm", "packagegroup-pia-gsm", "", d)} \
 	${@bb.utils.contains("MACHINE_FEATURES", "usbhost", "usbutils", "", d)} \
+	cpufreq-tweaks \
+	systemd-analyze \
 "
 
 export IMAGE_BASENAME = "pia335x-base"
