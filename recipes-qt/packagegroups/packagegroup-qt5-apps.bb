@@ -18,4 +18,8 @@ RDEPENDS_${PN} = " \
 
 RRECOMMENDS_${PN} = " \
 	qtdeclarative-tools \
+	qtbase-examples \
+	qtdeclarative-examples \
+	qtmultimedia-examples \
+	qtquickcontrols-examples \
 "

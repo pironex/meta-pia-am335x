@@ -25,7 +25,13 @@ RDEPENDS_${PN} = " \
 	qtdeclarative \
 	qtdeclarative-qmlplugins \
 	qtdeclarative-plugins \
+	qtimageformats \
+	qtgraphicaleffects \
+	qtserialport \
 	${QTWEBKIT} \
+"
+
+RRECOMMENDS_${PN} = " \
 "
 
 QTWEBKIT ??= "\
