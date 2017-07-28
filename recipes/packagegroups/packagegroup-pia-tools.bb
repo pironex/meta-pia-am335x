@@ -16,6 +16,7 @@ DEV_PACKAGES = " \
 	lsof \
 	mmc-utils \
 	lua \
+	strace \
 "
 
 SCRIPTING_PACKAGES = " \
@@ -30,6 +31,7 @@ SCRIPTING_PACKAGES = " \
 RDEPENDS_${PN} = " \
 	${DEV_PACKAGES} \
 	${SCRIPTING_PACKAGES} \
+	dosfstools e2fsprogs-tune2fs \
 	htop \
 	mc mc-fish mc-helpers \
 	nano \
