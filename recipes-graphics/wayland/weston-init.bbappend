@@ -1,6 +1,6 @@
-PR_append = "+pia001"
+PR_append = "+pia002"
 
-#FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 #SRC_URI_append = " \
 #    file://runWeston \
@@ -8,6 +8,8 @@ PR_append = "+pia001"
 
 # clear, we don't have opengl but egl
 REQUIRED_DISTRO_FEATURES = ""
+
+#RDEPENDS_${PN} += " bash"
 
 #do_install_append() {
 #    install -d ${D}${bindir}
