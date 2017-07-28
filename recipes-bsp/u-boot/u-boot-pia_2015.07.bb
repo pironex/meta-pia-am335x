@@ -14,9 +14,9 @@ SRC_URI = "git://github.com/pironex/pia-uboot.git;protocol=git;branch=${UBOOT_BR
 	file://uEnv.txt \
 "
 
-SRCREV = "a11ae51c65b1970becb4cd3d5688b1c0b718477a"
+SRCREV = "60701b4bfd26d5a1fdf863c02ab2b0bcc332c55f"
 
-UBOOT_BRANCH = "master"
+UBOOT_BRANCH = "pia335x-dev"
 
 SPL_BINARY = "MLO"
 
