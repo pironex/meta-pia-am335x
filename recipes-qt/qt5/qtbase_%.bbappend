@@ -4,8 +4,8 @@ GLES_EXTRA_DEPS = ""
 GLES_EXTRA_DEPS_ti33x = "libdrm"
 
 #removed for testing without OpenGL
-PACKAGECONFIG_GL = "gles2"
-PACKAGECONFIG_FB = "linuxfb"
+PACKAGECONFIG_GL = "gles2 linuxfb"
+#PACKAGECONFIG_FB = "linuxfb"
 
 PACKAGECONFIG_DISTRO = "icu examples sql-sqlite tslib"
 PACKAGECONFIG_DISTRO += "fontconfig"
@@ -13,9 +13,9 @@ PACKAGECONFIG_DISTRO += "libinput"
 
 PACKAGECONFIG[gles2] = "-opengl es2 -eglfs,,virtual/libgles2 virtual/egl ${GLES_EXTRA_DEPS}"
 
-QT_CONFIG_FLAGS += "-qpa ${@base_contains('DISTRO_FEATURES', 'wayland', 'wayland', 'eglfs', d)}"
+QT_CONFIG_FLAGS += "-qpa ${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'wayland', 'eglfs', d)}"
 
-PR_append = "-pia002"
+PR_append = "-pia003"
 
 # qt_env.sh handling
 QT_ENV = "qt_env.sh"
