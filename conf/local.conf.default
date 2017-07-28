@@ -80,6 +80,36 @@ MACHINE ??= "pia-am335x"
 #TMPDIR = "${TOPDIR}/tmp"
 
 #
+# Parallelism Options
+#
+# These two options control how much parallelism BitBake should use. The first
+# option determines how many tasks bitbake should run in parallel:
+#
+#BB_NUMBER_THREADS ?= "4"
+#
+# Default to setting automatically based on cpu count
+#BB_NUMBER_THREADS ?= "${@oe.utils.cpu_count()}"
+#
+# The second option controls how many processes make should run in parallel when
+# running compile tasks:
+#
+#PARALLEL_MAKE ?= "-j 4"
+#
+# Default to setting automatically based on cpu count
+PARALLEL_MAKE ?= "-j ${@oe.utils.cpu_count()}"
+#
+# For a quad-core machine, BB_NUMBER_THREADS = "4", PARALLEL_MAKE = "-j 4" would
+# be appropriate for example.
+
+#
+# NICE
+#
+# use lowest idle priority
+BB_NICE_LEVEL = "19"
+# use idle IO priority
+BB_TASK_IONICE_LEVEL = "3.4"
+
+#
 # Default policy config
 #
 # The distribution setting controls which policy settings are used as defaults.
@@ -245,3 +275,12 @@ DISTRO_FEATURES_append = " systemd"
 DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
 VIRTUAL-RUNTIME_init_manager = "systemd"
 VIRTUAL-RUNTIME_initscripts = "systemd-compat-units"
+
+DISTRO_FEATURES_remove = "x11"
+DISTRO_FEATURES_remove = "opengl"
+
+PREFERRED_PROVIDER_virtual/egl_ti33x = "ti-sgx-ddk-um"
+PREFERRED_PROVIDER_virtual/libgles1_ti33x = "ti-sgx-ddk-um"
+PREFERRED_PROVIDER_virtual/libgles2_ti33x = "ti-sgx-ddk-um"
+PREFERRED_PROVIDER_libgbm_ti33x = "libgbm"
+PREFERRED_PROVIDER_libgbm-dev_ti33x = "libgbm-dev"
