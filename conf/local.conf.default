@@ -109,6 +109,8 @@ BB_NICE_LEVEL = "19"
 # use idle IO priority
 BB_TASK_IONICE_LEVEL = "3.4"
 
+# enable local pr server to automatically increase version numbers when only revision canges
+PRSERV_HOST = "localhost:0"
 #
 # Default policy config
 #
