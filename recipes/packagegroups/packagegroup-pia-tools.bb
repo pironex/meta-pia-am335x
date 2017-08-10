@@ -29,12 +29,14 @@ SCRIPTING_PACKAGES = " \
 RDEPENDS_${PN} = " \
 	${DEV_PACKAGES} \
 	${SCRIPTING_PACKAGES} \
+	coreutils \
 	htop \
 	mc mc-fish mc-helpers \
 	nano \
 	net-tools \
 	picocom \
 	procps \
+	rsync \
 	setserial \
 	stat \
 	tcpdump \
