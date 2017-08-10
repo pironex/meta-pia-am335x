@@ -18,32 +18,11 @@ RDEPENDS_kernel-base += "kernel-devicetree"
 # Add a run-time dependency for the PM firmware to be installed
 # on the target file system.
 RDEPENDS_kernel-base_append_ti33x = " amx3-cm3"
-RDEPENDS_kernel-base_append_ti43x = " amx3-cm3"
-
-# Add a run-time dependency for the VPE VPDMA firmware to be installed
-# on the target file system.
-#RDEPENDS_kernel-base_append_dra7xx = " vpdma-fw"
-
-# Install boot-monitor skern file into /boot dir of rootfs
-#RDEPENDS_kernel-base_append_keystone = " boot-monitor"
 
 # Default is to package all dtb files for ti33x devices unless building
 # for the specific beaglebone machine.
-KERNEL_DEVICETREE_ti33x = "am335x-evm.dtb am335x-evmsk.dtb am335x-bone.dtb am335x-boneblack.dtb am335x-pia-base.dtb am335x-pia-dr.dtb am335x-pia-sf.dtb am335x-pia-sk.dtb am335x-pia-cantft.dtb"
-#KERNEL_DEVICETREE_ti33x = "am335x-evm.dtb am335x-evmsk.dtb am335x-bone.dtb am335x-boneblack.dtb am335x-pia-base.dtb am335x-pia-dr.dtb am335x-pia-sk.dtb am335x-pia-cantft.dtb"
-#KERNEL_DEVICETREE_ti43x = "am43x-epos-evm.dtb am43x-epos-evm-hdmi.dtb am437x-gp-evm.dtb am437x-gp-evm-hdmi.dtb am437x-sk-evm.dtb"
-#KERNEL_DEVICETREE_beaglebone = "am335x-bone.dtb am335x-boneblack.dtb"
-#KERNEL_DEVICETREE_omap5-evm = "omap5-uevm.dtb"
-#KERNEL_DEVICETREE_dra7xx-evm = "dra7-evm.dtb dra7-evm-lcd-lg.dtb dra7-evm-lcd-osd.dtb dra72-evm.dtb dra72-evm-lcd-lg.dtb dra72-evm-lcd-osd.dtb"
-#KERNEL_DEVICETREE_am57xx-evm = "am57xx-beagle-x15.dtb am57xx-evm.dtb"
-#KERNEL_DEVICETREE_omap3 = "omap3-beagle.dtb omap3-beagle-xm.dtb omap3-evm.dtb omap3-evm-37xx.dtb am3517-evm.dtb"
-#KERNEL_DEVICETREE_am3517-evm = "am3517-evm.dtb"
-#KERNEL_DEVICETREE_am37x-evm = "omap3-evm-37xx.dtb"
-#KERNEL_DEVICETREE_beagleboard = "omap3-beagle.dtb omap3-beagle-xm.dtb"
-#KERNEL_DEVICETREE_pandaboard = "omap4-panda.dtb omap4-panda-es.dtb"
-#KERNEL_DEVICETREE_k2hk-evm = "k2hk-evm.dtb"
-#KERNEL_DEVICETREE_k2e-evm = "k2e-evm.dtb"
-#KERNEL_DEVICETREE_k2l-evm = "k2l-evm.dtb"
+KERNEL_DEVICETREE_ti33x = "am335x-pia-base.dtb am335x-pia-dr.dtb am335x-pia-sf.dtb am335x-pia-sk.dtb am335x-pia-cantft.dtb"
+KERNEL_DEVICETREE_ti33x += " am335x-evm.dtb am335x-evmsk.dtb am335x-bone.dtb am335x-boneblack.dtb"
 
 # this is relevant for uImages
 KERNEL_EXTRA_ARGS += "LOADADDR=${UBOOT_ENTRYPOINT} V=1"
@@ -54,15 +33,13 @@ S = "${WORKDIR}/git"
 
 BRANCH = "${KERNEL_BRANCH}"
 
-#SRCREV = "9abbabaf42f4231cec3fd43ccf660af14b3e4b0f"
-#SRCREV = "ac992cceccf8d742b76bd64f1487d6dd63a0f06b"
 # 4.4.8 Release
 #SRCREV = "23d362ec2b0fc00ede3bbd100556a50ab920a898"
 #SRCREV = "d865ffe06e316b310ddee57a6910d14d6c961a5a"
 # sham fix
 #SRCREV = "6ba69c3a5385ead7afff49fa8738639184ab37d2"
 # 4.4.22 ti-merge
-SRCREV = "00889e7e2c962e07ba85729177c6497a1199dc10"
+SRCREV = "e5a441aa1a1e47347ad85bcb434c048eb29c6ad3"
 
 PV = "4.4.22+git${SRCPV}"
 
