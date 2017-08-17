@@ -10,6 +10,8 @@ IMAGE_INSTALL += " \
 	qtgraphicaleffects \
 	qtserialport \
 	packagegroup-qt5-qtcreator-debug \
+	qtquickcontrols \
+	${@base_contains('MACHINE_FEATURES','sgx','packagegroup-graphics','',d)} \
 "
 
 export IMAGE_BASENAME = "pia335x-qt5"

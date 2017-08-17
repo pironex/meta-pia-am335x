@@ -8,6 +8,10 @@ PACKAGECONFIG_GL = "gles2"
 PACKAGECONFIG_FB = "linuxfb"
 
 PACKAGECONFIG_DISTRO = "icu examples sql-sqlite tslib"
+# system fontconfig integration crashes if no fonts are installed
+#PACKAGECONFIG_DISTRO += "fontconfig"
+PACKAGECONFIG_DISTRO += "libinput"
+PACKAGECONFIG_DISTRO += "accessibility"
 
 PACKAGECONFIG[gles2] = "-opengl es2 -eglfs,,virtual/libgles2 virtual/egl ${GLES_EXTRA_DEPS}"
 
