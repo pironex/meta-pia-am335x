@@ -39,7 +39,7 @@ BRANCH = "${KERNEL_BRANCH}"
 # sham fix
 #SRCREV = "6ba69c3a5385ead7afff49fa8738639184ab37d2"
 # 4.4.22 ti-merge
-SRCREV = "e5a441aa1a1e47347ad85bcb434c048eb29c6ad3"
+SRCREV = "f996ad971a7c185776773999f109f32f9a28c435"
 
 PV = "4.4.22+git${SRCPV}"
 
