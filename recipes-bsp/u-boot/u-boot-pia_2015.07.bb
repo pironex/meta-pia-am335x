@@ -7,21 +7,21 @@ DESCRIPTION = "u-boot bootloader for piA devices"
 
 LIC_FILES_CHKSUM = "file://Licenses/README;md5=0507cd7da8e7ad6d6701926ec9b84c95"
 
-PR = "r01"
+PR = "r02"
 PV_append = "+git${SRCPV}"
 
 SRC_URI = "git://github.com/pironex/pia-uboot.git;protocol=git;branch=${UBOOT_BRANCH} \
 	file://uEnv.txt \
 "
 
-#SRCREV = "b9dbd17cd837d5b1fe0749309832b30e49569328"
-SRCREV = "ed924f7d85cd74ee348248c897e3a4693e7dcf21"
+SRCREV = "1ec61512514401684111b72eb1ca4f3401237c08"
 
 UBOOT_CONFIG = "am335x_pia_defconfig"
 
 #UBOOT_MACHINE ?= "am335x_pia_config"
 #UBOOT_BRANCH = "pia335x-2015.07"
 UBOOT_BRANCH = "master"
+UBOOT_BRANCH_pia-am335x = "pia335x-dev"
 
 SPL_BINARY = "MLO"
 
