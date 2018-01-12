@@ -39,9 +39,12 @@ BRANCH = "${KERNEL_BRANCH}"
 # sham fix
 #SRCREV = "6ba69c3a5385ead7afff49fa8738639184ab37d2"
 # 4.4.22 ti-merge
-SRCREV = "f996ad971a7c185776773999f109f32f9a28c435"
+#SRCREV = "f996ad971a7c185776773999f109f32f9a28c435"
+# 4.4.54
+#SRCREV = "37c0fa3f3b3a3862cf9421cdb40852104d5c9aad"
+SRCREV = "96aedb45ec37516a416f616a3cf84001c6c51904"
 
-PV = "4.4.22+git${SRCPV}"
+PV = "4.4.54+git${SRCPV}"
 
 # Append to the MACHINE_KERNEL_PR so that a new SRCREV will cause a rebuild
 MACHINE_KERNEL_PR_append = "a"
@@ -50,6 +53,8 @@ PR = "${MACHINE_KERNEL_PR}"
 MULTI_CONFIG_BASE_SUFFIX = ""
 
 KERNEL_GIT_URI = "git://github.com/pironex/pia-linux-kernel.git"
+#KERNEL_GIT_URI = "git://piDebian/pia/pia-linux-kernel.git"
 KERNEL_GIT_PROTOCOL = "git"
+#KERNEL_GIT_PROTOCOL = "http"
 SRC_URI += "${KERNEL_GIT_URI};protocol=${KERNEL_GIT_PROTOCOL};branch=${BRANCH} \
             file://defconfig"
