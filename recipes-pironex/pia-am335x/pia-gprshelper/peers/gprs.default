@@ -1,0 +1,38 @@
+/dev/ttyUSB2 115200
+#/dev/ttyO2 115200
+debug
+kdebug 7
+logfile "/tmp/ppp.log"
+connect 'chat -vsf /etc/ppp/chats/gprs'
+noccp
+nobsdcomp
+noaccomp
+novj
+novjccomp
+noauth
+asyncmap A0000
+#asyncmap 0
+:10.0.0.1
+noipdefault
+defaultroute
+replacedefaultroute
+usepeerdns
+#nodetach
+# user and password are not relevant for most providers
+user o2
+password o2
+#ipcp-accept-remote
+ipcp-accept-local
+#modem
+persist
+passive
+# after 10 fails, end pppd
+# the service "ppp.service" will be restarted by systemd, which also causes 
+# a restart of the GSM module via gprs.service
+# setting maxfail to 1 requires a longer connect-delay on some modules, as
+# after poweron the device might take some time to connect to the provider
+maxfail 5
+holdoff 10
+lcp-echo-interval 120
+lcp-echo-failure 2
+connect-delay 5000

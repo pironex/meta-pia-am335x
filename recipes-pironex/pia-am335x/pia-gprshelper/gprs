@@ -1,0 +1,403 @@
+#!/bin/sh
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+NAME="SIM5360"
+DESC="GPRS Device"
+
+# variables can be overwritten in /etc/default/gprs
+
+# defaults for piA-SF Rev 01.00
+# GSM_STATUS, PWRMON
+#GPIO_PWRMON=99
+# PWRKEY, GPRSONOFF
+#GPIO_GPRSONOFF=114
+# GPRSRESET
+#GPIO_GPRSRESET=69
+
+# default for piA-AM3352
+GPIO_PWRMON=99
+GPIO_GPRSONOFF=114
+#GPIO_USB_VBUS=18
+# RESET not working on old revisions
+#GPIO_GPRSRESET=89
+# POWERON switch not supported on all boards
+#GPIO_POWERON=66
+
+RUN_CMUX=true
+TTY_DEV=/dev/ttyUSB2
+#TTY_DEV=/dev/ttyO2
+
+if [ ! -e /etc/default/gprs ] ; then exit 1 ; fi
+
+. /etc/default/gprs
+
+if [ "$GPRS_ENABLED" == "false" ] ; then exit 1 ; fi
+
+#if [ $GPRS_ENABLED == "umts" ] ; then
+#	RUN_CMUX=false
+#	TTY_DEV=/dev/ttyUSB0
+#	NAME="Telit UC864-E"
+#fi
+
+
+
+get_gpio() {
+	num=$1
+	gpio_val=55
+	if [ -e /sys/class/gpio/gpio$num/value ] ; then
+		gpio_val=`cat /sys/class/gpio/gpio$num/value`
+	fi
+	return $gpio_val
+}
+
+set_gpio() {
+	num=$1
+	gpio_val=$2
+	if [ -e /sys/class/gpio/gpio$num/value ] ; then
+		echo "Set gpio: $num => $gpio_val"
+		echo $gpio_val > /sys/class/gpio/gpio$num/value
+	else
+		return 1
+	fi
+}
+
+init_gpio_out() {
+	num=$1
+	gpio_val=$2
+	direction="unknown"
+
+	if [ ! -e /sys/class/gpio/gpio$num ] ; then
+		echo $num > /sys/class/gpio/export
+	fi
+	if [ -e /sys/class/gpio/gpio$num ] ; then
+		if [ `cat /sys/class/gpio/gpio$num/direction` != "out" ] ; then
+			echo "out" > /sys/class/gpio/gpio${num}/direction
+		fi
+	    	set_gpio "$num" "$gpio_val"
+		echo "Exported GPIO $num dir: $dir"
+	else
+		return 1
+	fi
+}
+
+init_gpio_in() {
+	num=$1
+	if [ ! -e /sys/class/gpio/gpio$num ] ; then
+		echo $num > /sys/class/gpio/export
+	fi
+	if [ -e /sys/class/gpio/gpio$num ] ; then
+		echo "in" > /sys/class/gpio/gpio${num}/direction
+		echo "Exported GPIO $num dir: in"
+	else
+		return 1
+	fi
+}
+
+update_pwrmon() {
+	get_gpio $GPIO_PWRMON
+
+	if [ $? -eq 1 ] ; then
+		PWRMON=0
+	else
+		PWRMON=1
+	fi
+}
+
+wait_for_pwrmon() {
+	check_val=$1
+	timeout=$2
+	i=0
+	
+	echo "Wait for pwrmon"
+	update_pwrmon
+	# in case we don't have PWRMON GPIO wait the full timeout period
+	while [ $i -lt $timeout ] && [ $PWRMON -ne $check_val ] ; do
+		i=$(( $i + 1 ))
+		sleep 1
+		update_pwrmon
+		echo "PWRMON: $PWRMON, expecting $check_val"
+	done
+	
+	if [ $PWRMON -eq 55 ] ; then
+		echo "$DESC: PWRMON missing"
+		# assume we waited long enough
+		return 0
+	fi
+	
+	if [ $timeout -eq $i ] ; then
+		echo "$DESC: Wait for PWRMON timeout!"
+		return 1
+	fi
+	
+	return 0
+}
+
+toggle_onoff() {
+	pulselength=$1
+
+	#set_gpio $GPIO_GPRSONOFF 1
+	#sleep 5
+
+	if set_gpio $GPIO_GPRSONOFF 1 ; then
+		usleep $pulselength
+		if set_gpio $GPIO_GPRSONOFF 0 ; then
+			return 0
+		fi
+	fi
+	return 1
+}
+
+toggle_reset() {
+	if set_gpio $GPIO_GPRSRESET 1 ; then
+		sleep 0.2
+		if set_gpio $GPIO_GPRSRESET 0 ; then
+			sleep 1
+			return 0
+		fi
+	fi
+	return 1	
+}
+
+# change VBAT. 1 = ON
+power_switch() {
+	val=$1
+	if set_gpio $GPIO_POWERON $val ; then
+		sleep 3
+		return 0
+	fi
+	return 1
+}
+
+# do complete power cycle by turning VBAT off and on again
+toggle_power() {
+	if power_switch 0 ; then
+		if power_switch 1 ; then
+			return 0
+		fi
+	fi
+	return 1
+}
+
+check_at() {
+	echo "Checkking AT device: $TTY_DEV"
+	# SIM7100 can take up to 15 seconds for the USB interface to become ready
+	timeout=15
+	i=0
+	while [ $i -lt $timeout ] && [ ! -e $TTY_DEV ] ; do
+		i=$(( $i + 1 ))
+		sleep 1
+		echo "Waiting for $TTY_DEV ($i)"
+	done
+
+	if [ -e $TTY_DEV ] ; then
+		chat -v TIMEOUT 2 "" "AT" "OK" > $TTY_DEV < $TTY_DEV
+	else
+		echo "Device $TTY_DEV didn't come up"
+		return 1
+	fi
+}
+
+# turn on via ONOFF switch and check PWRMON state
+turn_on() {
+	update_pwrmon
+	if [ $PWRMON -eq 1 ] && check_at ; then
+		echo "$DESC: Already on."
+		return 0
+	fi
+
+	echo "Turn on..."
+	# 500 ms pulse to turn off
+	# in us
+	toggle_onoff 500000
+	# max 2 seconds to assert PWRMON
+	if wait_for_pwrmon 1 25 ; then
+		# then 3 second until module ready for commands
+		sleep 3
+		# ready to accept AT commands
+		check_at
+		val2=$?
+		if [ $val2 -ne 0 ] ; then
+			echo "$DESC: AT check returned with error: $val2"
+		fi
+		return $val2
+	fi
+	return 1
+}
+
+# turn on via ONOFF switch and check PWRMON state
+turn_off() {
+	update_pwrmon
+	if [ $PWRMON -eq 0 ] ; then
+		echo "$DESC: Already off."
+		return 0
+	fi
+
+	echo "Turn off..."
+	# 1000 ms pulse to turn off
+	# datasheet for SIM5360 says 500 ms, this isn't enough in some edge cases
+	# datasheet for SIM7100 says 2500 ms
+	# in us
+	toggle_onoff 3000000
+	# max 15 seconds to assert PWRMON
+	if wait_for_pwrmon 0 15 ; then
+		return 0
+	fi
+	return 1
+}
+
+init_gpios() {
+	if [ -n "$GPIO_USB_VBUS" ] ; then
+		echo "$DESC: Init USB VBUS"
+		init_gpio_out "$GPIO_USB_VBUS" "1" || echo "$DESC: Failed to intialize USB VBUS GPIO $GPIO_USB_VBUS"
+		sleep 1
+	fi
+
+	if [ -n "$GPIO_GPRSRESET" ] ; then
+		echo "$DESC: Init RESET"
+		init_gpio_out "$GPIO_GPRSRESET" "1" || echo "$DESC: Failed to intialize GPRSRESET GPIO $GPIO_GPRSRESET"
+		# handle RESET first, even before power-on
+		sleep 1
+	fi
+
+	if [ -n "$GPIO_POWERON" ] ; then
+		echo "$DESC: Init POWERON"
+		init_gpio_out "$GPIO_POWERON" "1" || echo "$DESC: Failed to intialize POWERON GPIO $GPIO_POWERON"
+		sleep 1
+	fi
+
+	if [ -n "$GPIO_GPRSONOFF" ] ; then
+		echo "$DESC: Init ONOFF"
+		init_gpio_out "$GPIO_GPRSONOFF" "0" || echo "$DESC: Failed to intialize POWERON GPIO $GPIO_GPRSONOFF"
+		sleep 2
+	fi
+
+	if [ -n "$GPIO_PWRMON" ] ; then
+		echo "$DESC: Init PWRMON"
+		init_gpio_in "$GPIO_PWRMON" || echo "$DESC: Failed to intialize PWRMON GPIO $GPIO_PWRMON"
+	fi
+	update_pwrmon
+
+	# done
+	return 0
+}
+
+start_cmux() {
+	[ "${RUN_CMUX}" != "true" ] && return 0
+
+	if [ -x /usr/sbin/cmux ] ; then
+		echo "$DESC: Starting CMUX"
+		/usr/sbin/cmux
+	fi
+
+	sleep 2
+	# /etc/init.d/mkcmuxdev.sh
+}
+
+stop_cmux() {
+	[ "${RUN_CMUX}" != "true" ] && return 0
+
+	pids=`pidof cmux`
+	if [ "${pids}" = "" ] ; then
+		echo "(cmux not running) $NAME."
+		exit 0
+	fi
+	tty=$(fuser /dev/gsmtty*)
+	if [ "${tty}" != "" ] ; then
+		echo "Kill ${tty}"
+		kill ${tty}
+		sleep 3
+
+		tty=$(fuser /dev/gsmtty*)
+		if [ "${tty}" != "" ] ; then
+			echo "Kill -9 ${tty}"
+			rm /dev/gsmtty1 /dev/gsmtty2 /dev/gsmtty3
+			kill -9 ${tty}
+			sleep 1
+		fi
+	fi
+
+	echo "$NAME."
+	if [[ "${pids}" != "" ]] ; then
+		echo "$DESC: Stopping CMUX"
+		kill ${pids}
+	fi
+}
+
+case "$1" in
+	start)
+		echo "Starting $DESC: "
+
+		init_gpios
+		if [ $? -ne 0 ] ; then
+			echo "$DESC: Failed to initialize GPIOs!"
+			exit 1
+		fi
+
+		echo "$DESC: Initial Power State: $PWRMON"
+
+		# turn on USB VBUS if required
+		set_gpio "$GPIO_USB_VBUS" "1"
+
+		if [ $PWRMON -eq 0 ] ; then
+
+			# first try to turn on normally
+			# if it fails, try to reset the device
+			# if this fails, try a complete power cycle for the module
+			turn_on
+			if [ $? -ne 0 ] ; then
+				echo "$DESC: Unable to turn on normally. Resetting..."
+				#toggle_reset
+				#turn_on
+				#if [ $? -ne 0 ] ; then
+				#	echo "$DESC: ERROR: Unable to turn on after RESET. Power Cycle required!"
+				#	exit 1
+				# 	toggle_power && turn_on 
+				# 	if [ $? -ne 0 ] ; then
+				# 		echo "$DESC: Unable to turn on after PowerCycle!!! Giving up"
+				# 		exit 1
+				# 	fi
+				#fi
+				exit 1
+			fi
+		fi
+
+		start_cmux
+		echo "$NAME."
+	;;
+	stop)
+		echo "Shutting down $DESC: "
+
+		# only Telit: disable USB-Switch
+#		if [ "${GPRS_ENABLED}" = "umts" ] ; then
+#			echo 0 > /sys/class/gpio/gpio$GPIO_USB_SW/value
+#		fi
+
+		turn_off
+		if [ $? -ne 0 ] ; then
+			echo "$DESC: Module didn't turn off! Turning off power"
+			# should be turned off for at least 4 seconds!
+			power_switch 0
+		else
+			# wait at least 1.5s before allowing any interaction again
+			# we don't turn the device off completely here
+			sleep 2
+		fi
+		set_gpio "$GPIO_USB_VBUS" "0"
+
+		# stop cmux handler if required
+		stop_cmux
+	;;
+	test)
+		update_pwrmon
+		echo "Power: $PWRMON"
+		echo -n "AT: "
+		check_at && echo "ready" || echo "error"
+		;;
+	*)
+		N=/etc/init.d/gprs
+		echo "Usage: $N {start|stop}" >&2
+		exit 1
+	;;
+esac
+
+exit 0

@@ -1,0 +1,20 @@
+# valid settings: (umts, gprs,) true and false
+# currently anything different than false will enable any supported SIMCOM GPRS module
+#
+# configure pppd (/etc/ppp/) and enable the ppp.service (systemctl enable ppp)
+# to use the module if present
+GPRS_ENABLED=true
+
+# just for service script output
+NAME=SIM5360
+#NAME=SIM7100
+
+# GPIO-Configuration for piA-AM3352
+# GSM_STATUS signal GPIO (matches LED)
+GPIO_PWRMON=99
+# PWRKEY used to turn module on/off
+GPIO_GPRSONOFF=114
+# USB_VBUS only relevant when VBUS is enabled via GPIO instead of HW
+GPIO_USB_VBUS=18
+# RESET not supported
+#GPRSRESET=89
