@@ -15,6 +15,8 @@ DEV_PACKAGES = " \
 	lrzsz \
 	lsof \
 	mmc-utils \
+	netcat \
+	strace \
 "
 
 SCRIPTING_PACKAGES = " \
@@ -30,6 +32,7 @@ RDEPENDS_${PN} = " \
 	${DEV_PACKAGES} \
 	${SCRIPTING_PACKAGES} \
 	coreutils \
+	dosfstools \
 	htop \
 	mc mc-fish mc-helpers \
 	nano \
@@ -50,8 +53,10 @@ RDEPENDS_${PN} = " \
 
 RRECOMMENDS_${PN} = " \
 	cifs-utils \
+	e2fsprogs-tune2fs e2fsprogs-resize2fs \
 	libmodbus \
 	memtester \
 	mosquitto \
+	parted \
 	sqlite3 \
 "
