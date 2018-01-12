@@ -21,6 +21,7 @@ PREFERRED_PROVIDER_u-boot = "u-boot-pia"
 #UBOOT_CONFIG = "am335x_pia_defconfig"
 UBOOT_MACHINE = "am335x_pia_defconfig"
 UBOOT_ARCH = "arm"
+UBOOT_ENV = "uEnv"
 
 # Use v4.09.00.01 of the Graphics SDK
 #PREFERRED_PROVIDER_virtual/libgl = "mesa-gl"
