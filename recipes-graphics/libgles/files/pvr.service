@@ -1,0 +1,13 @@
+[Unit]
+Description=PVR Server
+After=systemd-modules-load.service
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStartPre=-/sbin/modprobe pvrsrvkm
+ExecStart=/usr/bin/pvrsrvctl --start --no-module
+ExecStop=/usr/bin/pvrsrvctl --stop
+
+[Install]
+WantedBy=basic.target
