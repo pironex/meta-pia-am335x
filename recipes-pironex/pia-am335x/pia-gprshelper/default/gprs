@@ -16,5 +16,5 @@ GPIO_PWRMON=99
 GPIO_GPRSONOFF=114
 # USB_VBUS only relevant when VBUS is enabled via GPIO instead of HW
 GPIO_USB_VBUS=18
-# RESET not supported
-#GPRSRESET=89
+# RESET only supported on piCAN-TFT v2, uncomment line for this board
+#GPIO_GPRSRESET=105

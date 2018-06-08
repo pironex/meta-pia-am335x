@@ -206,6 +206,8 @@ turn_on() {
 	fi
 
 	echo "Turn on..."
+	# turn off RESET line
+	set_gpio ${GPIO_GPRSRESET} 0
 	# 500 ms pulse to turn off
 	# in us
 	toggle_onoff 500000
@@ -254,7 +256,7 @@ init_gpios() {
 
 	if [ -n "$GPIO_GPRSRESET" ] ; then
 		echo "$DESC: Init RESET"
-		init_gpio_out "$GPIO_GPRSRESET" "1" || echo "$DESC: Failed to intialize GPRSRESET GPIO $GPIO_GPRSRESET"
+		init_gpio_out "$GPIO_GPRSRESET" "0" || echo "$DESC: Failed to intialize GPRSRESET GPIO $GPIO_GPRSRESET"
 		# handle RESET first, even before power-on
 		sleep 1
 	fi

@@ -6,7 +6,7 @@ DESCRIPTION = "GPRS systemd scripts and device handling for piA-AM335x boards"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PV = "1.0"
-PR = "2"
+PR = "3"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 COMPATIBLE_MACHINE = "pia-am335x"
@@ -55,13 +55,3 @@ CONFFILES_${PN} = " ${sysconfdir}/default/gprs  \
     ${D}${sysconfdir}/ppp/chats/gprs \
     ${D}${sysconfdir}/ppp/peers/gprs \
 "
-
-#	${sysconfdir}/ppp/peers/gprs \
-#	${sysconfdir}/ppp/peers/gprs.default \
-#	${sysconfdir}/ppp/chats/gprs.o2 \
-#	${sysconfdir}/ppp/chats/gprs.tmob \
-#	${sysconfdir}/ppp/chats/gprs.aspider \
-#	${sysconfdir}/ppp/chats/pin \
-#	${sysconfdir}/ppp/chats/pin.code \
-#	${sysconfdir}/ppp/chats/pin.none \
-#
