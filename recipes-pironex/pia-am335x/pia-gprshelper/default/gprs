@@ -18,3 +18,6 @@ GPIO_GPRSONOFF=114
 GPIO_USB_VBUS=18
 # RESET only supported on piCAN-TFT v2, uncomment line for this board
 #GPIO_GPRSRESET=105
+
+# Search for apn according to IMSI
+AUTO_APN=true

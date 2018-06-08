@@ -27,11 +27,11 @@ RUN_CMUX=true
 TTY_DEV=/dev/ttyUSB2
 #TTY_DEV=/dev/ttyO2
 
-if [ ! -e /etc/default/gprs ] ; then exit 1 ; fi
+if [ ! -e /etc/default/gprs ] ; then exit 0 ; fi
 
 . /etc/default/gprs
 
-if [ "$GPRS_ENABLED" == "false" ] ; then exit 1 ; fi
+if [ "$GPRS_ENABLED" == "false" ] ; then exit 0 ; fi
 
 #if [ $GPRS_ENABLED == "umts" ] ; then
 #	RUN_CMUX=false
@@ -190,7 +190,14 @@ check_at() {
 	done
 
 	if [ -e $TTY_DEV ] ; then
-		chat -v TIMEOUT 2 "" "AT" "OK" > $TTY_DEV < $TTY_DEV
+		# without $ because of Gruende
+		if [ -v AUTO_APN ] ; then
+			chat -v TIMEOUT 2 "" "AT+CPIN?" "OK" > $TTY_DEV < $TTY_DEV || chat -v TIMEOUT 2 "" "AT+CPIN?" "OK" > $TTY_DEV < $TTY_DEV || return 1
+			setgprsapn $TTY_DEV
+		else
+			echo "normal test"
+			chat -v TIMEOUT 2 "" "AT" "OK" > $TTY_DEV < $TTY_DEV
+		fi
 	else
 		echo "Device $TTY_DEV didn't come up"
 		return 1

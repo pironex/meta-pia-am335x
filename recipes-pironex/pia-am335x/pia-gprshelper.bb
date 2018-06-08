@@ -6,7 +6,7 @@ DESCRIPTION = "GPRS systemd scripts and device handling for piA-AM335x boards"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PV = "1.0"
-PR = "3"
+PR = "4"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 COMPATIBLE_MACHINE = "pia-am335x"
@@ -26,6 +26,7 @@ S = "${WORKDIR}"
 do_install() {
 	install -d ${D}${sbindir}
 	install -m 0755 ${WORKDIR}/gprs ${D}${sbindir}/gprs
+	install -m 0755 ${WORKDIR}/setgprsapn ${D}${sbindir}/setgprsapn
 	install -d ${D}${sysconfdir}/systemd/system
 	install -m 0644 ${WORKDIR}/ppp.service ${D}${sysconfdir}/systemd/system/
 	install -d ${D}${sysconfdir}/default
@@ -36,7 +37,7 @@ do_install() {
 	install -m 0644 ${WORKDIR}/peers/* ${D}${sysconfdir}/ppp/peers/
 	install -m 0644 ${WORKDIR}/chats/* ${D}${sysconfdir}/ppp/chats/
 	ln -s -T pin.none ${D}${sysconfdir}/ppp/chats/pin
-	ln -s -T gprs.o2 ${D}${sysconfdir}/ppp/chats/gprs
+	ln -s -T apn.aspider ${D}${sysconfdir}/ppp/chats/apn
 	ln -s -T gprs.default ${D}${sysconfdir}/ppp/peers/gprs
 }
 
@@ -46,6 +47,7 @@ SYSTEMD_AUTO_ENABLE_${PN} = "disable"
 
 FILES_${PN} = "${sysconfdir}/ppp \
     ${sbindir}/gprs \
+    ${sbindir}/setgprsapn \
     ${sysconfdir}/default/gprs \
 "
 
@@ -53,5 +55,6 @@ CONFFILES_${PN} = " ${sysconfdir}/default/gprs  \
     ${D}${sysconfdir}/ppp/chats/pin \
     ${D}${sysconfdir}/ppp/chats/pin.code \
     ${D}${sysconfdir}/ppp/chats/gprs \
+    ${D}${sysconfdir}/ppp/chats/apn \
     ${D}${sysconfdir}/ppp/peers/gprs \
 "

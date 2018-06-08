@@ -1,0 +1,41 @@
+#!/bin/sh
+rm /tmp/imsi
+
+if [[ $# -ne 0 ]]
+then
+  device=$1
+else
+  echo "No given device. Assuming USB3"
+  device="/dev/ttyUSB3"
+fi
+
+$(chat -e TIMEOUT 2 "" "AT+CIMI" "OK" > "$device" < "$device" 2>/tmp/imsi)
+imsifile=$(cat /tmp/imsi)
+echo ImsiFile: "$imsifile"
+imsi=`cat /tmp/imsi | awk -F '[^0-9]+' '{print$1}'`
+imsi=$(echo $imsi | tr -d '\r')
+echo "imsi:"
+echo ,"$imsi",
+rm /etc/ppp/chats/apn
+case "$imsi" in
+20401* | 20404*)
+  echo "Aspider found"
+  ln -s /etc/ppp/chats/apn.aspider /etc/ppp/chats/apn
+  ;;
+26201* | 26206*)
+  echo "T-Mobile found"
+  ln -s	/etc/ppp/chats/apn.telekom /etc/ppp/chats/apn
+  ;;
+26202* | 26204* | 26209*)
+  echo "Vodafone found"
+  ln -s	/etc/ppp/chats/apn.vodafone /etc/ppp/chats/apn
+  ;;
+26203* | 26205* | 26207* | 26208* | 26211* | 26277*)
+  echo "O2 found"
+  ln -s	/etc/ppp/chats/apn.o2 /etc/ppp/chats/apn
+  ;;
+*)
+  echo "Unknown Provider found - assuming Aspider"
+  ln -s	/etc/ppp/chats/apn.aspider /etc/ppp/chats/apn
+  ;;
+esac
