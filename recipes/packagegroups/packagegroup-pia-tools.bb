@@ -7,6 +7,7 @@ inherit packagegroup
 DEV_PACKAGES = " \
 	canutils \
 	devmem2 \
+	diffutils \
 	evtest \
 	gdbserver gdb \
 	i2c-tools \
@@ -52,11 +53,19 @@ RDEPENDS_${PN} = " \
 #	mosquitto-clients libmosquittopp1
 
 RRECOMMENDS_${PN} = " \
+	bzip2 \
 	cifs-utils \
-	e2fsprogs-tune2fs e2fsprogs-resize2fs \
+	e2fsprogs-tune2fs e2fsprogs-resize2fs e2fsprogs-mke2fs \
+	findutils \
+	gzip \
+	iputils \
+	iw rfkill wireless-tools linux-firmware \
+	less \
 	libmodbus \
 	memtester \
 	mosquitto \
+	openvpn \
 	parted \
 	sqlite3 \
+	wget \
 "
