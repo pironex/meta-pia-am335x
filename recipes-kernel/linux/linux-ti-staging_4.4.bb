@@ -21,7 +21,7 @@ RDEPENDS_kernel-base_append_ti33x = " amx3-cm3"
 
 # Default is to package all dtb files for ti33x devices unless building
 # for the specific beaglebone machine.
-KERNEL_DEVICETREE_ti33x = "am335x-pia-base.dtb am335x-pia-dr.dtb am335x-pia-sf.dtb am335x-pia-sk.dtb am335x-pia-cantft.dtb am335x-pia-cantft2"
+KERNEL_DEVICETREE_ti33x = "am335x-pia-base.dtb am335x-pia-dr.dtb am335x-pia-sf.dtb am335x-pia-sk.dtb am335x-pia-cantft.dtb am335x-pia-cantft2.dtb"
 KERNEL_DEVICETREE_ti33x += " am335x-evm.dtb am335x-evmsk.dtb am335x-bone.dtb am335x-boneblack.dtb"
 
 # this is relevant for uImages
