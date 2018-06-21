@@ -192,8 +192,18 @@ check_at() {
 	if [ -e $TTY_DEV ] ; then
 		# without $ because of Gruende
 		if [ -v AUTO_APN ] ; then
-			chat -v TIMEOUT 2 "" "AT+CPIN?" "OK" > $TTY_DEV < $TTY_DEV || chat -v TIMEOUT 2 "" "AT+CPIN?" "OK" > $TTY_DEV < $TTY_DEV || return 1
-			setgprsapn $TTY_DEV
+			i=0
+			timeout=10
+			# try max 10 times to check CPIN status to determine if it was initialized
+			# the card needs normally around 2 seconds to be ready
+			while [ $i -lt $timeout ] ; do
+				chat -v TIMEOUT 2 "" "\dAT+CPIN?" "OK" > $TTY_DEV < $TTY_DEV && i=$timeout || i=$(( $i + 1 ))
+			done
+			if [ $? -ne 0 ] ; then
+				echo "Failed to initialize SIM!"
+				return 1
+			fi
+			/usr/sbin/setgprsapn $TTY_DEV
 		else
 			echo "normal test"
 			chat -v TIMEOUT 2 "" "AT" "OK" > $TTY_DEV < $TTY_DEV
