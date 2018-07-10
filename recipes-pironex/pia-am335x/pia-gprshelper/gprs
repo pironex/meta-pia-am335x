@@ -33,6 +33,14 @@ if [ ! -e /etc/default/gprs ] ; then exit 0 ; fi
 
 if [ "$GPRS_ENABLED" == "false" ] ; then exit 0 ; fi
 
+if [ "$GPIO_GPRSRESET_LOWACTIVE" == "1" ] ; then
+    RESET_ASSERT=0
+    RESET_DEASSERT=1
+else
+    RESET_ASSERT=1
+    RESET_DEASSERT=0
+fi
+
 #if [ $GPRS_ENABLED == "umts" ] ; then
 #	RUN_CMUX=false
 #	TTY_DEV=/dev/ttyUSB0
@@ -148,9 +156,9 @@ toggle_onoff() {
 }
 
 toggle_reset() {
-	if set_gpio $GPIO_GPRSRESET 1 ; then
+	if set_gpio $GPIO_GPRSRESET $RESET_ASSSERT ; then
 		sleep 0.2
-		if set_gpio $GPIO_GPRSRESET 0 ; then
+		if set_gpio $GPIO_GPRSRESET $RESET_DEASSERT ; then
 			sleep 1
 			return 0
 		fi
@@ -224,7 +232,7 @@ turn_on() {
 
 	echo "Turn on..."
 	# turn off RESET line
-	set_gpio ${GPIO_GPRSRESET} 0
+	set_gpio ${GPIO_GPRSRESET} $RESET_DEASSERT
 	# 500 ms pulse to turn off
 	# in us
 	toggle_onoff 500000
@@ -273,7 +281,7 @@ init_gpios() {
 
 	if [ -n "$GPIO_GPRSRESET" ] ; then
 		echo "$DESC: Init RESET"
-		init_gpio_out "$GPIO_GPRSRESET" "0" || echo "$DESC: Failed to intialize GPRSRESET GPIO $GPIO_GPRSRESET"
+		init_gpio_out "$GPIO_GPRSRESET" "$RESET_DEASSERT" || echo "$DESC: Failed to intialize GPRSRESET GPIO $GPIO_GPRSRESET"
 		# handle RESET first, even before power-on
 		sleep 1
 	fi

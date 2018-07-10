@@ -15,9 +15,13 @@ GPIO_PWRMON=99
 # PWRKEY used to turn module on/off
 GPIO_GPRSONOFF=114
 # USB_VBUS only relevant when VBUS is enabled via GPIO instead of HW
-GPIO_USB_VBUS=18
-# RESET only supported on piCAN-TFT v2, uncomment line for this board
-#GPIO_GPRSRESET=105
+#GPIO_USB_VBUS=18
+# RESET only supported on piCAN-TFT v2 and piA-AM3352 Rev 1.0+
+# uncomment line for these board
+GPIO_GPRSRESET=89
+# set this to one if RESET is used and low-active
+# set to 1 on piA-AM3352 since rev 1.0
+#GPIO_GPRSRESET_LOWACTIVE=1
 
 # Search for apn according to IMSI
 AUTO_APN=true
