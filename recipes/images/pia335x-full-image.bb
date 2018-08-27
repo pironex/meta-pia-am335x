@@ -10,22 +10,12 @@ BENCHMARK_PACKAGES = " \
 "
 
 HWTOOLS_PACKAGES = " \
-	evtest \
 	hdparm \
-	memtester \
 	powertop \
 	rt-tests \
-	net-tools \
-	tcpdump \
 "
 
 DEV_PACKAGES = " \
-	bash \
-	gdb \
-	gdbserver \
-	htop \
-	iotop \
-	latencytop \
 "
 
 SOUND_PACKAGES = " \
@@ -61,7 +51,7 @@ EXTRA_MACHINE_IMAGE_INSTALL_pia-am35x = " \
 	${DEV_PACKAGES} \
 	${BENCHMARK_PACKAGES} \
 	${HWTOOLS_PACKAGES} \
-" 
+"
 
 IMAGE_INSTALL += " \
 	${@base_contains("MACHINE_FEATURES", "alsa", "${SOUND_PACKAGES}", "",d)} \
@@ -69,7 +59,6 @@ IMAGE_INSTALL += " \
 	${@base_contains("MACHINE_FEATURES", "wifi", "packagegroup-pia-wifi", "", d)} \
 	packagegroup-pia-qte \
 	${EXTRA_MACHINE_IMAGE_INSTALL} \
-	mc \
 "
 
 #	libgles-omap3 \
