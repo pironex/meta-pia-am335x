@@ -59,3 +59,4 @@ FILES_${PN}-python = "/usr/lib/python2.7/site-packages"
 inherit systemd
 
 SYSTEMD_SERVICE_${PN} = "mosquitto.service"
+SYSTEMD_AUTO_ENABLE_${PN} = "disable"
