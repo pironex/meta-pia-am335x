@@ -1,1 +1,1 @@
-debug=early_printk debug systemd.log_level=err
+debug=early_printk notice systemd.log_level=err cma=24M
