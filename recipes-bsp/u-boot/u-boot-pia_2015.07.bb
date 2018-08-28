@@ -14,7 +14,7 @@ SRC_URI = "git://github.com/pironex/pia-uboot.git;protocol=git;branch=${UBOOT_BR
 	file://uEnv.txt \
 "
 
-SRCREV = "a4336110f3432f1bec3509ff37e84f040fbb3eb9"
+SRCREV = "f00857cce344d5f75f091438fceb291fd9a411b0"
 
 UBOOT_CONFIG = "am335x_pia_defconfig"
 
