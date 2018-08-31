@@ -8,12 +8,17 @@ PR = "r2"
 
 SRC_URI = "${SOURCEFORGE_MIRROR}/nmon/lmon16g.c;name=lmon \
            ${SOURCEFORGE_MIRROR}/nmon/Documentation.txt;name=doc \
+           file://nmon.service \
 "
 
 SRC_URI[lmon.md5sum] = "246ccfc74d5af55d992601fc4d3d4a72"
 SRC_URI[lmon.sha256sum] = "da82dd693b503b062854dfe7dbb5d36b347872ab44a4aa05b97e9d577747f688"
 SRC_URI[doc.md5sum] = "dbb13658cf55d687c4f2ff771a696d4a"
 SRC_URI[doc.sha256sum] = "1f7f83afe62a7210be5e83cd24157adb854c14599efe0b377a7ecca933869278"
+
+inherit systemd
+SYSTEMD_SERVICE_${PN} = "nmon.service"
+SYSTEMD_AUTO_ENABLE_${PN} = "disable"
 
 CFLAGS += "-D JFS -D GETUSER -Wall -D LARGEMEM"
 LDFLAGS += "-ltinfo -lncursesw -lm"
@@ -26,4 +31,7 @@ do_compile() {
 do_install() {
     install -d ${D}${bindir}
     install -m 0755 nmon ${D}${bindir}
+    install -d ${D}/home/root/nmon
+    install -d ${D}${systemd_system_unitdir}
+    install -m 0644 ${WORKDIR}/nmon.service ${D}${systemd_system_unitdir}
 }

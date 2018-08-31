@@ -1,0 +1,12 @@
+[Unit]
+Description=NMon
+
+[Service]
+Type=forking
+# avery 5 min, for 24 hours
+ExecStart=/usr/bin/nmon -f -m /home/root/nmon/ -T -s 300 -c 288
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
