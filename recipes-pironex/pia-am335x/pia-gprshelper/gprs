@@ -156,6 +156,9 @@ toggle_onoff() {
 }
 
 toggle_reset() {
+	if [ ! -n "$GPIO_GPRSRESET" ] ; then
+	    return 0
+	fi
 	if set_gpio $GPIO_GPRSRESET $RESET_ASSSERT ; then
 		sleep 0.2
 		if set_gpio $GPIO_GPRSRESET $RESET_DEASSERT ; then
@@ -163,7 +166,7 @@ toggle_reset() {
 			return 0
 		fi
 	fi
-	return 1	
+	return 1
 }
 
 # change VBAT. 1 = ON
@@ -373,18 +376,18 @@ case "$1" in
 			turn_on
 			if [ $? -ne 0 ] ; then
 				echo "$DESC: Unable to turn on normally. Resetting..."
-				#toggle_reset
-				#turn_on
-				#if [ $? -ne 0 ] ; then
-				#	echo "$DESC: ERROR: Unable to turn on after RESET. Power Cycle required!"
-				#	exit 1
+				toggle_reset
+				turn_on
+				if [ $? -ne 0 ] ; then
+					echo "$DESC: ERROR: Unable to turn on after RESET. Power Cycle required!"
+					exit 1
 				# 	toggle_power && turn_on 
 				# 	if [ $? -ne 0 ] ; then
 				# 		echo "$DESC: Unable to turn on after PowerCycle!!! Giving up"
 				# 		exit 1
 				# 	fi
-				#fi
-				exit 1
+				fi
+				#exit 1
 			fi
 		fi
 

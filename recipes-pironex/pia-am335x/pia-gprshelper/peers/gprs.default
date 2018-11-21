@@ -25,7 +25,7 @@ password o2
 ipcp-accept-local
 #modem
 persist
-passive
+#passive
 # after 10 fails, end pppd
 # the service "ppp.service" will be restarted by systemd, which also causes 
 # a restart of the GSM module via gprs.service
@@ -33,6 +33,10 @@ passive
 # after poweron the device might take some time to connect to the provider
 maxfail 5
 holdoff 10
+# force reconnect every 12 hours to prevent "stalled" connection, where ppp is
+# connected to the provider server, but the upper layers (IP) don't allow any real
+# data traffic
+maxconnect 43200
 lcp-echo-interval 120
 lcp-echo-failure 2
 connect-delay 5000
