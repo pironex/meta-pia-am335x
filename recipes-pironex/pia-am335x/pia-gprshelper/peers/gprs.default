@@ -36,7 +36,7 @@ holdoff 10
 # force reconnect every 12 hours to prevent "stalled" connection, where ppp is
 # connected to the provider server, but the upper layers (IP) don't allow any real
 # data traffic
-maxconnect 43200
+# maxconnect 43200
 lcp-echo-interval 120
 lcp-echo-failure 2
 connect-delay 5000

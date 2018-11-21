@@ -7,7 +7,6 @@ GPRS_ENABLED=true
 
 # just for service script output
 NAME=SIM5360
-#NAME=SIM7100
 
 # GPIO-Configuration for piA-AM3352
 # GSM_STATUS signal GPIO (matches LED)
@@ -20,8 +19,16 @@ GPIO_GPRSONOFF=114
 # uncomment line for these board
 GPIO_GPRSRESET=89
 # set this to one if RESET is used and low-active
-# set to 1 on piA-AM3352 since rev 1.0
+# !!! MUST be set to 1 on piA-AM3352 since rev 1.0 !!!
 #GPIO_GPRSRESET_LOWACTIVE=1
 
 # Search for apn according to IMSI
 AUTO_APN=true
+
+# set to true to monitor the IP connection over ppp via ping
+# the connection is restarted, when the target system cannot be reached
+# default: off if not set to "true"
+ENABLE_PING_MONITOR=true
+# change the target server for the ping monitor
+# default is: de.pi-server.de
+#PING_MONITOR_TARGET=de.pi-server.de

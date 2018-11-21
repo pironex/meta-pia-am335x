@@ -1,0 +1,13 @@
+[Unit]
+Description=Runs pppmonitor.service every 10 minutes
+PartOf=ppp.service
+
+[Timer]
+# Time to wait after booting before we run first time
+OnBootSec=10min
+# Time between running each consecutive time
+OnUnitActiveSec=10min
+Unit=pppmonitor.service
+
+[Install]
+WantedBy=ppp.service

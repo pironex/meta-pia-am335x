@@ -1,0 +1,6 @@
+[Unit]
+Description=Test for internet connection and restart pppd if needed
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/ppp_connection_check.sh

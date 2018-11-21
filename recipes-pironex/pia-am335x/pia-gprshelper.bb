@@ -5,8 +5,8 @@
 DESCRIPTION = "GPRS systemd scripts and device handling for piA-AM335x boards"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
-PV = "1.0"
-PR = "5"
+PV = "1.1"
+PR = "0"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 COMPATIBLE_MACHINE = "pia-am335x"
@@ -18,6 +18,9 @@ SRC_URI = "\
   file://peers/* \
   file://chats/* \
   file://ppp.service \
+  file://ppp_connection_check.sh \
+  file://pppmonitor.service \
+  file://pppmonitor.timer \
 "
 
 S = "${WORKDIR}"
@@ -27,8 +30,10 @@ do_install() {
 	install -d ${D}${sbindir}
 	install -m 0755 ${WORKDIR}/gprs ${D}${sbindir}/gprs
 	install -m 0755 ${WORKDIR}/setgprsapn ${D}${sbindir}/setgprsapn
+	install -m 0755 ${WORKDIR}/ppp_connection_check.sh ${D}${sbindir}/ppp_connection_check.sh
 	install -d ${D}${sysconfdir}/systemd/system
 	install -m 0644 ${WORKDIR}/ppp.service ${D}${sysconfdir}/systemd/system/
+	install -m 0644 ${WORKDIR}/pppmonitor.* ${D}${sysconfdir}/systemd/system/
 	install -d ${D}${sysconfdir}/default
 	install -m 0755 ${WORKDIR}/default/gprs ${D}${sysconfdir}/default/
 	# from ppp-gprs
@@ -42,12 +47,13 @@ do_install() {
 }
 
 inherit systemd
-SYSTEMD_SERVICE_${PN} = "ppp.service"
-SYSTEMD_AUTO_ENABLE_${PN} = "disable"
+SYSTEMD_SERVICE_${PN} = "ppp.service pppmonitor.timer pppmonitor.service"
+SYSTEMD_AUTO_ENABLE_${PN} = "enable"
 
 FILES_${PN} = "${sysconfdir}/ppp \
     ${sbindir}/gprs \
     ${sbindir}/setgprsapn \
+    ${sbindir}/ppp_connection_check.sh \
     ${sysconfdir}/default/gprs \
 "
 

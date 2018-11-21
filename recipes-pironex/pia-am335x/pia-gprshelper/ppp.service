@@ -1,10 +1,10 @@
 [Unit]
 Description=PPP Connection
-Before=network.target 
+Before=network.target
 
 [Service]
 Restart=always
-RestartSec=10
+RestartSec=20
 # start GSM module only when configured, there is no easy way to detect, if a gsm module is
 # present at all
 ConditionPathExists=/etc/default/gprs
