@@ -2,6 +2,9 @@ CONMANPKGS ?= "connman connman-plugin-loopback connman-plugin-ethernet connman-s
 
 DISTRO_UPDATE_ALTERNATIVES += "update-alternatives-cworth"
 
+VIRTUAL-RUNTIME_login_manager = "shadow"
+VIRTUAL-RUNTIME_syslog = ""
+
 # console-image seems outdated and missing some important stuff like root configuration, systemd-networkd configuration etc.
 #require ${COREBASE}/../meta-angstrom/recipes-images/angstrom/console-image.bb
 require ${COREBASE}/../meta-angstrom/recipes-images/angstrom/angstrom-image.bb
