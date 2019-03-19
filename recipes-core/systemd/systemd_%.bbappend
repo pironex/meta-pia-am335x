@@ -16,6 +16,6 @@ pkg_postinst_${PN}() {
 if [ x"$D" = "x" ]; then
     systemctl disable getty@tty1.service
 else
-    systemctl --root=${D} disable getty@tty1.service
+    systemctl --root=$D disable getty@tty1.service
 fi
 }
