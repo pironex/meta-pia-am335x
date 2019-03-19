@@ -3,6 +3,8 @@ require pia335x-base-image.bb
 
 EXTRA_MACHINE_IMAGE_INSTALL ?= ""
 
+inherit populate_sdk_qt5
+
 IMAGE_INSTALL += " \
 	packagegroup-qt5-apps \
 	packagegroup-qt5 \
