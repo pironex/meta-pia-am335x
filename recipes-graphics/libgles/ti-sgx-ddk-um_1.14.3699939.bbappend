@@ -6,10 +6,10 @@ SRC_URI += "file://pvr.service"
 
 # use k4.4 branch as the default one breaks wayland support (missing symbol wl_proxy_marshal_constructor_versioned)
 # this should be changed back when wayland is upgraded
-BRANCH = "ti-img-sgx/${PV}_k4.4"
-SRCREV = "1145367010f416dbed87884bac329158eda26777"
+#BRANCH = "ti-img-sgx/${PV}_k4.4"
+#SRCREV = "1145367010f416dbed87884bac329158eda26777"
 
-PR_append = "+pia002"
+PR_append = "+pia003"
 
 do_install_append () {
     install -d ${D}${systemd_unitdir}/system
