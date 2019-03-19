@@ -1,1 +1,1 @@
-debug=early_printk systemd.log_level=err cma=24M consoleblank=0
+debug=quiet systemd.log_level=info systemd.show_status=auto cma=32M consoleblank=0 fsck.repair=yes
