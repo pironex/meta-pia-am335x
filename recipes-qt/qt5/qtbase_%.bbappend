@@ -15,13 +15,14 @@ PACKAGECONFIG_DISTRO += "accessibility"
 
 PACKAGECONFIG[gles2] = "-opengl es2 -eglfs,,virtual/libgles2 virtual/egl ${GLES_EXTRA_DEPS}"
 
-PR_append = "-pia001"
+PR_append = "-pia002"
 
 # qt_env.sh handling
 QT_ENV = "qt_env.sh"
 QT_ENV_ti33x = "${@base_contains('DISTRO_FEATURES', 'wayland', 'qt_env.sh', 'qt_env_ti33x.sh', d)}"
 
 SRC_URI += "\
+    file://0012-qt55_Do-not-leak-textures-from-the-backing-stores.patch \
     file://${QT_ENV} \
 "
 

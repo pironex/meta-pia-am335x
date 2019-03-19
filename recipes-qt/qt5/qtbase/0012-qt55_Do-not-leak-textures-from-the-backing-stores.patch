@@ -1,0 +1,168 @@
+From 003a5f28ac080a0ac8b9a9954fcd3cb5f3b1fc9e Mon Sep 17 00:00:00 2001
+From: Laszlo Agocs <laszlo.agocs@theqtcompany.com>
+Date: Thu, 12 Nov 2015 17:26:21 +0100
+Subject: [PATCH] Do not leak textures from the backing stores
+
+Neither the default nor the eglfs-specific backingstore release the OpenGL textures
+that are in use when render-to-texture widgets are involved.
+
+The result can be fatal on embedded devices that run out of GPU memory at after showing
+and closing dialogs and popups a certain number of times.
+
+Task-number: QTBUG-49363
+Task-number: QTBUG-49399
+Change-Id: Ia7471b037f147bcca0a4f1db5808ca348e230547
+Reviewed-by: Lars Knoll <lars.knoll@theqtcompany.com>
+Reviewed-by: Andy Nichols <andy.nichols@theqtcompany.com>
+---
+ src/gui/painting/qplatformbackingstore.cpp    |  4 ++
+ .../qopenglcompositorbackingstore.cpp         | 11 +++++
+ .../qopenglcompositorbackingstore_p.h         |  1 +
+ src/widgets/kernel/qwidget.cpp                | 46 ++++++++++++++-----
+ 4 files changed, 51 insertions(+), 11 deletions(-)
+
+diff --git a/src/gui/painting/qplatformbackingstore.cpp b/src/gui/painting/qplatformbackingstore.cpp
+index 62492980de..70ab9825e9 100644
+--- a/src/gui/painting/qplatformbackingstore.cpp
++++ b/src/gui/painting/qplatformbackingstore.cpp
+@@ -65,6 +65,10 @@ public:
+     ~QPlatformBackingStorePrivate()
+     {
+ #ifndef QT_NO_OPENGL
++        QOpenGLContext *ctx = QOpenGLContext::currentContext();
++        Q_ASSERT(ctx);
++        if (textureId)
++            ctx->functions()->glDeleteTextures(1, &textureId);
+         if (blitter)
+             blitter->destroy();
+         delete blitter;
+diff --git a/src/platformsupport/platformcompositor/qopenglcompositorbackingstore.cpp b/src/platformsupport/platformcompositor/qopenglcompositorbackingstore.cpp
+index 8ce1ed2d2b..55f8ea160c 100644
+--- a/src/platformsupport/platformcompositor/qopenglcompositorbackingstore.cpp
++++ b/src/platformsupport/platformcompositor/qopenglcompositorbackingstore.cpp
+@@ -67,6 +67,7 @@ QOpenGLCompositorBackingStore::QOpenGLCompositorBackingStore(QWindow *window)
+     : QPlatformBackingStore(window),
+       m_window(window),
+       m_bsTexture(0),
++      m_bsTextureContext(0),
+       m_textures(new QPlatformTextureList),
+       m_lockedWidgetTextures(0)
+ {
+@@ -74,6 +75,14 @@ QOpenGLCompositorBackingStore::QOpenGLCompositorBackingStore(QWindow *window)
+ 
+ QOpenGLCompositorBackingStore::~QOpenGLCompositorBackingStore()
+ {
++    if (m_bsTexture) {
++        QOpenGLContext *ctx = QOpenGLContext::currentContext();
++        if (ctx && m_bsTextureContext && ctx->shareGroup() == m_bsTextureContext->shareGroup())
++            glDeleteTextures(1, &m_bsTexture);
++        else
++            qWarning("QOpenGLCompositorBackingStore: Texture is not valid in the current context");
++    }
++
+     delete m_textures;
+ }
+ 
+@@ -85,6 +94,8 @@ QPaintDevice *QOpenGLCompositorBackingStore::paintDevice()
+ void QOpenGLCompositorBackingStore::updateTexture()
+ {
+     if (!m_bsTexture) {
++        m_bsTextureContext = QOpenGLContext::currentContext();
++        Q_ASSERT(m_bsTextureContext);
+         glGenTextures(1, &m_bsTexture);
+         glBindTexture(GL_TEXTURE_2D, m_bsTexture);
+         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+diff --git a/src/platformsupport/platformcompositor/qopenglcompositorbackingstore_p.h b/src/platformsupport/platformcompositor/qopenglcompositorbackingstore_p.h
+index 49d8bfd6e7..bd843e8bd9 100644
+--- a/src/platformsupport/platformcompositor/qopenglcompositorbackingstore_p.h
++++ b/src/platformsupport/platformcompositor/qopenglcompositorbackingstore_p.h
+@@ -83,6 +83,7 @@ private:
+     QImage m_image;
+     QRegion m_dirty;
+     uint m_bsTexture;
++    QOpenGLContext *m_bsTextureContext;
+     QPlatformTextureList *m_textures;
+     QPlatformTextureList *m_lockedWidgetTextures;
+ };
+diff --git a/src/widgets/kernel/qwidget.cpp b/src/widgets/kernel/qwidget.cpp
+index 49da4d1faf..1b47369b9d 100644
+--- a/src/widgets/kernel/qwidget.cpp
++++ b/src/widgets/kernel/qwidget.cpp
+@@ -72,6 +72,7 @@
+ #include <QtGui/qinputmethod.h>
+ #include <QtGui/qopenglcontext.h>
+ #include <QtGui/private/qopenglcontext_p.h>
++#include <QtGui/qoffscreensurface.h>
+ 
+ #include <private/qgraphicseffect_p.h>
+ #include <qbackingstore.h>
+@@ -1817,24 +1818,47 @@ void QWidgetPrivate::deleteSysExtra()
+ {
+ }
+ 
++static void deleteBackingStore(QWidgetPrivate *d)
++{
++    QTLWExtra *topData = d->topData();
++
++    // The context must be current when destroying the backing store as it may attempt to
++    // release resources like textures and shader programs. The window may not be suitable
++    // anymore as there will often not be a platform window underneath at this stage. Fall
++    // back to a QOffscreenSurface in this case.
++    QScopedPointer<QOffscreenSurface> tempSurface;
++#ifndef QT_NO_OPENGL
++    if (d->textureChildSeen && topData->shareContext) {
++        if (topData->window->handle()) {
++            topData->shareContext->makeCurrent(topData->window);
++        } else {
++            tempSurface.reset(new QOffscreenSurface);
++            tempSurface->setFormat(topData->shareContext->format());
++            tempSurface->create();
++            topData->shareContext->makeCurrent(tempSurface.data());
++        }
++    }
++#endif
++
++    delete topData->backingStore;
++    topData->backingStore = 0;
++
++#ifndef QT_NO_OPENGL
++    if (d->textureChildSeen && topData->shareContext)
++        topData->shareContext->doneCurrent();
++#endif
++}
++
+ void QWidgetPrivate::deleteTLSysExtra()
+ {
+     if (extra && extra->topextra) {
+         //the qplatformbackingstore may hold a reference to the window, so the backingstore
+         //needs to be deleted first. If the backingstore holds GL resources, we need to
+-        // make the context current here, since the platform bs does not have a reference
+-        // to the widget.
++        // make the context current here. This is taken care of by deleteBackingStore().
+ 
+-#ifndef QT_NO_OPENGL
+-        if (textureChildSeen && extra->topextra->shareContext)
+-            extra->topextra->shareContext->makeCurrent(extra->topextra->window);
+-#endif
+         extra->topextra->backingStoreTracker.destroy();
+-        delete extra->topextra->backingStore;
+-        extra->topextra->backingStore = 0;
++        deleteBackingStore(this);
+ #ifndef QT_NO_OPENGL
+-        if (textureChildSeen && extra->topextra->shareContext)
+-            extra->topextra->shareContext->doneCurrent();
+         delete extra->topextra->shareContext;
+         extra->topextra->shareContext = 0;
+ #endif
+@@ -11976,7 +12000,7 @@ void QWidget::setBackingStore(QBackingStore *store)
+         return;
+ 
+     QBackingStore *oldStore = topData->backingStore;
+-    delete topData->backingStore;
++    deleteBackingStore(d);
+     topData->backingStore = store;
+ 
+     QWidgetBackingStore *bs = d->maybeBackingStore();
+-- 
+2.20.1
+
