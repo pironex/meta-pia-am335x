@@ -1,15 +1,15 @@
 [Unit]
 Description=PPP Connection
 Before=network.target
+ConditionPathExists=/etc/default/gprs
+ConditionPathExists=/etc/ppp/peers/gprs
+ConditionPathExists=/etc/ppp/chats/gprs
 
 [Service]
 Restart=always
 RestartSec=20
 # start GSM module only when configured, there is no easy way to detect, if a gsm module is
 # present at all
-ConditionPathExists=/etc/default/gprs
-ConditionPathExists=/etc/ppp/peers/gprs
-ConditionPathExists=/etc/ppp/chats/gprs
 ExecStartPre=-/bin/rm /var/lock/LCK..ttyUSB2 ; /bin/sleep 1
 ExecStartPre=/usr/sbin/gprs start
 ExecStopPost=/usr/sbin/gprs stop

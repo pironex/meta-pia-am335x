@@ -28,7 +28,7 @@ AUTO_APN=true
 # set to true to monitor the IP connection over ppp via ping
 # the connection is restarted, when the target system cannot be reached
 # default: off if not set to "true"
-ENABLE_PING_MONITOR=true
+ENABLE_PING_MONITOR=false
 # change the target server for the ping monitor
 # default is: de.pi-server.de
 #PING_MONITOR_TARGET=de.pi-server.de

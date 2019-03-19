@@ -10,8 +10,8 @@ noaccomp
 novj
 novjccomp
 noauth
-asyncmap A0000
-#asyncmap 0
+#asyncmap A0000
+asyncmap 0
 :10.0.0.1
 noipdefault
 defaultroute
@@ -25,7 +25,7 @@ password o2
 ipcp-accept-local
 #modem
 persist
-#passive
+passive
 # after 10 fails, end pppd
 # the service "ppp.service" will be restarted by systemd, which also causes 
 # a restart of the GSM module via gprs.service
@@ -36,7 +36,9 @@ holdoff 10
 # force reconnect every 12 hours to prevent "stalled" connection, where ppp is
 # connected to the provider server, but the upper layers (IP) don't allow any real
 # data traffic
-# maxconnect 43200
+maxconnect 43200
 lcp-echo-interval 120
 lcp-echo-failure 2
 connect-delay 5000
+# prevent rare ssh connection errors during key negotiation with default MTU
+mtu 1400

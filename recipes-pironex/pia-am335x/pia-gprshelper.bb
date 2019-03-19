@@ -5,7 +5,7 @@
 DESCRIPTION = "GPRS systemd scripts and device handling for piA-AM335x boards"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
-PV = "1.1"
+PV = "1.2"
 PR = "0"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"

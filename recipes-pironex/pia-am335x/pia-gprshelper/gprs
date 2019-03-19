@@ -194,13 +194,21 @@ check_at() {
 	# SIM7100 can take up to 15 seconds for the USB interface to become ready
 	timeout=15
 	i=0
-	while [ $i -lt $timeout ] && [ ! -e $TTY_DEV ] ; do
+	
+	if [ -e $TTY_DEV -a ! -c $TTY_DEV ] ; then
+		echo "AT device $TTY_DEV exists but isn't a character device! Removing file..."
+		rm $TTY_DEV
+		# return with error, let the next iteration fix the problem
+		return 1
+	fi
+	
+	while [ $i -lt $timeout ] && [ ! -c $TTY_DEV ] ; do
 		i=$(( $i + 1 ))
 		sleep 1
 		echo "Waiting for $TTY_DEV ($i)"
 	done
 
-	if [ -e $TTY_DEV ] ; then
+	if [ -c $TTY_DEV ] ; then
 		# without $ because of Gruende
 		if [ -v AUTO_APN ] ; then
 			i=0
