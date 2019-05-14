@@ -35,7 +35,7 @@ do_install() {
 	install -m 0644 ${WORKDIR}/ppp.service ${D}${sysconfdir}/systemd/system/
 	install -m 0644 ${WORKDIR}/pppmonitor.* ${D}${sysconfdir}/systemd/system/
 	install -d ${D}${sysconfdir}/default
-	install -m 0755 ${WORKDIR}/default/gprs ${D}${sysconfdir}/default/
+	install -m 0755 ${WORKDIR}/default/gprs ${D}${sysconfdir}/default/gprs.defaults
 	# from ppp-gprs
 	install -d ${D}${sysconfdir}/ppp/peers/
 	install -d ${D}${sysconfdir}/ppp/chats/
@@ -54,10 +54,10 @@ FILES_${PN} = "${sysconfdir}/ppp \
     ${sbindir}/gprs \
     ${sbindir}/setgprsapn \
     ${sbindir}/ppp_connection_check.sh \
-    ${sysconfdir}/default/gprs \
+    ${sysconfdir}/default/gprs.defaults \
 "
 
-CONFFILES_${PN} = " ${sysconfdir}/default/gprs  \
+CONFFILES_${PN} = " ${D}${sysconfdir}/default/gprs.defaults  \
     ${D}${sysconfdir}/ppp/chats/pin \
     ${D}${sysconfdir}/ppp/chats/pin.code \
     ${D}${sysconfdir}/ppp/chats/gprs \

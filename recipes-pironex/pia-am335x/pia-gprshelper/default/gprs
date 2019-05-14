@@ -1,3 +1,8 @@
+# Rename this file to /etc/defaults/gprs to be active
+#
+# If the ppp service should not be started automatically, make sure there is
+# no /etc/default/gprs file present
+# 
 # valid settings: (umts, gprs,) true and false
 # currently anything different than false will enable any supported SIMCOM GPRS module
 #
