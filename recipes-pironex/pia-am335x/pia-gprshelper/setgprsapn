@@ -34,6 +34,10 @@ case "$imsi" in
   echo "O2 found"
   ln -s	/etc/ppp/chats/apn.o2 /etc/ppp/chats/apn
   ;;
+90140*)
+  echo "Dt. Telekom International M2M found"
+  ln -s /etc/ppp/chats/apn.telekomm2m /etc/ppp/chats/apn
+  ;;
 *)
   echo "Unknown Provider found - assuming Aspider"
   ln -s	/etc/ppp/chats/apn.aspider /etc/ppp/chats/apn
