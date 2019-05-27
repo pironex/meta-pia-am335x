@@ -46,6 +46,15 @@ do_install() {
 	ln -s -T gprs.default ${D}${sysconfdir}/ppp/peers/gprs
 }
 
+pkg_postinst_${PN}() {
+if [ x"$D" = "x" ]; then
+    if [ -e ${sysconfdir}/default/gprs-opkg.backup ] ; then
+	echo "Resstoring old default/gprs config"
+	mv ${sysconfdir}/default/gprs-opkg.backup ${sysconfdir}/default/gprs
+    fi
+fi
+}
+
 inherit systemd
 SYSTEMD_SERVICE_${PN} = "ppp.service pppmonitor.timer pppmonitor.service"
 SYSTEMD_AUTO_ENABLE_${PN} = "enable"
@@ -55,9 +64,11 @@ FILES_${PN} = "${sysconfdir}/ppp \
     ${sbindir}/setgprsapn \
     ${sbindir}/ppp_connection_check.sh \
     ${sysconfdir}/default/gprs.defaults \
+    ${sysconfdir}/default/gprs \
 "
 
 CONFFILES_${PN} = " ${D}${sysconfdir}/default/gprs.defaults  \
+    ${D}${sysconfdir}/default/gprs \
     ${D}${sysconfdir}/ppp/chats/pin \
     ${D}${sysconfdir}/ppp/chats/pin.code \
     ${D}${sysconfdir}/ppp/chats/gprs \
