@@ -4,6 +4,7 @@ Before=network.target
 ConditionPathExists=/etc/default/gprs
 ConditionPathExists=/etc/ppp/peers/gprs
 ConditionPathExists=/etc/ppp/chats/gprs
+ConditionPathExists=!/run/gsm_no_sim
 
 [Service]
 Restart=always
