@@ -159,7 +159,7 @@ toggle_reset() {
 	if [ ! -n "$GPIO_GPRSRESET" ] ; then
 	    return 0
 	fi
-	if set_gpio $GPIO_GPRSRESET $RESET_ASSSERT ; then
+	if set_gpio $GPIO_GPRSRESET $RESET_ASSERT ; then
 		sleep 0.2
 		if set_gpio $GPIO_GPRSRESET $RESET_DEASSERT ; then
 			sleep 1
@@ -213,15 +213,29 @@ check_at() {
 		if [ -v AUTO_APN ] ; then
 			i=0
 			timeout=10
+			found="false"
 			# try max 10 times to check CPIN status to determine if it was initialized
 			# the card needs normally around 2 seconds to be ready
-			while [ $i -lt $timeout ] ; do
-				chat -v TIMEOUT 2 "" "\dAT+CPIN?" "OK" > $TTY_DEV < $TTY_DEV && i=$timeout || i=$(( $i + 1 ))
+			while [ $i -lt $timeout ] && [ "$found" = "false" ] ; do
+				chat -v TIMEOUT 2 "" "\dAT+CPIN?" "OK" > $TTY_DEV < $TTY_DEV && found="true" || i=$(( $i + 1 ))
 			done
-			if [ $? -ne 0 ] ; then
+			if [ "$found" = "false" ] ; then
 				echo "Failed to initialize SIM!"
+				# CPIN failed, check again, if there is no sim inserted
+				# without SIM: poweroff module and add temporary /run/gsm_no_sim file
+				# ppp.service will not start if this file exists
+				# file is in ramdisk and will be gone after reboot, SIM must never be inserted while
+				# the system is on, so this is fine
+				# this avoids continuous GSM module restarts when no SIM card is inserted
+				chat -v TIMEOUT 2 "" "\dAT+CPIN?" "ERROR: SIM not inserted" > $TTY_DEV < $TTY_DEV && {
+				    echo "NO SIM inserted!"
+				    echo "no sim" > /run/gsm_no_sim
+				    turn_off
+				    exit 1
+				}
 				return 1
 			fi
+			#echo "SIM OK" > /run/gsm_sim_ok
 			/usr/sbin/setgprsapn $TTY_DEV
 		else
 			echo "normal test"
