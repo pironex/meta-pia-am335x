@@ -5,7 +5,7 @@
 DESCRIPTION = "GPRS systemd scripts and device handling for piA-AM335x boards"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
-PV = "1.3"
+PV = "1.4"
 PR = "0"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
@@ -35,7 +35,8 @@ do_install() {
 	install -m 0644 ${WORKDIR}/ppp.service ${D}${sysconfdir}/systemd/system/
 	install -m 0644 ${WORKDIR}/pppmonitor.* ${D}${sysconfdir}/systemd/system/
 	install -d ${D}${sysconfdir}/default
-	install -m 0755 ${WORKDIR}/default/gprs ${D}${sysconfdir}/default/gprs.defaults
+	install -m 0644 ${WORKDIR}/default/gprs ${D}${sysconfdir}/default/gprs.defaults
+	install -m 0644 ${WORKDIR}/default/gprs ${D}${sysconfdir}/default/
 	# from ppp-gprs
 	install -d ${D}${sysconfdir}/ppp/peers/
 	install -d ${D}${sysconfdir}/ppp/chats/
@@ -46,14 +47,14 @@ do_install() {
 	ln -s -T gprs.default ${D}${sysconfdir}/ppp/peers/gprs
 }
 
-pkg_postinst_${PN}() {
-if [ x"$D" = "x" ]; then
-    if [ -e ${sysconfdir}/default/gprs-opkg.backup ] ; then
-	echo "Resstoring old default/gprs config"
-	mv ${sysconfdir}/default/gprs-opkg.backup ${sysconfdir}/default/gprs
-    fi
-fi
-}
+#pkg_postinst_${PN}() {
+#if [ x"$D" = "x" ]; then
+#    if [ -e ${sysconfdir}/default/gprs-opkg.backup ] ; then
+#	echo "Resstoring old default/gprs config"
+#	mv ${sysconfdir}/default/gprs-opkg.backup ${sysconfdir}/default/gprs
+#    fi
+#fi
+#}
 
 inherit systemd
 SYSTEMD_SERVICE_${PN} = "ppp.service pppmonitor.timer pppmonitor.service"
@@ -67,11 +68,11 @@ FILES_${PN} = "${sysconfdir}/ppp \
     ${sysconfdir}/default/gprs \
 "
 
-CONFFILES_${PN} = " ${D}${sysconfdir}/default/gprs.defaults  \
-    ${D}${sysconfdir}/default/gprs \
-    ${D}${sysconfdir}/ppp/chats/pin \
-    ${D}${sysconfdir}/ppp/chats/pin.code \
-    ${D}${sysconfdir}/ppp/chats/gprs \
-    ${D}${sysconfdir}/ppp/chats/apn \
-    ${D}${sysconfdir}/ppp/peers/gprs \
+CONFFILES_${PN} = " \
+    ${sysconfdir}/default/gprs \
+    ${sysconfdir}/ppp/chats/pin \
+    ${sysconfdir}/ppp/chats/pin.code \
+    ${sysconfdir}/ppp/chats/gprs \
+    ${sysconfdir}/ppp/chats/apn \
+    ${sysconfdir}/ppp/peers/gprs \
 "
