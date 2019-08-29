@@ -1,5 +1,5 @@
 [Unit]
-Description=Test for internet connection and restart pppd if needed
+Description=PPP Connection Test
 
 [Service]
 Type=simple

@@ -15,7 +15,7 @@ asyncmap 0
 :10.0.0.1
 noipdefault
 defaultroute
-replacedefaultroute
+#replacedefaultroute
 usepeerdns
 #nodetach
 # user and password are not relevant for most providers

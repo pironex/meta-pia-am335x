@@ -1,0 +1,9 @@
+#!/bin/sh
+DEVICE=$1
+
+# use a metric that is higher than the default metric from 
+# DHCP configuration (1024)
+/sbin/ip route add default dev ppp0 metric 1100
+
+echo "Updating route configuration"
+/sbin/ip route

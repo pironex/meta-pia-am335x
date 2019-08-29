@@ -5,7 +5,7 @@
 DESCRIPTION = "GPRS systemd scripts and device handling for piA-AM335x boards"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
-PV = "1.4"
+PV = "1.5"
 PR = "0"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
@@ -40,11 +40,13 @@ do_install() {
 	# from ppp-gprs
 	install -d ${D}${sysconfdir}/ppp/peers/
 	install -d ${D}${sysconfdir}/ppp/chats/
+	install -d ${D}${sysconfdir}/ppp/ip-up.d/
 	install -m 0644 ${WORKDIR}/peers/* ${D}${sysconfdir}/ppp/peers/
 	install -m 0644 ${WORKDIR}/chats/* ${D}${sysconfdir}/ppp/chats/
 	ln -s -T pin.none ${D}${sysconfdir}/ppp/chats/pin
 	ln -s -T apn.aspider ${D}${sysconfdir}/ppp/chats/apn
 	ln -s -T gprs.default ${D}${sysconfdir}/ppp/peers/gprs
+	install -m 0755 ${WORKDIR}/01setuproute ${D}${sysconfdir}/ppp/ip-up.d/
 }
 
 #pkg_postinst_${PN}() {

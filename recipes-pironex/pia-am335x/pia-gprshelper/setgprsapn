@@ -9,6 +9,11 @@ else
   device="/dev/ttyUSB3"
 fi
 
+if [ ! -c $device ] ; then
+    echo "ERROR: $device is not a character file!"
+    exit 1
+fi
+
 $(chat -e TIMEOUT 2 "" "AT+CIMI" "OK" > "$device" < "$device" 2>/tmp/imsi)
 imsifile=$(cat /tmp/imsi)
 echo ImsiFile: "$imsifile"
