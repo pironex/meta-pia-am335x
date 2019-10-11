@@ -30,6 +30,7 @@ RRECOMMENDS_${PN} = " \
 	latencytop \
 	less \
 	libmodbus \
+	libnfc-nci \
 	mosquitto \
 	sqlite3 \
 	wget \
