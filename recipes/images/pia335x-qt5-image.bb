@@ -18,3 +18,12 @@ IMAGE_INSTALL += " \
 "
 
 export IMAGE_BASENAME = "pia335x-qt5"
+
+do_systemd_network_append () {
+    install -d ${IMAGE_ROOTFS}${sysconfdir}/systemd/network
+    cat << EOF > ${IMAGE_ROOTFS}${sysconfdir}/systemd/network/15-ppp.network
+[Match]
+Name=ppp*
+
+EOF
+}
