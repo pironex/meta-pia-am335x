@@ -3,6 +3,8 @@ SUMMARY = "Linux NFC stack for NCI based NXP NFC Controllers"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=86d3f3a95c324c9479bd8986968f4327"
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 SRCREV = "918075cc871fb28c344d09a2fae4ba0fac6ae7da"
 
 SRC_URI = "git://github.com/NXPNFCLinux/linux_libnfc-nci"
@@ -24,4 +26,4 @@ do_configure_prepend() {
 
 EXTRA_OECONF = " "
 
-RRECOMMENDS_${PN} += "kernel-module-pn5xx-i2c"
+RRECOMMENDS_${PN} += "nxp-pn5xx-module"
