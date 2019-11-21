@@ -1,6 +1,8 @@
 DESCRIPTION = "Extra utilities and tools for piA systems."
 LICENSE = "MIT"
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 inherit packagegroup
 
 SCRIPTING_PACKAGES = " \

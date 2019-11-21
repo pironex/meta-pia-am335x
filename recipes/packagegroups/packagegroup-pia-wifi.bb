@@ -1,6 +1,8 @@
 DESCRIPTION = "WIFI related packages for piA."
 LICENSE = "MIT"
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 inherit packagegroup
 
 BT_PACKAGES = " \

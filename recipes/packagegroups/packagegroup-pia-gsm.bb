@@ -1,6 +1,8 @@
 DESCRIPTION = "GSM/GPRS related packages for piA."
 LICENSE = "MIT"
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 inherit packagegroup
 
 EXTRA_DEPENDS = ""

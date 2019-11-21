@@ -1,8 +1,9 @@
 DESCRIPTION = "Extra utilities and tools for piA systems."
 LICENSE = "MIT"
 
-inherit packagegroup
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
+inherit packagegroup
 
 DEV_PACKAGES = " \
 	diffutils \
