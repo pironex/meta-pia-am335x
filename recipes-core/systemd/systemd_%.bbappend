@@ -3,11 +3,13 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 SRC_URI += "file://journald.conf \
     file://system.conf \
     file://logind.conf \
+    file://resolved.conf \
 "
 
 do_install_append() {
 	cp ${WORKDIR}/journald.conf ${D}${sysconfdir}/systemd
 	cp ${WORKDIR}/system.conf ${D}${sysconfdir}/systemd
+	cp ${WORKDIR}/resolved.conf ${D}${sysconfdir}/systemd
 	# use our logind.conf to disable getty spawing
 	install -m 0644 ${WORKDIR}/logind.conf ${D}${sysconfdir}/systemd/
 }
