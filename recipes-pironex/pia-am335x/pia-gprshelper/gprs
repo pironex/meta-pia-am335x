@@ -61,7 +61,7 @@ fi
 #fi
 
 case "$NAME" in
-	SIM5160|sim5160)
+	SIM5360|sim5360)
 		PWRKEY_ON_PULSE=500000
 		# 0.5 .. 5 s
 		PWRKEY_OFF_PULE=1500000

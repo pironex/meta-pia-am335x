@@ -11,7 +11,8 @@
 GPRS_ENABLED=true
 
 # just for service script output
-NAME=SIM5360
+# set to SIM5360 or SIM7600 to setup device dependent timing
+NAME=generic
 
 # GPIO-Configuration for piA-AM3352
 # GSM_STATUS signal GPIO (matches LED)
