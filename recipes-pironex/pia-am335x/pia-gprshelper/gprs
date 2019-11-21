@@ -23,6 +23,19 @@ GPIO_GPRSONOFF=114
 # POWERON switch not supported on all boards
 #GPIO_POWERON=66
 
+# default timeout values are worst case value
+# when module not specified
+# values in us as usleep is used
+PWRKEY_ON_PULSE=500000
+PWRKEY_OFF_PULE=2500000
+#values in s
+PWRKEY_ON_TO_STATUS=16
+PWRKEY_OFF_TO_STATUS=26
+# when status comes ready wait this long before accessing COM
+STATUS_ON_TO_COMREADY=3
+# when powered off, wait this long until next power-on
+STATUS_OFF_TO_PWRKEY=3
+
 RUN_CMUX=true
 TTY_DEV=/dev/ttyUSB2
 #TTY_DEV=/dev/ttyO2
@@ -47,6 +60,33 @@ fi
 #	NAME="Telit UC864-E"
 #fi
 
+case "$NAME" in
+	SIM5160|sim5160)
+		PWRKEY_ON_PULSE=500000
+		# 0.5 .. 5 s
+		PWRKEY_OFF_PULE=1500000
+		# this is the time till USB is ready, STATUS is not specified in DS
+		# for other modules status becomes active after COM
+		PWRKEY_ON_TO_STATUS=10
+		# 2 s in DS
+		PWRKEY_OFF_TO_STATUS=5
+		STATUS_ON_TO_COMREADY=3
+		STATUS_OFF_TO_PWRKEY=3
+	;;
+	SIM7600|sim7600)
+		# 0.1 .. 0.5 s
+		PWRKEY_ON_PULSE=500000
+		# 2.5 s ..
+		PWRKEY_OFF_PULE=2500000
+		# 12..16 s
+		PWRKEY_ON_TO_STATUS=16
+		# 25 .. 26 s
+		PWRKEY_OFF_TO_STATUS=26
+		# 0 s
+		STATUS_ON_TO_COMREADY=0
+		STATUS_OFF_TO_PWRKEY=0
+	;;
+esac
 
 
 get_gpio() {
@@ -260,11 +300,11 @@ turn_on() {
 	set_gpio ${GPIO_GPRSRESET} $RESET_DEASSERT
 	# 500 ms pulse to turn off
 	# in us
-	toggle_onoff 500000
+	toggle_onoff ${PWRKEY_ON_PULSE}
 	# max 2 seconds to assert PWRMON
-	if wait_for_pwrmon 1 25 ; then
+	if wait_for_pwrmon 1 ${PWRKEY_ON_TO_STATUS} ; then
 		# then 3 second until module ready for commands
-		sleep 3
+		sleep ${STATUS_ON_TO_COMREADY}
 		# ready to accept AT commands
 		check_at
 		val2=$?
@@ -289,9 +329,10 @@ turn_off() {
 	# datasheet for SIM5360 says 500 ms, this isn't enough in some edge cases
 	# datasheet for SIM7100 says 2500 ms
 	# in us
-	toggle_onoff 3000000
+	toggle_onoff ${PWRKEY_OFF_PULE}
 	# max 15 seconds to assert PWRMON
-	if wait_for_pwrmon 0 15 ; then
+	if wait_for_pwrmon 0 ${PWRKEY_OFF_TO_STATUS} ; then
+		sleep ${STATUS_OFF_TO_PWRKEY}
 		return 0
 	fi
 	return 1
