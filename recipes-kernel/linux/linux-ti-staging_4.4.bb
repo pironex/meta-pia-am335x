@@ -60,4 +60,5 @@ KERNEL_GIT_URI = "git://github.com/pironex/pia-linux-kernel.git"
 KERNEL_GIT_PROTOCOL = "git"
 #KERNEL_GIT_PROTOCOL = "http"
 SRC_URI += "${KERNEL_GIT_URI};protocol=${KERNEL_GIT_PROTOCOL};branch=${BRANCH} \
-            file://defconfig"
+            file://defconfig \
+            file://0001-pwm-pwm-tiecap-fix-stuck-timer-register-on-pwm-enabl.patch "

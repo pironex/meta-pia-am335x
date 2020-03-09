@@ -1,0 +1,47 @@
+From 54687c14c3fd407c63cd11270939fa08e710181a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Krombholz?= <b.krombholz@pironex.de>
+Date: Thu, 5 Dec 2019 16:36:14 +0100
+Subject: [PATCH] pwm: pwm-tiecap: fix stuck timer register on pwm enable
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- see http://e2e.ti.com/support/processors/f/791/t/836738?AM4388-eCAP-PWM-driver-issue
+
+- the timer counter register is not always reset to 0 before starting the
+  PWM.
+
+  This had the effect that the PWM counter was running until a complete
+  32 bit counter overflow occurred, causing it to appear non-responsive
+  for a long time.
+
+Signed-off-by: Björn Krombholz <b.krombholz@pironex.de>
+---
+ drivers/pwm/pwm-tiecap.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/pwm/pwm-tiecap.c b/drivers/pwm/pwm-tiecap.c
+index f62a33b56ba8..0c88cfeb93cb 100644
+--- a/drivers/pwm/pwm-tiecap.c
++++ b/drivers/pwm/pwm-tiecap.c
+@@ -28,6 +28,7 @@
+ #include <linux/of_device.h>
+ 
+ /* ECAP registers and bits definitions */
++#define TSCTR			0x00
+ #define CAP1			0x08
+ #define CAP2			0x0C
+ #define CAP3			0x10
+@@ -148,6 +149,9 @@ static int ecap_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
+ 	/* Leave clock enabled on enabling PWM */
+ 	pm_runtime_get_sync(pc->chip.dev);
+ 
++	/* fix 'sticky' timer register which is not always reset to 0 */
++	writel(0, pc->mmio_base + TSCTR);
++
+ 	/*
+ 	 * Enable 'Free run Time stamp counter mode' to start counter
+ 	 * and  'APWM mode' to enable APWM output
+-- 
+2.24.0
+
