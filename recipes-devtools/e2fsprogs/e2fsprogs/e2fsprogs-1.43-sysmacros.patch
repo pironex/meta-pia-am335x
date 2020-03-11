@@ -1,0 +1,114 @@
+From 30ef41f68703b6a16027cc8787118b87f1462dff Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Mon, 28 Mar 2016 20:31:33 -0400
+Subject: [PATCH e2fsprogs] include sys/sysmacros.h as needed
+
+The minor/major/makedev macros are not entirely standard.  glibc has had
+the definitions in sys/sysmacros.h since the start, and wants to move away
+from always defining them implicitly via sys/types.h (as this pollutes the
+namespace in violation of POSIX).  Other C libraries have already dropped
+them.  Since the configure script already checks for this header, use that
+to pull in the header in files that use these macros.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+Taken from gentoo portage.
+
+Upstream-Status: Pending
+
+---
+ debugfs/debugfs.c      | 3 +++
+ lib/blkid/devname.c    | 3 +++
+ lib/blkid/devno.c      | 3 +++
+ lib/ext2fs/finddev.c   | 3 +++
+ lib/ext2fs/ismounted.c | 3 +++
+ misc/create_inode.c    | 4 ++++
+ misc/mk_hugefiles.c    | 3 +++
+ 7 files changed, 22 insertions(+)
+
+Index: e2fsprogs-1.42.9/debugfs/debugfs.c
+===================================================================
+--- e2fsprogs-1.42.9.orig/debugfs/debugfs.c
++++ e2fsprogs-1.42.9/debugfs/debugfs.c
+@@ -25,6 +25,9 @@ extern char *optarg;
+ #include <errno.h>
+ #endif
+ #include <fcntl.h>
++#ifdef HAVE_SYS_SYSMACROS_H
++#include <sys/sysmacros.h>
++#endif
+ 
+ #include "debugfs.h"
+ #include "uuid/uuid.h"
+Index: e2fsprogs-1.42.9/lib/blkid/devname.c
+===================================================================
+--- e2fsprogs-1.42.9.orig/lib/blkid/devname.c
++++ e2fsprogs-1.42.9/lib/blkid/devname.c
+@@ -36,6 +36,9 @@
+ #if HAVE_SYS_MKDEV_H
+ #include <sys/mkdev.h>
+ #endif
++#ifdef HAVE_SYS_SYSMACROS_H
++#include <sys/sysmacros.h>
++#endif
+ #include <time.h>
+ 
+ #include "blkidP.h"
+Index: e2fsprogs-1.42.9/lib/blkid/devno.c
+===================================================================
+--- e2fsprogs-1.42.9.orig/lib/blkid/devno.c
++++ e2fsprogs-1.42.9/lib/blkid/devno.c
+@@ -31,6 +31,9 @@
+ #if HAVE_SYS_MKDEV_H
+ #include <sys/mkdev.h>
+ #endif
++#ifdef HAVE_SYS_SYSMACROS_H
++#include <sys/sysmacros.h>
++#endif
+ 
+ #include "blkidP.h"
+ 
+Index: e2fsprogs-1.42.9/lib/ext2fs/finddev.c
+===================================================================
+--- e2fsprogs-1.42.9.orig/lib/ext2fs/finddev.c
++++ e2fsprogs-1.42.9/lib/ext2fs/finddev.c
+@@ -31,6 +31,9 @@
+ #if HAVE_SYS_MKDEV_H
+ #include <sys/mkdev.h>
+ #endif
++#ifdef HAVE_SYS_SYSMACROS_H
++#include <sys/sysmacros.h>
++#endif
+ 
+ #include "ext2_fs.h"
+ #include "ext2fs.h"
+Index: e2fsprogs-1.42.9/lib/ext2fs/ismounted.c
+===================================================================
+--- e2fsprogs-1.42.9.orig/lib/ext2fs/ismounted.c
++++ e2fsprogs-1.42.9/lib/ext2fs/ismounted.c
+@@ -38,6 +38,9 @@
+ #endif /* HAVE_GETMNTINFO */
+ #include <string.h>
+ #include <sys/stat.h>
++#ifdef HAVE_SYS_SYSMACROS_H
++#include <sys/sysmacros.h>
++#endif
+ 
+ #include "ext2_fs.h"
+ #include "ext2fs.h"
+Index: e2fsprogs-1.42.9/misc/create_inode.c
+===================================================================
+--- e2fsprogs-1.42.9.orig/misc/create_inode.c
++++ e2fsprogs-1.42.9/misc/create_inode.c
+@@ -1,5 +1,11 @@
++#include "config.h"
+ #include "create_inode.h"
+ #include <limits.h>
++#include <unistd.h>
++
++#ifdef HAVE_SYS_SYSMACROS_H
++#include <sys/sysmacros.h>
++#endif
+ 
+ #if __STDC_VERSION__ < 199901L
+ # if __GNUC__ >= 2
