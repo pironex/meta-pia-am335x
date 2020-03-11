@@ -1,0 +1,27 @@
+Index: util-linux-2.26.2/include/c.h
+===================================================================
+--- util-linux-2.26.2.orig/include/c.h
++++ util-linux-2.26.2/include/c.h
+@@ -19,6 +19,10 @@
+ # include <err.h>
+ #endif
+ 
++#ifdef HAVE_SYS_SYSMACROS_H
++#include <sys/sysmacros.h>
++#endif
++
+ /*
+  * Compiler-specific stuff
+  */
+Index: util-linux-2.26.2/configure.ac
+===================================================================
+--- util-linux-2.26.2.orig/configure.ac
++++ util-linux-2.26.2/configure.ac
+@@ -234,6 +234,7 @@ AC_CHECK_HEADERS([ \
+ 	sys/stat.h \
+ 	sys/swap.h \
+ 	sys/syscall.h \
++	sys/sysmacros.h \
+ 	sys/time.h \
+ 	sys/timex.h \
+ 	sys/ttydefaults.h \
